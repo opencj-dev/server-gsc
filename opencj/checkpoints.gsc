@@ -7,13 +7,20 @@ _checkpointPassed(cp)
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
 		timePlayed = self openCJ\statistics::getTimePlayed();
-		self storeCheckpointPassed(runID, cpID, timePlayed);
+		self thread storeCheckpointPassed(runID, cpID, timePlayed);
 		self thread _notifyCheckpointPassed(runID, cpID, timePlayed);
 	}
 }
 
 storeCheckpointPassed(runID, cpID, timePlayed)
 {
+	if(self openCJ\playerRuns::isRunFinished())
+		return;
+	if(!self openCJ\playerRuns::hasRunID())
+		return;
+	if(self openCJ\cheating::isCheating())
+		return;
+
 	saveCount = self openCJ\statistics::getSaveCount();
 	loadCount = self openCJ\statistics::getLoadCount();
 	nadeJumps = self openCJ\statistics::getNadeJumps();
@@ -21,7 +28,11 @@ storeCheckpointPassed(runID, cpID, timePlayed)
 	RPGJumps = self openCJ\statistics::getRPGJumps();
 	RPGShots = self openCJ\statistics::getRPGShots();
 	doubleRPGs = self openCJ\statistics::getDoubleRPGs();
-	self thread openCJ\mySQL::mysqlAsyncQueryNosave("CALL checkpointPassed(" + runID + ", " + cpID + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + nadeJumps + ", " + nadeThrows + ", " + RPGJumps + ", " + RPGShots + ", " + doubleRPGs + ")");
+	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT checkpointPassed(" + runID + ", " + cpID + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + nadeJumps + ", " + nadeThrows + ", " + RPGJumps + ", " + RPGShots + ", " + doubleRPGs + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ")");
+	if(!isDefined(rows[0][0]))
+	{
+		self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
+	}
 }
 
 _notifyCheckpointPassed(runID, cpID, timePlayed)
@@ -29,7 +40,7 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 	self endon("disconnect");
 	self notify("checkpointNotify");
 	self endon("checkpointNotify");
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.cpID IS NOT NULL AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
+	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(cs.timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
 	if(rows.size && isDefined(rows[0][0]))
 	{
 		diff = timePlayed - int(rows[0][0]);

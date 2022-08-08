@@ -15,7 +15,7 @@ main()
 	spawnpoint = self openCJ\spawnpoints::getSpectatorSpawnpoint();
 	self spawn(spawnpoint.origin, (0, 0, 0));
 
-	self openCJ\shellShock::onSpawnSpectator();
+	self openCJ\shellShock::resetShellShock();
 	self openCJ\healthRegen::onSpawnSpectator();
 	self openCJ\statistics::onSpawnSpectator();
 	self openCJ\playerRuns::onSpawnSpectator();

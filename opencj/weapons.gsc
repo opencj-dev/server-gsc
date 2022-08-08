@@ -18,13 +18,7 @@ onInit()
 	}
 }
 
-onSpawnPlayer()
-{
-	self _giveWeapons(false);
-	self _deleteGrenades();
-}
-
-onLoadPosition(giveRPG)
+giveWeapons(giveRPG)
 {
 	self _giveWeapons(giveRPG);
 	self _deleteGrenades();

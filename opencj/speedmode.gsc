@@ -4,13 +4,14 @@ onInit()
 {
 	openCJ\commands::registerCommand("speedmode", "Used to enable/disable speed mode\nUsage: !speedmode [on/off]", ::speedMode);
 	level.speedMode["normal"] = 190;
-	level.speedMode["speed"] = 210;
+	level.speedMode["speed"] = 500;
 }
 
 onRunIDCreated()
 {
-	self.speedMode = false;
+	self.speedMode = undefined;
 	self.speedModeEver = false;
+	self setSpeedMode(false);
 }
 
 speedMode(args)
@@ -18,27 +19,43 @@ speedMode(args)
 	value = args[2];
 	if(value == "on" || value == "off")
 	{
-		self _setSpeedMode(value == "on");
+		self setSpeedMode(value == "on");
+		self applySpeedMode();
 	}
 	else
 		self iprintln(level.commands_commands[args[1]].help);
 }
 
+setSpeedModeEver(value)
+{
+	self.speedModeEver = value;
+	printf("speed mode ever set to " + value + "\n");
+}
+
 setSpeedMode(value)
 {
-	if(value == self.speedMode)
+	if(isDefined(self.speedMode) && value == self.speedMode)
+	{
+		printf("not touching speed cause same speed mode\n");
 		return;
+	}
 	self.speedMode = value;
 	if(self.speedMode)
-	{
 		self.speedModeEver = true;
-		self setClientCvar("g_speed", level.speedMode["normal"]);
-		self set_g_speed(level.speedMode["normal"]);
+	self iPrintLn("Speed mode is now: " + self.speedMode);
+}
+
+applySpeedMode()
+{
+	if(self.speedMode)
+	{
+		self setClientCvar("g_speed", level.speedMode["speed"]);
+		self setg_speed(level.speedMode["speed"]);
 	}
 	else
 	{
-		self setClientCvar("g_speed", level.speedMode["speed"]);
-		self set_g_speed(level.speedMode["speed"]);
+		self setClientCvar("g_speed", level.speedMode["normal"]);
+		self setg_speed(level.speedMode["normal"]);
 	}
 }
 

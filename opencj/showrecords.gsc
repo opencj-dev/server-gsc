@@ -46,13 +46,6 @@ onRunIDCreated()
 	self thread _getRecords(self openCJ\checkpoints::getCheckpoints(), 0);
 }
 
-onSpawnPlayer()
-{
-	specs = self getSpectatorList(true);
-	for(i = 0; i < specs.size; i++)
-		specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
-}
-
 onSpawnSpectator()
 {
 	self _hideRecords(false);
@@ -150,7 +143,7 @@ _updateRecords(client, rows, overrideTime, force)
 	for(i = 0; i < rows.size; i++)
 	{
 		nameString += rows[i][0] + "\n";
-		timeString += rows[i][1] + "\n";
+		timeString += formatTimeString(rows[i][1]) + "\n";
 	}
 	if(self.showRecords_nameString != nameString)
 	{

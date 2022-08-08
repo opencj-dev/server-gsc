@@ -12,12 +12,12 @@ onGrenadeThrow(nade, name)
 
 onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration)
 {
-	self _removeNadeTimers();
+	self removeNadeTimers();
 }
 
 onSpawnPlayer()
 {
-	self _removeNadeTimers();
+	self removeNadeTimers();
 }
 
 _showNadeTimer()
@@ -64,12 +64,8 @@ _showNadeTimer()
 	nadeTimer destroy();
 }
 
-onLoadPosition()
-{
-	self _removeNadeTimers();
-}
 
-_removeNadeTimers()
+removeNadeTimers()
 {
 	self notify("stopNadeTimer");
 	for(i = 0; i < self.grenadeTimers_timers.size; i++)

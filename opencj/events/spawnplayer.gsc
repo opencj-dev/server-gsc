@@ -5,7 +5,6 @@ main()
 	if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
 		return;
 
-	printf("trying to spawn\n");
 	self notify("spawned");
 
 	resetTimeout();
@@ -17,37 +16,32 @@ main()
 	self.psOffsetTime = 0;
 	self.pers["team"] = "allies";
 
-	error = self openCJ\savePosition::canLoadError(0);
-	
-	if(!error)
-	{
-		save = self openCJ\savePosition::getSavedPosition(0);
-		self spawn(save.origin, save.angles);
+	spawnpoint = self openCJ\spawnpoints::getPlayerSpawnpoint();
+	self spawn(spawnpoint.origin, spawnpoint.angles);
 
-		self openCJ\statistics::setRPGJumps(save.RPGJumps);
-		self openCJ\statistics::setNadeJumps(save.nadeJumps);
-		self openCJ\statistics::setDoubleRPGs(save.doubleRPGs);
-		self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID);
-
-		self openCJ\statistics::onLoadPosition();
-	}
-	else
-	{
-		spawnpoint = self openCJ\spawnpoints::getPlayerSpawnpoint();
-		self spawn(spawnpoint.origin, spawnpoint.angles);
-		self openCJ\checkpoints::setCurrentCheckpointID(undefined);
-	}
-
-	self openCJ\healthRegen::onSpawnPlayer();
-	self openCJ\weapons::onSpawnPlayer();
-	self openCJ\shellShocK::onSpawnPlayer();
-	self openCJ\grenadeTimers::onSpawnPlayer();
-	self openCJ\buttonPress::onSpawnPlayer();
 	self openCJ\savePosition::onSpawnPlayer();
-	self openCJ\playerModels::onSpawnPlayer();
 	self openCJ\playerRuns::onSpawnPlayer();
-	self openCJ\statistics::onSpawnPlayer();
-	self openCJ\showRecords::onSpawnPlayer();
+
+	self setSharedSpawnVars();
+
+	self thread openCJ\events\whileAlive::main();
+
+	self thread _dummy();
+}
+
+setSharedSpawnVars(giveRPG)
+{
+	if(!isDefined(giveRPG))
+		giveRPG = false;
+	self openCJ\healthRegen::resetHealthRegen();
+	self openCJ\weapons::giveWeapons(giveRPG);
+	self openCJ\shellShock::resetShellShock();
+	self openCJ\grenadeTimers::removeNadeTimers();
+	self openCJ\buttonPress::resetButtons();
+	
+	self openCJ\playerModels::setPlayerModel();
+	
+	self openCJ\statistics::resetAFKOrigin();
 	self openCJ\checkpointPointers::onSpawnPlayer();
 
 	if(getCvarInt("codversion") == 2)
@@ -57,10 +51,8 @@ main()
 		self setPerk("specialty_fastreload");
 		self setPerk("specialty_longersprint");
 	}
-
-	self thread openCJ\events\whileAlive::main();
-
-	self thread _dummy();
+	self jumpClearStateExtended();
+	self openCJ\speedMode::applySpeedMode();
 }
 
 _dummy()

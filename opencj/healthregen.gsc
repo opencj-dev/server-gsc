@@ -1,6 +1,6 @@
 #include openCJ\util;
 
-onSpawnPlayer()
+resetHealthRegen()
 {
 	self notify("stopHealthRegen");
 
@@ -13,15 +13,6 @@ onSpawnPlayer()
 
 onRunIDCreated()
 {
-	self.healthRegen_completedTime = undefined;
-}
-
-onLoadPosition()
-{
-	self notify("stopHealthRegen");
-	self.health = self.maxHealth;
-
-	self openCJ\statistics::addTimeUntil(self.healthRegen_completedTime);
 	self.healthRegen_completedTime = undefined;
 }
 

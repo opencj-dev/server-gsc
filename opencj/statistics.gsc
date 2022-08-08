@@ -36,8 +36,9 @@ whileAlive()
 		specs[i] _drawStatisticsHud(self);
 }
 
-onSpawnPlayer()
+resetAFKOrigin()
 {
+	self.statistics_lastJump = undefined;
 	self.statistics_AFKOrigin = self.origin;
 	self.statistics_AFKTimer = getTime() + 5000;
 }
@@ -109,10 +110,6 @@ onSavePosition()
 
 onLoadPosition()
 {
-	self.statistics_AFKOrigin = self.origin;
-	self.statistics_AFKTimer = getTime() + 5000;
-	self.statistics_lastJump = undefined;
-
 	if(self openCJ\playerRuns::isRunFinished())
 		return;
 

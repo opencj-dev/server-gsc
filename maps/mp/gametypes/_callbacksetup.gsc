@@ -95,3 +95,28 @@ CodeCallback_MoveLeft()
 {
 	self openCJ\events\WASDPressed::main();
 }
+
+/*================
+Called when a gametype is not supported.
+================*/
+AbortLevel()
+{
+	println("Aborting level - gametype is not supported");
+
+	level.callbackStartGameType = ::callbackVoid;
+	level.callbackPlayerConnect = ::callbackVoid;
+	level.callbackPlayerDisconnect = ::callbackVoid;
+	level.callbackPlayerDamage = ::callbackVoid;
+	level.callbackPlayerKilled = ::callbackVoid;
+	level.callbackPlayerLastStand = ::callbackVoid;
+	
+	setCvar("g_gametype", "cj");
+
+	exitLevel(false);
+}
+
+/*================
+================*/
+callbackVoid()
+{
+}

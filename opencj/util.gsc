@@ -25,3 +25,26 @@ stopFollowingMe()
 {
 	//stub for cod4 related stuff
 }
+
+formatTimeString(timems)
+{
+	hours = int(timems / 1000 /3600);
+	timems -= hours * 1000 * 3600;
+	minutes = int(timems / 1000 / 60);
+	timems -= minutes * 1000 * 60;
+	seconds = int(timems / 1000);
+	timems -= seconds * 1000;
+	tenths = int(timems/100);
+	timestring = "";
+	if(hours)
+	{
+		timestring += hours + ":";
+		if(minutes < 10)
+			timestring += "0";
+	}
+	timestring += minutes + ":";
+	if(seconds < 10)
+		timestring += "0";
+	timestring += seconds + "." + tenths;
+	return timestring;
+}

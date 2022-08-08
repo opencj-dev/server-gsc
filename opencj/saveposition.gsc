@@ -11,17 +11,17 @@ onInit()
 isCheating(save)
 {
 	printf("Flags: " + save.flags + "\n");
-	return save.flags & level.saveFlags["cheating"];
+	return (save.flags & level.saveFlags["cheating"]) != 0;
 }
 
 hasSpeedMode(save)
 {
-	return save.flags & level.saveFlags["speedMode"];
+	return (save.flags & level.saveFlags["speedMode"]) != 0;
 }
 
 hasSpeedModeEver(save)
 {
-	return save.flags & level.saveFlags["speedModeEver"];
+	return (save.flags & level.saveFlags["speedModeEver"]) != 0;
 }
 
 createFlags()
@@ -123,10 +123,21 @@ printCanLoadError(error)
 	}
 }
 
+_findNumOfEnt(ent)
+{
+	ents = getEntArray(ent.targetName, "targetname");
+	for(i = 0; i < ents.size; i++)
+	{
+		if(ents[i] == ent)
+			return i;
+	}
+	return undefined;
+}
+
 setSavedPosition()
 {
 	groundEntity = self getGroundEntity();
-	if(isDefined(groundEntity))
+	if(isDefined(groundEntity) && isDefined(groundEntity.targetName))
 	{
 		diff = self.origin - groundEntity.origin;
 		x = vectorDot(anglesToForward(groundEntity.angles), diff);
@@ -135,12 +146,16 @@ setSavedPosition()
 		origin = (x, y, z);
 		angles = self getPlayerAngles() - (0, groundEntity.angles[1], 0);
 		entNum = groundEntity getEntityNumber();
+		entTargetName = groundEntity.targetName;
+		numOfEnt = _findNumOfEnt(groundEntity);
 	}
 	else
 	{
 		origin = self.origin;
 		angles = self getPlayerAngles();
 		entNum = undefined;
+		entTargetName = undefined;
+		numOfEnt = undefined;
 	}
 
 	if(isDefined(self openCJ\checkpoints::getCurrentCheckpointID()))
@@ -149,6 +164,7 @@ setSavedPosition()
 		printf("saving with undef id\n");
 	flags = self createFlags();
 	printf("flags: "  + flags + "\n");
+	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);
 	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);
 }
 

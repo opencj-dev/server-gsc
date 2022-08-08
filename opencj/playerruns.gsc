@@ -8,17 +8,22 @@ onPlayerConnect()
 
 onPlayerLogin()
 {
-	self thread _createRunID(false);
+	self thread _createRunID();
 }
 
 hasRunID()
 {
-	return isDefined(self.playerRuns_runID);
+	return isDefined(self.playerRuns_runID) && isDefined(self.runInstanceNumber);
 }
 
 getRunID()
 {
 	return self.playerRuns_runID;
+}
+
+getRunInstanceNumber()
+{
+	return self.runInstanceNumber;
 }
 
 resetRunID()
@@ -31,18 +36,27 @@ resetRunID()
 	else
 	{
 		self.playerRuns_runID = undefined;
-		self thread _createRunID(true);
+		self.runInstanceNumber = undefined;
+		self thread _createRunID();
 	}
 }
 
 onRunFinished(cp)
 {
+	if(self openCJ\playerRuns::isRunFinished())
+		return;
 	self.playerRuns_runFinished = true;
+	if(!self openCJ\playerRuns::hasRunID())
+		return;
+	if(self openCJ\cheating::isCheating())
+		return;
 	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
 	{
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
-		self thread openCJ\mySQL::mysqlAsyncQueryNosave("CALL runFinished(" + runID + ", " + cpID + ")");
+		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT runFinished(" + runID + ", " + cpID + ", " + self getRunInstanceNumber() + ")");
+		if(!isDefined(rows[0][0]))
+			self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
 	}
 }
 
@@ -51,7 +65,7 @@ isRunFinished()
 	return (self hasRunID() && self.playerRuns_runFinished);
 }
 
-_createRunID(spawn)
+_createRunID()
 {
 	if(!self openCJ\login::IsLoggedIn())
 		return;
@@ -67,7 +81,15 @@ _createRunID(spawn)
 	else
 	{
 		self.playerRuns_runID = rows[0][0];
-		self openCJ\events\runIDCreated::main(spawn);
+		printf("Adding run instance number++\n\n\n");
+		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
+		if(rows.size && isDefined(rows[0][0]))
+		{
+			self.runInstanceNumber = rows[0][0];
+			self openCJ\events\runIDCreated::main();
+		}
+		else
+			self iprintlnbold("Could not set run instance number. Please reconnect");
 	}
 }
 

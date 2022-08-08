@@ -18,6 +18,7 @@ main()
 	openCJ\cvars::onInit();
 	openCJ\menus::onInit();
 	openCJ\mapCleanup::onInit();
+	openCJ\speedMode::onInit();
 
 	thread _everyFrame();
 }

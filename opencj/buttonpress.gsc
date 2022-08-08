@@ -43,11 +43,10 @@ onAttackButton()
 	}
 }
 
-onSpawnPlayer()
+resetButtons()
 {
 	self.buttons_lastMelee = undefined;
 	self.buttons_lastUse = undefined;
-	self.buttons_lastAttack = undefined;
 }
 
 onJump()

@@ -29,21 +29,7 @@ onPlayerDamage(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint,
 	}
 }
 
-onSpawnSpectator()
-{
-	self stopShellShock();
-	self openCJ\statistics::addTimeUntil(self.shellShock_completedTime);
-	self.shellShock_completedTime = undefined;
-}
-
-onLoadPosition()
-{
-	self stopShellShock();
-	self openCJ\statistics::addTimeUntil(self.shellShock_completedTime);
-	self.shellShock_completedTime = undefined;
-}
-
-onSpawnPlayer()
+resetShellShock()
 {
 	self stopShellShock();
 	self openCJ\statistics::addTimeUntil(self.shellShock_completedTime);

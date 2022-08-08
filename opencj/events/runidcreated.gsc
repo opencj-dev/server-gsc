@@ -1,6 +1,6 @@
 #include openCJ\util;
 
-main(spawn)
+main()
 {
 	self openCJ\saveposition::onRunIDCreated();
 	self openCJ\weapons::onRunIDCreated();
@@ -12,7 +12,7 @@ main(spawn)
 	self openCJ\showRecords::onRunIDCreated();
 	self openCJ\cheating::onRunIDCreated();
 	self openCJ\checkpointPointers::onRunIDCreated();
+	self openCJ\speedMode::onRunIDCreated();
 
-	if(spawn)
-		self openCJ\events\spawnPlayer::main();
+	self openCJ\events\spawnPlayer::main();
 }

@@ -15,7 +15,7 @@ main(backwardsCount)
 		else
 			giveRPG = false;
 
-		self openCJ\statistics::addTimeUntil(getTime() + (int(self getJumpSlowdownTimer() / 50) * 50));
+		self openCJ\statistics::addTimeUntil(getTime() + (int(self getJumpSlowdownTimer() / 50) * 50)); //todo: make this flag-specific since disabling jump_slowdown should not give this delay, might already work baked-in to the function though
 
 		if(self openCJ\cheating::isCheating() && !openCJ\savePosition::isCheating(save))
 			self openCJ\cheating::safe();
@@ -23,30 +23,21 @@ main(backwardsCount)
 			self openCJ\cheating::cheat();
 
 		self spawn(save.origin, save.angles);
-		self jumpClearStateExtended();
 
 		self openCJ\statistics::setRPGJumps(save.RPGJumps);
 		self openCJ\statistics::setNadeJumps(save.nadeJumps);
 		self openCJ\statistics::setDoubleRPGs(save.doubleRPGs);
-		self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID);
-
-		self openCJ\healthRegen::onLoadPosition();
-		self openCJ\weapons::onLoadPosition(giveRPG);
-		self openCJ\shellShock::onLoadPosition();
-		self openCJ\grenadeTimers::onLoadPosition();
 		self openCJ\statistics::onLoadPosition();
+		self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID); //does this also update checkpoint pointers?
 
-		self openCJ\playerModels::onLoadPosition();
+		//set speed mode vars here
+		self openCJ\speedMode::setSpeedModeEver(openCJ\savePosition::hasSpeedModeEver(save));
+		self openCJ\speedMode::setSpeedMode(openCJ\savePosition::hasSpeedMode(save));
 
-		if(getCvarInt("codversion") == 2)
-			self setContents(256);
-		else
-		{
-			self setPerk("specialty_fastreload");
-			self setPerk("specialty_longersprint");
-		}
-
+		self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 		self openCJ\savePosition::printLoadSuccess();
+		
+		
 
 		return true;
 	}

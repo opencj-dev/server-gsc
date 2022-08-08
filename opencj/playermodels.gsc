@@ -45,17 +45,13 @@ _registerAttach(name, model, point)
 	level.playerModels_models[name].attach[level.playerModels_models[name].attach.size] = attachStruct;
 }
 
-onSpawnPlayer()
+setPlayerModel()
 {
 	self detachAll();
 
 	self notify("deleteBody");
 
 	self _setModel("default");
-}
-
-onLoadPosition()
-{
 }
 
 _setModel(name)

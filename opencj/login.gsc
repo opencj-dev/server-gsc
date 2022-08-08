@@ -50,7 +50,7 @@ validateLogin(uid)
 		printf("valid login\n");
 		self.login_playerID = int(rows[0][0]);
 		self openCJ\events\playerLogin::main();
-		self openCJ\menus::openIngameMenu();
+		//self openCJ\menus::openIngameMenu();
 	}
 }
 

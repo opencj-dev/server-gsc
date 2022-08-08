@@ -7,6 +7,7 @@ onInit()
 	registerCommandInt("hidecollidingplayers", 0, 1, 1, "Hide colliding players\nUsage: !hidecollidingplayers [on/off]", ::_void);
 	registerCommandInt("fullbright", 0, 1, 0, "Enable/disable fullbright\nUsage: !fullbright [on/off]", ::_setFullBright);
 	registerCommand("help", "Shows how to use a function\nUsage: !help [function]", ::_showHelp);
+	registerCommand("ip", "Shows you your own ip using getip() function", ::showIP);
 	
 
 	registerCommandString("timestring", "Time: ", "Set the time string used in the statistics hud\nUsage: !timestring [newstring]", ::_void);
@@ -18,6 +19,11 @@ onInit()
 	registerCommandString("rpgjumpsstring", "RPG Jumps: ", "Set the RPGJumps string used in the statistics hud\nUsage: !rpgjumpsstring [newstring]", ::_void);
 	registerCommandString("rpgshotsstring", "RPG Shots: ", "Set the RPGShots string used in the statistics hud\nUsage: !rpgshotsstring [newstring]", ::_void);
 	registerCommandString("doublerpgsstring", "Double RPGs: ", "Set the double RPGs string used in the statistics hud\nUsage: !doublerpgsstring [newstring]", ::_void);
+}
+
+showIP(args)
+{
+	self iprintln("Ip is: " + self getip());
 }
 
 onPlayerLogin()
@@ -82,7 +88,7 @@ onPlayerCommand(args)
 						self [[level.commands_commands[args[1]].func]](result);
 				}
 				else
-					self [[level.commands_commands[args[1]].func]](args[2]);
+					self [[level.commands_commands[args[1]].func]](args);
 			}
 			else
 				self iprintln(level.commands_commands[args[1]].help);
@@ -108,28 +114,26 @@ _showHelp(args)
 		self iprintln(level.commands_commands["!" + value].help);
 }
 
-_setFullBright(args)
+_setFullBright(value)
 {
-	value = args[2];
 	self setClientCvar("r_fullbright", value);
 }
 
-_setFOV(args)
+_setFOV(value)
 {
-	value = args[2];
 	if(value > 80)
 	{
 		self setClientCvar("cg_fovscale", (value / 80));
-		self setclientcvar("cg_fov", 80);
+		self setClientCvar("cg_fov", 80);
 	}
 	else if(value < 65)
 	{
 		self setClientCvar("cg_fovscale", (value / 65));
-		self setclientcvar("cg_fov", 65);
+		self setClientCvar("cg_fov", 65);
 	}
 	else
 	{
-		self setclientcvar("cg_fovscale", 1);
-		self setclientcvar("cg_fov", value);
+		self setClientCvar("cg_fovscale", 1);
+		self setClientCvar("cg_fov", value);
 	}
 }
