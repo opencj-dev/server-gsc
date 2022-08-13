@@ -2,8 +2,13 @@
 
 onPlayerConnect()
 {
-	self.country_country = undefined;
+	self.country = undefined;
+	self.countryLong = undefined;
 	self.country_connectMessageShown = false;
+}
+
+onPlayerConnected()
+{
 	self thread _countryQuery();
 }
 
@@ -13,9 +18,15 @@ _countryQuery()
 	printf(self.name + " getting country\n");
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getCountry(INET_ATON('" + openCJ\mySQL::escapeString(self getIP()) + "'))");
 	if(rows.size && isDefined(rows[0][0]))
-		self.country_country = rows[0][0];
+	{
+		self.country = getSubStr(rows[0][0], 0, 2);
+		self.longCountry = getSubStr(rows[0][0], 2);
+	}
 	else
-		self.country_country = "??";
+	{
+		self.country = "??";
+		self.longCountry = "Unknown";
+	}
 	if(self openCJ\login::isLoggedIn())
 		self _doConnectMessage();
 }
@@ -30,24 +41,21 @@ _doConnectMessage()
 	if(self.country_connectMessageShown)
 		return;
 
-	iprintln(self.name + "^7 connected from " + getLongCountryName(self getCountry()));
+	iprintln(self.name + "^7 connected from " + self getLongCountry());
 }
 
 getCountry()
 {
-	if(!isDefined(self.country_country))
+	if(!isDefined(self.country))
 		return "??";
 	else
-		return self.country_country;
+		return self.country;
 }
 
-getLongCountryName(shortCountryName)
+getLongCountry()
 {
-	switch(shortCountryName)
-	{
-		case "NL":
-			return "The Netherlands";
-		default:
-			return shortCountryName;
-	}
+	if(!isDefined(self.longCountry))
+		return "Unknown";
+	else
+		return self.longCountry;
 }

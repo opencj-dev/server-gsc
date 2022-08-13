@@ -19,6 +19,9 @@ main()
 	openCJ\menus::onInit();
 	openCJ\mapCleanup::onInit();
 	openCJ\speedMode::onInit();
+	openCJ\noclip::onInit();
+	openCJ\historySave::onInit();
+	openCJ\demos::onInit();
 
 	thread _everyFrame();
 }

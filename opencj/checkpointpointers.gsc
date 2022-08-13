@@ -13,7 +13,7 @@ onPlayerConnect()
 
 onSpawnPlayer()
 {
-	self _showCheckpointPointers();
+	self showCheckpointPointers();
 }
 
 onRunIDCreated()
@@ -33,7 +33,7 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 
 onCheckpointsChanged(cp)
 {
-	self _showCheckpointPointers();
+	self showCheckpointPointers();
 }
 
 onRunFinished(cp)
@@ -41,7 +41,7 @@ onRunFinished(cp)
 	self _hideCheckpointPointers();
 }
 
-_showCheckpointPointers()
+showCheckpointPointers()
 {
 	if(self.sessionState != "playing")
 		return;
@@ -107,12 +107,7 @@ _doJump(player)
 	offset[3] = (0, 0, 5) + (self.x, self.y, self.z);
 	offset[4] = (0, 0, 0) + (self.x, self.y, self.z);
 	offset[5] = (0, 0, 0) + (self.x, self.y, self.z);
-	
-	
-	
-	
-	
-	
+
 	frames = 4;
 	while(true)
 	{

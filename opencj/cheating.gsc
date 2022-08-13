@@ -12,12 +12,18 @@ isCheating()
 
 cheat()
 {
-	self.cheating = true;
-	self iPrintLnBold("You are cheating");
+	if(!self.cheating)
+	{
+		self.cheating = true;
+		self iPrintLnBold("You are cheating");
+	}
 }
 
 safe()
 {
-	self.cheating = false;
-	self iPrintLnBold("You are safe");
+	if(self.cheating)
+	{
+		self.cheating = false;
+		self iPrintLnBold("You are safe");
+	}
 }

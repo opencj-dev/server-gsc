@@ -10,6 +10,7 @@ main()
 	self openCJ\showRecords::onPlayerConnect();
 	self openCJ\country::onPlayerConnect();
 	self openCJ\events\WASDPressed::disableWASDCallback();
+	self openCJ\noclip::onPlayerConnect();
 
 	self thread _dummy();
 	self waittill("begin");

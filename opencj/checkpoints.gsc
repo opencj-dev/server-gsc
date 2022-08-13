@@ -32,6 +32,7 @@ storeCheckpointPassed(runID, cpID, timePlayed)
 	if(!isDefined(rows[0][0]))
 	{
 		self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
+		self openCJ\playerRuns::printRunIDandInstanceNumber();
 	}
 }
 
@@ -102,7 +103,7 @@ onInit()
 			checkpoint = spawnStruct();
 			checkpoint.id = int(rows[i][0]);
 			checkpoint.origin = (int(rows[i][1]), int(rows[i][2]), int(rows[i][3]));
-			checkpoint.radius = int(rows[i][4]);
+			checkpoint.radius = intOrUndefined(rows[i][4]);
 			checkpoint.onGround = (int(rows[i][5]) != 0);
 			if(!isDefined(rows[i][6]))
 				checkpoint.childIDs = [];
@@ -201,6 +202,8 @@ whileAlive()
 {
 	for(i = 0; i < self.checkpoints_checkpoint.childs.size; i++)
 	{
+		if(!isDefined(self.checkpoints_checkpoint.childs[i].radius))
+			continue;
 		if(distanceSquared(self.origin, self.checkpoints_checkpoint.childs[i].origin) < self.checkpoints_checkpoint.childs[i].radius * self.checkpoints_checkpoint.childs[i].radius)
 		{
 			if(!self.checkpoints_checkpoint.childs[i].onGround || self isOnGround())

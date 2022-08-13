@@ -4,6 +4,8 @@ main(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTi
 {
 	if(self.sessionTeam == "spectator")
 		return;
+	if(self openCJ\noclip::hasNoclip())
+		return;
 
 	obituary(self, attacker, weapon, meansOfDeath);
 

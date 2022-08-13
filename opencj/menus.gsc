@@ -10,9 +10,9 @@ onInit()
 	precacheMenu(level.menu["clientcmd"]);
 }
 
-openIngameMenu()
+onPlayerLogin()
 {
 	printf("opening menu...\n\n");
 	self setClientCvar("g_scriptMainMenu", level.menu["ingame"]);
-	self openMenu(level.menu["ingame"]);
+	//self openMenu(level.menu["ingame"]);
 }

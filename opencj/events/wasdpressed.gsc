@@ -3,7 +3,7 @@
 main()
 {
 	if(self.WASDCallback)
-		self openCJ\playerRuns::onWASDPressed();
+		self openCJ\playerRuns::startRun();
 }
 
 enableWASDCallback()

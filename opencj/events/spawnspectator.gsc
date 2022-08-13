@@ -21,6 +21,7 @@ main()
 	self openCJ\playerRuns::onSpawnSpectator();
 	self openCJ\showRecords::onSpawnSpectator();
 	self openCJ\checkpointPointers::onSpawnSpectator();
-
+	self openCJ\noclip::disableNoclip();
+	
 	self stopFollowingMe();
 }

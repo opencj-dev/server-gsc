@@ -41,6 +41,12 @@ resetRunID()
 	}
 }
 
+printRunIDandInstanceNumber()
+{
+	self iprintln("runid: " + self.playerRuns_runID);
+	self iprintln("runinstance: " + self.runInstanceNumber);
+}
+
 onRunFinished(cp)
 {
 	if(self openCJ\playerRuns::isRunFinished())
@@ -63,6 +69,12 @@ onRunFinished(cp)
 isRunFinished()
 {
 	return (self hasRunID() && self.playerRuns_runFinished);
+}
+
+setRunIDAndInstanceNumber(runID, instanceNumber)
+{
+	self.playerRuns_runID = runID;
+	self.runInstanceNumber = instanceNumber;
 }
 
 _createRunID()
@@ -123,7 +135,7 @@ onSpawnSpectator()
 	self openCJ\statistics::pauseTimer();
 }
 
-onWASDPressed()
+startRun()
 {
 	self openCJ\events\WASDPressed::disableWASDCallback();
 	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self.sessionState == "playing" && !self.playerRuns_runStarted)

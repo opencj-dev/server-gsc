@@ -96,6 +96,20 @@ CodeCallback_MoveLeft()
 	self openCJ\events\WASDPressed::main();
 }
 
+CodeCallback_FPSChange(newframetime)
+{
+	//self iprintln("Fps changed to: " + int(1000 / newframetime));
+	self thread _fpsChange(newframetime);
+}
+
+_fpsChange(newframetime)
+{
+	self notify("fpschange");
+	self endon("fpschange");
+	wait 0.2;
+	self iprintln("Fps changed to: " + int(1000 / newframetime) + " (time: " + int(newFrameTime) + ")");
+}
+
 /*================
 Called when a gametype is not supported.
 ================*/

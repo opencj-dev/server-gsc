@@ -21,6 +21,13 @@ getSpectatorList(includeSelf)
 	return ret;
 }
 
+intOrUndefined(value)
+{
+	if(!isDefined(value))
+		return undefined;
+	return int(value);
+}
+
 stopFollowingMe()
 {
 	//stub for cod4 related stuff
@@ -47,4 +54,11 @@ formatTimeString(timems)
 		timestring += "0";
 	timestring += seconds + "." + tenths;
 	return timestring;
+}
+
+deleteOnEvent(event, entity)
+{
+	entity waittill(event);
+	if(isDefined(self))
+		self delete();
 }

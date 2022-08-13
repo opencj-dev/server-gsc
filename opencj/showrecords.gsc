@@ -143,7 +143,7 @@ _updateRecords(client, rows, overrideTime, force)
 	for(i = 0; i < rows.size; i++)
 	{
 		nameString += rows[i][0] + "\n";
-		timeString += formatTimeString(rows[i][1]) + "\n";
+		timeString += formatTimeString(int(rows[i][1])) + "\n";
 	}
 	if(self.showRecords_nameString != nameString)
 	{

@@ -101,7 +101,8 @@ canLoadError(backwardsCount)
 {
 	if(self.sessionState != "playing")
 		return 999;
-
+	if(self openCJ\noclip::hasNoclip())
+		return 4;
 	error = self savePosition_selectSave(backwardsCount);
 	return error;
 }
@@ -118,6 +119,11 @@ printCanLoadError(error)
 		case 2:
 		{
 			self iprintln("^1Failed loading secondary position");
+			break;
+		}
+		case 4:
+		{
+			self iprintln("^1Cannot load during noclip");
 			break;
 		}
 	}

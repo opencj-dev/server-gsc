@@ -4,6 +4,8 @@ main(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hit
 {
 	if(self.sessionState != "playing")
 		return;
+	if(self openCJ\noclip::hasNoclip())
+		return;
 
 	if(!isdefined(vDir))
 		flags |= 4; //iDFLAGS_NO_KNOCKBACK;

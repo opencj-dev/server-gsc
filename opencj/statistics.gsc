@@ -163,6 +163,14 @@ onRPGFired(rpg, name)
 	}
 }
 
+setTimePlayed(value)
+{
+	if(isDefined(self.statistics_stopTime))
+		self.statistics_startTime = self.statistics_stopTime - value;
+	else
+		self.statistics_startTime = getTime() - value;
+}
+
 getTimePlayed()
 {
 	if(isDefined(self.statistics_stopTime))
@@ -176,9 +184,19 @@ getJumpCount()
 	return self.statistics_jumpCount;
 }
 
+setLoadCount(value)
+{
+	self.statistics_loadCount = value;
+}
+
 getLoadCount()
 {
 	return self.statistics_loadCount;
+}
+
+setSaveCount(value)
+{
+	self.statistics_saveCount = value;
 }
 
 getSaveCount()
@@ -220,9 +238,19 @@ getRPGShots()
 	return self.statistics_RPGShots;
 }
 
+setRPGShots(value)
+{
+	self.statistics_RPGShots = value;
+}
+
 getNadeJumps()
 {
 	return self.statistics_nadeJumps;
+}
+
+setNadeThrows(value)
+{
+	self.statistics_nadeThrows = value;
 }
 
 getNadeThrows()
@@ -244,29 +272,10 @@ _hideStatisticsHud(force)
 	}
 }
 
-_getTimeString(client)
-{
-	if(isDefined(client.statistics_stopTime))
-		time =  client.statistics_stopTime - client.statistics_startTime;
-	else
-		time = getTime() - client.statistics_startTime;
-
-	minutes = int(time / 60000);
-
-	seconds = int(time / 1000) % 60;
-
-	if(seconds < 10)
-		timestring = minutes + ":0" + seconds;
-	else
-		timestring = minutes + ":" + seconds;
-
-	return timestring;
-}
-
 _drawStatisticsHud(client)
 {
 	//printf("Getting setting timestring for client " + self.name + "\n");
-	newstring = self openCJ\settings::setting_get("timestring") + self _getTimeString(client) + "\n";
+	newstring = self openCJ\settings::setting_get("timestring") + formatTimeString(client getTimePlayed()) + "\n";
 	newstring += self openCJ\settings::setting_get("savesstring") + client getSaveCount() + "\n";
 	newstring += self openCJ\settings::setting_get("loadsstring") + client getLoadCount() + "\n";
 	newstring += self openCJ\settings::setting_get("nadejumpsstring") + client getNadeJumps() + "\n";

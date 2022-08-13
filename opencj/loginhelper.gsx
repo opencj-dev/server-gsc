@@ -12,7 +12,6 @@ storeUID(uid)
 {
 	for(i = 0; i < 4; i++)
 		self setStat(3232 + i, uid[i]);
-	self openCJ\menus::openIngameMenu();
 }
 
 onPlayerCommand(args)

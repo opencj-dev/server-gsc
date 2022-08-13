@@ -52,6 +52,7 @@ setSharedSpawnVars(giveRPG)
 		self setPerk("specialty_longersprint");
 	}
 	self jumpClearStateExtended();
+	self openCJ\noclip::disableNoclip();
 	self openCJ\speedMode::applySpeedMode();
 }
 

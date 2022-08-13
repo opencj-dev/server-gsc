@@ -2,10 +2,13 @@
 
 onInit()
 {
-	host = "127.0.0.1";
+	host = "opencj.org";
 	user = "openCJ";
 	pass = "opencjpassword";
-	db = "openCJ";
+	if(getCvarInt("codversion") == 2)
+		db = "openCJ_cod2";
+	else
+		db = "openCJ_cod4";
 	port = 3306;
 	level.mySQL = mysql_reuse_connection();
 	if(!isDefined(level.mySQL))
@@ -24,10 +27,13 @@ onInit()
 
 _asyncMySQL()
 {
-	host = "127.0.0.1";
+	host = "opencj.org";
 	user = "openCJ";
 	pass = "opencjpassword";
-	db = "openCJ";
+	if(getCvarInt("codversion") == 2)
+		db = "openCJ_cod2";
+	else
+		db = "openCJ_cod4";
 	port = 3306;
 	mysql_async_initializer(host, user, pass, db, port, 4);
 	while(true)

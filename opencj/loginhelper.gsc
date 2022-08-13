@@ -62,7 +62,6 @@ onPlayerCommand(args)
 			else if(args[1] == "stored")
 			{
 				self notify("UIDStored");
-				self openCJ\menus::openIngameMenu();
 				return true;
 			}
 			else if(args[1] == "failed")
