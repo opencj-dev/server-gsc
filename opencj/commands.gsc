@@ -21,6 +21,8 @@ onInit()
 	registerCommandString("doublerpgsstring", "Double RPGs: ", "Set the double RPGs string used in the statistics hud\nUsage: !doublerpgsstring [newstring]", ::_void);
 }
 
+
+
 showIP(args)
 {
 	self iprintln("Ip is: " + self getip());

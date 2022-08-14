@@ -1,11 +1,12 @@
 #include openCJ\util;
 
-main(cp)
+main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 {
 	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
 	{
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
+		self openCJ\statistics::setTimePlayed(self openCJ\statistics::getTimePlayed() + tOffset);
 		timePlayed = self openCJ\statistics::getTimePlayed();
 		self thread openCJ\checkpoints::storeCheckpointPassed(runID, cpID, timePlayed);
 		self thread _notifyFinishedMap(runID, cpID, timePlayed);
@@ -26,9 +27,9 @@ _notifyFinishedMap(runID, cpID, timePlayed)
 	{
 		diff = timePlayed - int(rows[0][0]);
 		if(diff > 0)
-			self iprintlnbold("You finished the map ^1+" + diff);
+			self iprintlnbold("You finished the map ^1+" + formatTimeString(diff, false));
 		else if( diff < 0)
-			self iprintlnbold("You finished the map ^2" + diff);
+			self iprintlnbold("You finished the map ^2-" + formatTimeString(-1 * diff, false));
 		else
 			self iprintlnbold("You finished the map, no difference");
 	}

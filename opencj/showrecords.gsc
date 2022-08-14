@@ -5,18 +5,19 @@ onCheckpointsChanged()
 	self thread _getRecords(self openCJ\checkpoints::getCheckpoints(), false);
 }
 
-onCheckpointPassed(cp)
+onCheckpointPassed(cp, timems)
 {
 	cps = [];
 	cps[0] = cp;
-	self thread _getRecords(cps, 1);
+	self thread _getRecords(cps, 1, timems);
 }
 
 onRunFinished(cp)
 {
 	cps = [];
 	cps[0] = cp;
-	self thread _getRecords(cps, 2);
+	timems = self openCJ\statistics::getTimePlayed();
+	self thread _getRecords(cps, 2, timems);
 }
 
 onPlayerConnect()
@@ -31,7 +32,15 @@ onSpectatorClientChanged(newClient)
 	if(!isDefined(newClient))
 		self _hideRecords(false);
 	else
-		self _updateRecords(newClient, newClient.showRecords_rows, undefined, true);
+	{
+		if(newClient openCJ\playerRuns::isRunFinished())
+		{
+			timems = newClient openCJ\statistics::getTimePlayed();
+			self _updateRecords(newClient, newClient.showRecords_rows, timems, true);
+		}
+		else
+			self _updateRecords(newClient, newClient.showRecords_rows, undefined, true);
+	}
 }
 
 onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration)
@@ -41,6 +50,7 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 
 onRunIDCreated()
 {
+	self.nextUpdate = 0;
 	self _hideRecords(false);
 	self.showRecords_rows = [];
 	self thread _getRecords(self openCJ\checkpoints::getCheckpoints(), 0);
@@ -49,6 +59,11 @@ onRunIDCreated()
 onSpawnSpectator()
 {
 	self _hideRecords(false);
+}
+
+onSpawnPlayer()
+{
+	self.nextUpdate = 0;
 }
 
 _hideRecords(force)
@@ -61,8 +76,9 @@ _hideRecords(force)
 	self.showRecords_timeString = "";
 }
 
-_getRecords(checkpoints, persist)
+_getRecords(checkpoints, persist, timems)
 {
+	
 	self endon("disconnect");
 
 	if(persist != 1)
@@ -78,13 +94,7 @@ _getRecords(checkpoints, persist)
 			checkpointString += ", " + self openCJ\checkpoints::getCheckpointID(checkpoints[i]);
 	}
 	checkpointString += ")";
-
-	if(persist != 0)
-		timePlayed = self openCJ\statistics::getTimePlayed();
-	else
-		timePlayed = undefined;
-	
-
+	printf("call to getrecords for checkpoint " + checkpointString + "\n");
 	query = "SELECT c.playerName, b.timePlayed FROM (SELECT timePlayed, runID, playerID FROM (SELECT  @prev := '') init JOIN (SELECT playerID != @prev AS first, @prev := playerID, timePlayed, runID, playerID FROM (SELECT cs.timePlayed, pr.runID, pr.playerID FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID IN " + checkpointString + " AND pr.finishcpID IS NOT NULL AND cs.runID != " + self openCJ\playerRuns::getRunID() + ") a ORDER BY playerID, timePlayed ASC) x WHERE first ORDER BY timePlayed ASC LIMIT 10) b INNER JOIN playerInformation c ON c.playerID = b.playerID";
 
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
@@ -107,7 +117,7 @@ _getRecords(checkpoints, persist)
 	{
 		specs = self getSpectatorList(true);
 		for(i = 0; i < specs.size; i++)
-			specs[i] _updateRecords(self, rows, timePlayed, false);
+			specs[i] _updateRecords(self, rows, timems, false);
 	}
 }
 
@@ -143,7 +153,10 @@ _updateRecords(client, rows, overrideTime, force)
 	for(i = 0; i < rows.size; i++)
 	{
 		nameString += rows[i][0] + "\n";
-		timeString += formatTimeString(int(rows[i][1])) + "\n";
+		if(ownNum == i && !isDefined(overrideTime))
+			timeString += formatTimeString(int(rows[i][1]), true) + "\n";
+		else
+			timeString += formatTimeString(int(rows[i][1]), false) + "\n";
 	}
 	if(self.showRecords_nameString != nameString)
 	{
@@ -159,7 +172,10 @@ _updateRecords(client, rows, overrideTime, force)
 
 whileAlive()
 {
-	specs = self getSpectatorList(true);
-	for(i = 0; i < specs.size; i++)
-		specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
+	if(!self openCJ\playerRuns::isRunFinished())
+	{
+		specs = self getSpectatorList(true);
+		for(i = 0; i < specs.size; i++)
+			specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
+	}
 }

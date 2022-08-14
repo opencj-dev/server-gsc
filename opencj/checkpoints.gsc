@@ -1,12 +1,12 @@
 #include openCJ\util;
 
-_checkpointPassed(cp)
+_checkpointPassed(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 {
 	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
 	{
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
-		timePlayed = self openCJ\statistics::getTimePlayed();
+		timePlayed = self openCJ\statistics::getTimePlayed() + tOffset;
 		self thread storeCheckpointPassed(runID, cpID, timePlayed);
 		self thread _notifyCheckpointPassed(runID, cpID, timePlayed);
 	}
@@ -46,9 +46,9 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 	{
 		diff = timePlayed - int(rows[0][0]);
 		if(diff > 0)
-			self iprintlnbold("You passed a checkpoint ^1+" + diff);
+			self iprintlnbold("You passed a checkpoint ^1+" + formatTimeString(diff, false));
 		else if( diff < 0)
-			self iprintlnbold("You passed a checkpoint ^2" + diff);
+			self iprintlnbold("You passed a checkpoint ^2-" + formatTimeString(-1 * diff, false));
 		else
 			self iprintlnbold("You passed a checkpoint, no difference");
 	}
@@ -147,6 +147,7 @@ onInit()
 				level.checkpoints_startCheckpoint.childs[level.checkpoints_startCheckpoint.childs.size] = checkpoints[i];
 		}
 		level.checkpoints_checkpoints = checkpoints;
+
 	}
 }
 
@@ -198,6 +199,18 @@ onRunIDCreated()
 	self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
 }
 
+onLoadPosition()
+{
+	self.previousOrigin = self.origin;
+	self.previousOnground = true;
+}
+
+onSpawnPlayer()
+{
+	self.previousOrigin = self.origin;
+	self.previousOnground = true;
+}
+
 whileAlive()
 {
 	for(i = 0; i < self.checkpoints_checkpoint.childs.size; i++)
@@ -208,21 +221,40 @@ whileAlive()
 		{
 			if(!self.checkpoints_checkpoint.childs[i].onGround || self isOnGround())
 			{
+				tOffset = 0;
+				if(isDefined(self.previousOrigin) && self.previousOrigin != self.origin && distanceSquared(self.previousOrigin, self.origin) < 250 * 250 && (!self.checkpoints_checkpoint.childs[i].onGround || (isDefined(self.previousOnground) && self.previousOnground)))
+				{
+					checkpointDist = distance(self.origin, self.checkpoints_checkpoint.childs[i].origin);
+					previousCheckpointDist = distance(self.previousOrigin, self.checkpoints_checkpoint.childs[i].origin);
+					radius = self.checkpoints_checkpoint.childs[i].radius;
+					if(checkpointDist < previousCheckpointDist)
+					{
+						tOffset = int(((radius - checkpointDist)/(previousCheckpointDist - checkpointDist)) * -50);
+						printf("\n prevdist: " + previousCheckpointDist + " dist: " + checkpointDist + " radius: " + radius + " tOffset: " + tOffset + "\n\n");
+						if(tOffset > 0)
+							tOffset = 0;
+						else if(tOffset < -50)
+							tOffset = -50;
+					}
+				}
+				printf("\ntOffset: " + tOffset + "\n\n");
 				//self iprintlnbold("You passed checkpoint with ID " + self.checkpoints_checkpoint.childs[i].id);
 				cp = self.checkpoints_checkpoint.childs[i];
 				self.checkpoints_checkpoint = self.checkpoints_checkpoint.childs[i];
 				if(cp.childs.size == 0)
 				{
-					self openCJ\events\runFinished::main(cp);
+					self openCJ\events\runFinished::main(cp, tOffset);
 				}
 				else
 				{
-					self _checkpointPassed(cp);
-					self openCJ\showRecords::onCheckpointPassed(cp);
+					self _checkpointPassed(cp, tOffset);
+					self openCJ\showRecords::onCheckpointPassed(cp, self openCJ\statistics::getTimePlayed() + tOffset);
 					self openCJ\events\checkpointsChanged::main();
 				}
 				break;
 			}
 		}
 	}
+	self.previousOrigin = self.origin;
+	self.previousOnground = self isOnground();
 }

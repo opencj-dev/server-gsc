@@ -275,7 +275,7 @@ _hideStatisticsHud(force)
 _drawStatisticsHud(client)
 {
 	//printf("Getting setting timestring for client " + self.name + "\n");
-	newstring = self openCJ\settings::setting_get("timestring") + formatTimeString(client getTimePlayed()) + "\n";
+	newstring = self openCJ\settings::setting_get("timestring") + formatTimeString(client getTimePlayed(), true) + "\n";
 	newstring += self openCJ\settings::setting_get("savesstring") + client getSaveCount() + "\n";
 	newstring += self openCJ\settings::setting_get("loadsstring") + client getLoadCount() + "\n";
 	newstring += self openCJ\settings::setting_get("nadejumpsstring") + client getNadeJumps() + "\n";

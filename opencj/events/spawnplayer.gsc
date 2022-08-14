@@ -21,6 +21,8 @@ main()
 
 	self openCJ\savePosition::onSpawnPlayer();
 	self openCJ\playerRuns::onSpawnPlayer();
+	self openCJ\checkpoints::onSpawnPlayer();
+	self openCJ\showRecords::onSpawnPlayer();
 
 	self setSharedSpawnVars();
 

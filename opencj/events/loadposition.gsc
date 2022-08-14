@@ -29,6 +29,7 @@ main(backwardsCount)
 		self openCJ\statistics::setDoubleRPGs(save.doubleRPGs);
 		self openCJ\statistics::onLoadPosition();
 		self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID); //does this also update checkpoint pointers?
+		self openCJ\checkpoints::onLoadPosition();
 
 		//set speed mode vars here
 		self openCJ\speedMode::setSpeedModeEver(openCJ\savePosition::hasSpeedModeEver(save));
