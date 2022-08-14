@@ -17,14 +17,7 @@ onInit()
 		openCJ\commands::registerCommandInt("rpgtweak2", 0, 1, 0, "Enable/disable rpg putaway on fire\nUsage: !rpgtweak2 [on/off]");
 		_registerLoadout("default", "deserteagle_mp");
 		_registerRPG("default", "rpg_mp");
-		openCJ\commands::registerCommandInt("rpgtweak", 0, 1, 0, "Enable/disable rpg on load\nUsage: !rpgtweak [on/off]", ::rpgTweak);
-		openCJ\commands::registerCommandInt("rpgtweak2", 0, 1, 0, "Enable/disable rpg putaway on fire\nUsage: !rpgtweak2 [on/off]", ::rpgTweak2);
 	}
-}
-
-rpgTweak(value)
-{
-	self.rpgTweak = value;
 }
 
 rpgTweak(value)
