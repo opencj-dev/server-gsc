@@ -59,6 +59,7 @@ CodeCallback_AttackButton()
 
 CodeCallback_UserInfoChanged(entNum) //entnum not required, legacy.
 {
+	self openCJ\events\userInfoChanged::main();
 }
 
 CodeCallback_StartJump()

@@ -10,4 +10,5 @@ main()
 	self openCJ\country::onPlayerLogin();
 	self openCJ\menus::onPlayerLogin();
 	self openCJ\chat::onPlayerLogin();
+	self openCJ\playerNames::onPlayerLogin();
 }
