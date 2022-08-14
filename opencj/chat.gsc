@@ -3,6 +3,7 @@
 onInit()
 {
 	thread _getMessages();
+	openCJ\commands::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::sendPM);
 }
 
 onPlayerLogin()
@@ -97,4 +98,24 @@ isIgnoring(player)
 getServerName()
 {
 	return "cod" + getCvarInt("codversion") + " " + getCvarInt("net_port"); //placeholder
+}
+
+sendPM(args)
+{
+	if(args.size > 3 && isDefined(args[2]))
+	{
+		player = findPlayerByArg(args[2]);
+		if(!isDefined(player) || player isIgnoring(self))
+			return;
+		if(player == self)
+		{
+			self iprintln("Cannot pm self");
+			return;
+		}
+		message = args[3];
+		for(i = 4; i < args.size; i++)
+			message += " " + args[i];
+		player SV_GameSendServerCommand("h \"[pm]" + self.name + ":^7 " + message + "\"", true);
+	}
+
 }

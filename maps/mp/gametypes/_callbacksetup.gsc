@@ -62,9 +62,9 @@ CodeCallback_UserInfoChanged(entNum) //entnum not required, legacy.
 	self openCJ\events\userInfoChanged::main();
 }
 
-CodeCallback_StartJump()
+CodeCallback_StartJump(time)
 {
-	self openCJ\buttonPress::onJump();
+	self openCJ\buttonPress::onJump(time);
 }
 
 CodeCallback_SpectatorClientChanged(newClient)

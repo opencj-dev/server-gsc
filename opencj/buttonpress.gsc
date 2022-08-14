@@ -49,7 +49,8 @@ resetButtons()
 	self.buttons_lastUse = undefined;
 }
 
-onJump()
+onJump(time)
 {
+	printf("time: " + time + "\n");
 	self openCJ\statistics::onJump();
 }
