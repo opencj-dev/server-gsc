@@ -23,6 +23,7 @@ main()
 	openCJ\historySave::onInit();
 	openCJ\demos::onInit();
 	openCJ\chat::onInit();
+	openCJ\onscreenKeyboard::onInit();
 
 	thread _everyFrame();
 }

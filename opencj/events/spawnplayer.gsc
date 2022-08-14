@@ -23,6 +23,7 @@ main()
 	self openCJ\playerRuns::onSpawnPlayer();
 	self openCJ\checkpoints::onSpawnPlayer();
 	self openCJ\showRecords::onSpawnPlayer();
+	self openCJ\onscreenKeyboard::onSpawnPlayer();
 
 	self setSharedSpawnVars();
 

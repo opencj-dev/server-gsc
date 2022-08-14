@@ -22,6 +22,7 @@ main()
 	self openCJ\showRecords::onSpawnSpectator();
 	self openCJ\checkpointPointers::onSpawnSpectator();
 	self openCJ\noclip::disableNoclip();
+	self openCJ\onscreenKeyboard::onSpawnSpectator();
 	
 	self stopFollowingMe();
 }

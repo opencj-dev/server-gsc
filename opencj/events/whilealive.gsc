@@ -11,6 +11,7 @@ main()
 		self openCJ\checkpoints::whileAlive();
 		self openCJ\showRecords::whileAlive();
 		self openCJ\noclip::whileAlive();
+		openCJ\onscreenKeyboard::whileAlive();
 		wait 0.05;
 	}
 }

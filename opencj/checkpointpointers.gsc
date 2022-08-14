@@ -48,6 +48,7 @@ showCheckpointPointers()
 
 	checkpoints = self openCJ\checkpoints::getCheckpoints();
 
+
 	for(i = 0; i < checkpoints.size; i++)
 	{
 		if(i >= self.checkpointPointers_huds.size)

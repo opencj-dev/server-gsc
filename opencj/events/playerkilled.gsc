@@ -16,6 +16,7 @@ main(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTi
 	self openCJ\grenadeTimers::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 	self openCJ\checkpointPointers::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 	self openCJ\showRecords::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
+	self openCJ\onscreenKeyboard::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 
 	self openCJ\statistics::addTimeUntil(getTime() + 5000);
 	self openCJ\statistics::pauseTimer();
