@@ -36,7 +36,7 @@ validateLogin(uid)
 {
 	self endon("disconnect");
 
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + ")");
+	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
 
 	printf("Trying login\n");
 

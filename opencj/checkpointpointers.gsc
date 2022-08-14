@@ -2,7 +2,7 @@
 
 onInit()
 {
-	level.checkpointPointers_pointerMaterial = "white";
+	level.checkpointPointers_pointerMaterial = "objective";
 	precacheShader(level.checkpointPointers_pointerMaterial);
 }
 

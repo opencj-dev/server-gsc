@@ -28,6 +28,8 @@ main(args)
 		{
 			self openCJ\playerRuns::resetRunId();
 		}
+		else if(args[0] == "say" || args[0] == "say_team")
+			self openCJ\chat::onChatMessage(args);
 		else
 			self clientCommand();
 	}

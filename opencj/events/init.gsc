@@ -21,6 +21,8 @@ main()
 	openCJ\speedMode::onInit();
 	openCJ\noclip::onInit();
 	openCJ\historySave::onInit();
+	openCJ\demos::onInit();
+	openCJ\chat::onInit();
 
 	thread _everyFrame();
 }

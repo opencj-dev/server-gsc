@@ -51,13 +51,13 @@ _asyncMySQL()
 
 mysqlSyncQuery(query)
 {
-	printf("mysql: " + level.mySQL + "\n");
-	printf("Doing query: "  + query + "\n");
+	//printf("mysql: " + level.mySQL + "\n");
+	//printf("Doing query: "  + query + "\n");
 	ret = mysql_query(level.mySQL, query);
 	if(!ret)
 	{
 		result = mysql_store_result(level.mySQL);
-		printf("got result: " + result + "\n");
+		//printf("got result: " + result + "\n");
 		rows = _getRowsAndFree(result);
 		return rows;
 	}
@@ -66,22 +66,22 @@ mysqlSyncQuery(query)
 
 _getRowsAndFree(result)
 {
-	printf("starting getrowsandfree\n");
+	//printf("starting getrowsandfree\n");
 	rows = [];
 	if(!isDefined(result) || result == 0)
 		return rows;
-	printf("getting rowcount for result " + result + " \n");
+	//printf("getting rowcount for result " + result + " \n");
 	rowcount = mysql_num_rows(result);
-	printf("rowcount: " + rowcount + "\n");
+	//printf("rowcount: " + rowcount + "\n");
 	for(i = 0; i < rowcount; i++)
 	{
-		printf("getting a row\n");
+		//printf("getting a row\n");
 		row = mysql_fetch_row(result);
 		rows[rows.size] = row;
 	}
-	printf("done getting rows, freeing now\n");
+	//printf("done getting rows, freeing now\n");
 	mysql_free_result(result);
-	printf("freeing done\n");
+	//printf("freeing done\n");
 	return rows;
 }
 
@@ -89,7 +89,7 @@ mysqlAsyncQuery(query)
 {
 	if(isPlayer(self))
 		self endon("disconnect");
-	printf("Adding async query: " + query + "\n");
+	//printf("Adding async query: " + query + "\n");
 	id = mysql_async_create_query(query);
 	level waittill("mysqlQueryDone" + id, rows);
 	return rows;
@@ -99,7 +99,7 @@ mysqlAsyncQueryNosave(query)
 {
 	if(isPlayer(self))
 		self endon("disconnect");
-	printf("Adding async query nosave: " + query + "\n");
+	//printf("Adding async query nosave: " + query + "\n");
 	id = mysql_async_create_query_nosave(query);
 	level waittill("mysqlQueryDone" + id);
 }

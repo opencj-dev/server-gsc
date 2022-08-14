@@ -3,4 +3,5 @@ games_mp.log
 missingasset.csv
 mod.ff
 q3config_server.cfg
-
+Library/*
+*.iwd

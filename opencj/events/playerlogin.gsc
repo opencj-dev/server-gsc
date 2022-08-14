@@ -9,4 +9,5 @@ main()
 	self openCJ\commands::onPlayerLogin();
 	self openCJ\country::onPlayerLogin();
 	self openCJ\menus::onPlayerLogin();
+	self openCJ\chat::onPlayerLogin();
 }
