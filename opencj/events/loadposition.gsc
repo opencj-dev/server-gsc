@@ -10,8 +10,8 @@ main(backwardsCount)
 	{
 		save = self openCJ\savePosition::getSavedPosition(backwardsCount);
 
-		if(self openCJ\weapons::isRPG(self getCurrentWeapon()))
-			giveRPG = true;
+		if(getCvarInt("codversion") == 4)
+			giveRPG = self openCJ\settings::setting_get("rpgtweak") && openCJ\savePosition::hasRPG(save);
 		else
 			giveRPG = false;
 

@@ -13,6 +13,8 @@ onInit()
 	}
 	else
 	{
+		openCJ\commands::registerCommandInt("rpgtweak", 0, 1, 0, "Enable/disable rpg on load\nUsage: !rpgtweak [on/off]");
+		openCJ\commands::registerCommandInt("rpgtweak2", 0, 1, 0, "Enable/disable rpg putaway on fire\nUsage: !rpgtweak2 [on/off]");
 		_registerLoadout("default", "deserteagle_mp");
 		_registerRPG("default", "rpg_mp");
 	}
@@ -103,6 +105,13 @@ _giveRPG(name, spawnWeapon)
 onRPGFired(rpg, name)
 {
 	self giveMaxAmmo(name);
+	printf("rpg fired\n");
+	if(self openCJ\settings::setting_get("rpgtweak2"))
+	{
+		printf("switching to pistol\n");
+		self setWeaponAmmoClip(name, 1);
+		self switchToWeapon(level.weapons_loadouts["default"]);
+	}
 }
 
 onGrenadeThrow(nade, name)

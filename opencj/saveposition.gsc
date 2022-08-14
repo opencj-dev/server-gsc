@@ -6,6 +6,7 @@ onInit()
 	level.saveFlags["cheating"] = 1;
 	level.saveFlags["speedMode"] = 2;
 	level.saveFlags["speedModeEver"] = 4;
+	level.saveFlags["rpg"] = 8;
 }
 
 isCheating(save)
@@ -24,6 +25,11 @@ hasSpeedModeEver(save)
 	return (save.flags & level.saveFlags["speedModeEver"]) != 0;
 }
 
+hasRPG(save)
+{
+	return (save.flags & level.saveFlags["rpg"]) != 0;
+}
+
 createFlags()
 {
 	flags = 0;
@@ -39,6 +45,10 @@ createFlags()
 	if(self openCJ\speedMode::hasSpeedModeEver())
 	{
 		flags |= level.saveFlags["speedModeEver"];
+	}
+	if(openCJ\weapons::isRPG(self getCurrentWeapon()))
+	{
+		flags |= level.saveFlags["rpg"];
 	}
 	return flags;
 }

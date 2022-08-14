@@ -48,7 +48,7 @@ setSharedSpawnVars(giveRPG)
 		self setContents(256);
 	else
 	{
-		self setPerk("specialty_fastreload");
+		self setperk("specialty_fastreload");
 		self setPerk("specialty_longersprint");
 	}
 	self jumpClearStateExtended();

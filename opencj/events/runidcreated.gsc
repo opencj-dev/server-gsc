@@ -14,7 +14,6 @@ main()
 	self openCJ\checkpointPointers::onRunIDCreated();
 	self openCJ\speedMode::onRunIDCreated();
 	self openCJ\noclip::onRunIDCreated();
-	self openCJ\demos::onRunIDCreated();
 
 	self openCJ\events\spawnPlayer::main();
 }

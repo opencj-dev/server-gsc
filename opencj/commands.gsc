@@ -84,7 +84,7 @@ onPlayerCommand(args)
 					result = self openCJ\settings::setting_set(settingName, settingValue);
 					if(!isDefined(result))
 						self iprintln(level.commands_commands[args[1]].help);
-					else
+					else if(isDefined(level.commands_commands[args[1]].func))
 						self [[level.commands_commands[args[1]].func]](result);
 				}
 				else
