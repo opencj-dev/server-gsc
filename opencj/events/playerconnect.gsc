@@ -14,6 +14,7 @@ main()
 	self openCJ\onscreenKeyboard::onPlayerConnect();
 	self openCJ\huds::onPlayerConnect();
 	self openCJ\progressBar::onPlayerConnect();
+	self openCJ\infiniteHuds::onPlayerConnect();
 
 	self thread _dummy();
 	self waittill("begin");

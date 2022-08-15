@@ -34,6 +34,9 @@ main(backwardsCount)
 		//set speed mode vars here
 		self openCJ\speedMode::setSpeedModeEver(openCJ\savePosition::hasSpeedModeEver(save));
 		self openCJ\speedMode::setSpeedMode(openCJ\savePosition::hasSpeedMode(save));
+		//set elevate override vars here
+		self openCJ\elevate::setElevateOverrideEver(openCJ\savePosition::hasElevateOverrideEver(save));
+		self openCJ\elevate::setElevateOverride(openCJ\savePosition::hasElevateOverride(save));
 
 		self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 		self openCJ\savePosition::printLoadSuccess();

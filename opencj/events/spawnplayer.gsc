@@ -59,6 +59,7 @@ setSharedSpawnVars(giveRPG)
 	self jumpClearStateExtended();
 	self openCJ\noclip::disableNoclip();
 	self openCJ\speedMode::applySpeedMode();
+	self openCJ\elevate::applyElevateOverride();
 }
 
 _dummy()

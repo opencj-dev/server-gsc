@@ -29,20 +29,15 @@ speedMode(args)
 setSpeedModeEver(value)
 {
 	self.speedModeEver = value;
-	printf("speed mode ever set to " + value + "\n");
 }
 
 setSpeedMode(value)
 {
 	if(isDefined(self.speedMode) && value == self.speedMode)
-	{
-		printf("not touching speed cause same speed mode\n");
 		return;
-	}
 	self.speedMode = value;
 	if(self.speedMode)
 		self.speedModeEver = true;
-	self iPrintLn("Speed mode is now: " + self.speedMode);
 }
 
 applySpeedMode()

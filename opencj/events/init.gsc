@@ -25,6 +25,8 @@ main()
 	openCJ\chat::onInit();
 	openCJ\onscreenKeyboard::onInit();
 	openCJ\progressBar::onInit();
+	openCJ\elevate::onInit();
+	openCJ\infiniteHuds::onInit();
 
 	thread _everyFrame();
 }

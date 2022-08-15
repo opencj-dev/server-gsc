@@ -5,6 +5,7 @@ main()
 	self openCJ\checkpointPointers::onCheckpointsChanged();
 	self openCJ\showRecords::onCheckpointsChanged();
 	self openCJ\progressBar::onCheckpointsChanged();
+	self openCJ\elevate::onCheckpointsChanged();
 	checkpoints = self openCJ\checkpoints::getCheckpoints();
 	for(i = 0; i < checkpoints.size; i++)
 	{

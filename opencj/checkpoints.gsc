@@ -59,13 +59,14 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 onInit()
 {
 	level.checkpoints_startCheckpoint = spawnStruct();
+	level.checkpoints_startCheckpoint.elevate = false;
 	level.checkpoints_startCheckpoint.childs = [];
 
 	level.checkpoints_checkpoints = [];
 
 	if(openCJ\mapid::hasMapID())
 	{
-		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.ender FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
+		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.ender, a.elevate, a.endShaderNum FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
 
 		checkpoints = [];
 		for(i = 0; i < rows.size; i++)
@@ -80,6 +81,8 @@ onInit()
 			else
 				checkpoint.childIDs = strTok(rows[i][6], ",");
 			checkpoint.ender = rows[i][7];
+			checkpoint.elevate = int(rows[i][8]);
+			checkpoint.endShaderNum = intOrUndefined(rows[i][9]);
 			checkpoint.hasParent = false;
 			checkpoints[checkpoints.size] = checkpoint;
 		}
@@ -185,6 +188,30 @@ onInit()
 			iterationNum++;
 		}
 	}
+}
+
+getCheckpointShaderNum(checkpoint)
+{
+	if(!isDefined(checkpoint))
+		return undefined;
+	ends = getEndCheckpoints(checkpoint);
+	endShaderNums = [];
+	undefined_endShaderNum = false;
+	for(i = 0; i < ends.size; i++)
+	{
+		if(!isDefined(ends[i].endShaderNum))
+			undefined_endShaderNum = true;
+		else if(!isInArray(ends[i].endShaderNum, endShaderNums))
+			endShaderNums[endShaderNums.size] = ends[i].endShaderNum;
+	}
+	if(endShaderNums.size != 1 || undefined_endShaderNum)
+		return undefined;
+	return endShaderNums[0];
+}
+
+isElevateAllowed(checkpoint)
+{
+	return checkpoint.elevate;
 }
 
 getPassedCheckpointCount(checkpoint)

@@ -7,13 +7,22 @@ onInit()
 	level.saveFlags["speedMode"] = 2;
 	level.saveFlags["speedModeEver"] = 4;
 	level.saveFlags["rpg"] = 8;
-	level.saveFlags["elevator"] = 16;
-	level.saveFlags["elevator_ever"] = 32;
+	level.saveFlags["elevateOverride"] = 16;
+	level.saveFlags["elevatorOverrideEver"] = 32;
+}
+
+hasElevateOverride(save)
+{
+	return (save.flags & level.saveFlags["elevateOverride"]) != 0;
+}
+
+hasElevateOverrideEver(save)
+{
+	return (save.flags & level.saveFlags["elevatorOverrideEver"]) != 0;
 }
 
 isCheating(save)
 {
-	printf("Flags: " + save.flags + "\n");
 	return (save.flags & level.saveFlags["cheating"]) != 0;
 }
 
@@ -37,7 +46,6 @@ createFlags()
 	flags = 0;
 	if(self openCJ\cheating::isCheating())
 	{
-		printf("setting cheating flag\n");
 		flags |= level.saveFlags["cheating"];
 	}
 	if(self openCJ\speedMode::hasSpeedMode())
@@ -51,6 +59,14 @@ createFlags()
 	if(openCJ\weapons::isRPG(self getCurrentWeapon()))
 	{
 		flags |= level.saveFlags["rpg"];
+	}
+	if(openCJ\elevate::hasElevateOverride())
+	{
+		flags |= level.saveFlags["elevateOverride"];
+	}
+	if(openCJ\elevate::hasElevateOverrideEver())
+	{
+		flags |= level.saveFlags["elevateOverrideEver"];
 	}
 	return flags;
 }

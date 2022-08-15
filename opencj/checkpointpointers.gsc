@@ -2,8 +2,12 @@
 
 onInit()
 {
-	level.checkpointPointers_pointerMaterial = "objective";
-	precacheShader(level.checkpointPointers_pointerMaterial);
+	level.checkpointShaders = [];
+	level.checkpointShaders[0] = "objective";
+	level.checkpointShaders[1] = "white";
+	
+	for(i = 0; i < level.checkpointShaders.size; i++)
+		precacheShader(level.checkpointShaders[i]);
 }
 
 onPlayerConnect()
@@ -54,6 +58,12 @@ showCheckpointPointers()
 		if(i >= self.checkpointPointers_huds.size)
 			self.checkpointPointers_huds[self.checkpointPointers_huds.size] = self _createNewCheckpointPointerHud();
 
+		shaderNum = openCJ\checkpoints::getCheckpointShaderNum(checkpoints[i]);
+		if(!isDefined(shadernum) || shaderNum < 0 || shaderNum >= level.checkpointShaders.size)
+			shaderNum = 0;
+		self.checkpointPointers_huds[i] setShader(level.checkpointShaders[shaderNum], 8, 8);
+		self.checkpointPointers_huds[i] setwaypoint(true);
+		
 		self.checkpointPointers_huds[i].x = checkpoints[i].origin[0];
 		self.checkpointPointers_huds[i].y = checkpoints[i].origin[1];
 		self.checkpointPointers_huds[i].z = checkpoints[i].origin[2] + 10;
@@ -118,8 +128,5 @@ _createNewCheckpointPointerHud()
 	hud.foreground = true;
 	hud.aligny = "top";
 	hud.alignx = "center";
-	hud setShader(level.checkpointPointers_pointerMaterial, 8, 8);
-
-	hud setwaypoint(true);
 	return hud;
 }

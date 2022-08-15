@@ -16,6 +16,7 @@ main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 	self openCJ\checkpointPointers::onRunFinished(cp);
 	self openCJ\showRecords::onRunFinished(cp);
 	self openCJ\progressBar::onRunFinished(cp);
+	self openCJ\elevate::onRunFinished(cp);
 }
 
 _notifyFinishedMap(runID, cpID, timePlayed)
