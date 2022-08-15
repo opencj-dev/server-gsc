@@ -5,6 +5,8 @@ onInit()
 	level.checkpointShaders = [];
 	level.checkpointShaders[0] = "opencj_checkpoint_green";
 	level.checkpointShaders[1] = "opencj_checkpoint_red";
+	level.checkpointShaders[2] = "opencj_checkpoint_yellow";
+	
 	
 	for(i = 0; i < level.checkpointShaders.size; i++)
 		precacheShader(level.checkpointShaders[i]);
@@ -64,7 +66,7 @@ showCheckpointPointers()
 		if(!isDefined(shadernum) || shaderNum < 0 || shaderNum >= level.checkpointShaders.size)
 			shaderNum = 0;
 		self.checkpointPointers_huds[i] setShader(level.checkpointShaders[shaderNum], 8, 8);
-		self.checkpointPointers_huds[i] setwaypoint(true);
+		self.checkpointPointers_huds[i] setwaypoint(true, level.checkpointShaders[shaderNum]);
 		
 		self.checkpointPointers_huds[i].x = checkpoints[i].origin[0];
 		self.checkpointPointers_huds[i].y = checkpoints[i].origin[1];
@@ -74,7 +76,7 @@ showCheckpointPointers()
 		if(i < 16)
 		{
 			self.checkpointPointers_objectives[i] = true;
-			self objective_player_add(i, "current", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
+			self objective_player_add(i, "active", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
 		}
 
 	}
