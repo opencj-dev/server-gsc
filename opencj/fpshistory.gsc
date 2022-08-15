@@ -1,6 +1,7 @@
 // For each player, we remember the FPS they have used this jump.
 // When a spectator starts spectating the player, they will see this FPS (history).
 
+#include openCJ\util;
 
 // The following functions are for the spectator who is spectating a player
 
