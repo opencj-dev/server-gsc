@@ -22,7 +22,7 @@ onPlayerConnect()
 		printf("sending command " + "d " + level.infiniteHudStrings[i].configstringIndex + " \n");
 	}
 	
-	self.infhud = createInfiniteHud(0);
+	self.infhud = createInfiniteHudString(0);
 	self.infhud.horzAlign = "center_safearea";
 	self.infhud.vertAlign = "center_safearea";
 	self.infhud.alignX = "center";
@@ -34,7 +34,7 @@ onPlayerConnect()
 	self setInfiniteHudText(self.infhud, "This is just a test, don't panic2");
 }
 
-createInfiniteHud(num)
+createInfiniteHudString(num)
 {
 	hud = newClientHudElem(self);
 	hud.configstringIndex = level.infiniteHudStrings[num].configstringIndex;
