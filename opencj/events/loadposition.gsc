@@ -41,7 +41,7 @@ main(backwardsCount)
 		self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 		self openCJ\savePosition::printLoadSuccess();
 		
-		
+		self openCJ\FPSHistory::onLoaded();
 
 		return true;
 	}

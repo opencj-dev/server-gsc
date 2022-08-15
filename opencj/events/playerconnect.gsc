@@ -14,7 +14,9 @@ main()
 	self openCJ\onscreenKeyboard::onPlayerConnect();
 	self openCJ\huds::onPlayerConnect();
 	self openCJ\progressBar::onPlayerConnect();
-	self openCJ\infiniteHuds::onPlayerConnect();
+	self openCJ\FPSHistory::onPlayerConnect();
+	self openCJ\events\FPSChange::onPlayerConnect();
+	self openCJ\events\onGroundChanged::onPlayerConnect();
 
 	self thread _dummy();
 	self waittill("begin");

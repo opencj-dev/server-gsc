@@ -2,27 +2,33 @@
 
 onInit()
 {
-	printf("preparing inf huds\n");
+	//printf("preparing inf huds\n");
 	level.infiniteHudStrings = [];
-	for(i = 0; i < 10; i++)
-	{
-		level.infiniteHudStrings[i] = spawnStruct();
-		level.infiniteHudStrings[i].localizedString = findLocalizedString(i);
-		level.infiniteHudStrings[i].string = findString(i);
-		precacheString(level.infiniteHudStrings[i].localizedString);
-		level.infiniteHudStrings[i].configstringIndex = G_FindConfigstringIndex(level.infiniteHudStrings[i].string, 1310, 256);
-	}
+	initInfiniteHud("fpshistory");
+	initInfiniteHud("test");
 }
 
-onPlayerConnect()
+initInfiniteHud(name)
 {
-	for(i = 0; i < level.infiniteHudStrings.size; i++)
+	level.infiniteHudStrings[name] = spawnStruct();
+	level.infiniteHudStrings[name].num = level.infiniteHudStrings.size;
+	level.infiniteHudStrings[name].localizedString = findLocalizedString(level.infiniteHudStrings[name].num);
+	level.infiniteHudStrings[name].string = findString(level.infiniteHudStrings[name].num);
+	precacheString(level.infiniteHudStrings[name].localizedString);
+	level.infiniteHudStrings[name].configstringIndex = G_FindConfigstringIndex(level.infiniteHudStrings[name].string, 1310, 256);
+	//printf("config string index is: " + level.infiniteHudStrings[name].configstringIndex + "\n");
+}
+
+onPlayerConnected()
+{
+	keys = getArrayKeys(level.infiniteHudStrings);
+	for(i = 0; i < keys.size; i++)
 	{
-		self SV_GameSendServerCommand("d " + level.infiniteHudStrings[i].configstringIndex + " ", true);
-		printf("sending command " + "d " + level.infiniteHudStrings[i].configstringIndex + " \n");
+		self SV_GameSendServerCommand("d " + level.infiniteHudStrings[keys[i]].configstringIndex + " ", true);
+		//printf("sending command " + "d " + level.infiniteHudStrings[keys[i]].configstringIndex + " \n");
 	}
-	
-	self.infhud = createInfiniteHudString(0);
+
+	self.infhud = createInfiniteStringHud("test");
 	self.infhud.horzAlign = "center_safearea";
 	self.infhud.vertAlign = "center_safearea";
 	self.infhud.alignX = "center";
@@ -31,35 +37,34 @@ onPlayerConnect()
 	self.infhud.y = -30;
 	self.infhud.fontscale = 1.5;
 	self.infhud.alpha = 1;
-	self setInfiniteHudText(self.infhud, "This is just a test, don't panic2");
+	self.infhud setInfiniteHudText("infhud test", self, true);
 }
 
-createInfiniteHudString(num)
+createInfiniteStringHud(name)
 {
 	hud = newClientHudElem(self);
-	hud.configstringIndex = level.infiniteHudStrings[num].configstringIndex;
-	hud setText(level.infiniteHudStrings[num].localizedString);
+	hud.configstringIndex = level.infiniteHudStrings[name].configstringIndex;
+	hud setText(level.infiniteHudStrings[name].localizedString);
 	hud.lastText = "";
 	self SV_GameSendServerCommand("d " + hud.configstringIndex + " ", true);
 	hud.archived = false;
 	return hud;
 }
 
-setInfiniteHudText(hud, text, reliable)
+setInfiniteHudText(text, player, reliable)
 {
 	if(!isDefined(reliable))
 		reliable = false;
-	if(text == hud.lastText)
+	if(text == self.lastText)
 		return;
-	hud.lastText = text;
-	self SV_GameSendServerCommand("d " + hud.configstringIndex + " " + text, reliable);
+	self.lastText = text;
+	player SV_GameSendServerCommand("d " + self.configstringIndex + " " + text, reliable);
 }
 
 findString(num)
 {
-	if(num >= 0 && num < 32)
-		return "openCJPlaceHolderString" + num;
-	return undefined;
+	if (!isDefined(findLocalizedString(num))) return undefined;
+	return "openCJPlaceHolderString" + num;
 }
 
 findLocalizedString(num)
@@ -83,20 +88,6 @@ findLocalizedString(num)
 		case 14: return &"openCJPlaceHolderString14";
 		case 15: return &"openCJPlaceHolderString15";
 		case 16: return &"openCJPlaceHolderString16";
-		case 17: return &"openCJPlaceHolderString17";
-		case 18: return &"openCJPlaceHolderString18";
-		case 19: return &"openCJPlaceHolderString19";
-		case 20: return &"openCJPlaceHolderString20";
-		case 21: return &"openCJPlaceHolderString21";
-		case 22: return &"openCJPlaceHolderString22";
-		case 23: return &"openCJPlaceHolderString23";
-		case 24: return &"openCJPlaceHolderString24";
-		case 25: return &"openCJPlaceHolderString25";
-		case 26: return &"openCJPlaceHolderString26";
-		case 27: return &"openCJPlaceHolderString27";
-		case 28: return &"openCJPlaceHolderString28";
-		case 29: return &"openCJPlaceHolderString29";
-		case 30: return &"openCJPlaceHolderString30";
-		case 31: return &"openCJPlaceHolderString31";
+		default: return undefined;
 	}
 }

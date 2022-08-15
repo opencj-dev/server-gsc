@@ -10,7 +10,7 @@ onUserInfoChanged()
 {
 	if(!self openCJ\login::isLoggedIn())
 		return;
-	newName = self get_userinfo("name");
+	newName = self getuserinfo("name");
 	if(newName == self.oldName)
 		return;
 	if(isDefined(self getForcedName()) && newName != self getForcedName())

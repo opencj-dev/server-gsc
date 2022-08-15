@@ -69,10 +69,19 @@ _updateProgressBar()
 			passed = openCJ\checkpoints::getPassedCheckpointCount(checkpoint);
 			remaining = openCJ\checkpoints::getRemainingCheckpointCount(checkpoint);
 			total = passed + remaining;
-			progress = int((passed / total) * 640) + 20;
+			if(total == 0)
+			{
+				progress = 100;
+			}
+			else
+			{
+				progress = int((passed / total) * 640) + 20;
+			}
 		}
 		else
+		{
 			progress = 20;
+		}
 	}
 	printf("progress: " + progress + "\n");
 	self.progressBar scaleOverTime(0.25, progress, 8);

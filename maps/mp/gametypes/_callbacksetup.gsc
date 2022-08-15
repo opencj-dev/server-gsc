@@ -67,6 +67,16 @@ CodeCallback_StartJump(time)
 	self openCJ\buttonPress::onJump(time);
 }
 
+CodeCallback_OnGroundChange(isOnGround, time)
+{
+	self openCJ\events\onGroundChanged::main(isOnGround, time);
+}
+
+CodeCallback_PlayerBounced(serverTime)
+{
+	self openCJ\events\playerBounced::main(serverTime);
+}
+
 CodeCallback_SpectatorClientChanged(newClient)
 {
 	self openCJ\events\spectatorClientChanged::main(newClient);
@@ -97,18 +107,9 @@ CodeCallback_MoveLeft()
 	self openCJ\events\WASDPressed::main();
 }
 
-CodeCallback_FPSChange(newframetime)
+CodeCallback_FPSChange(newFrameTime)
 {
-	//self iprintln("Fps changed to: " + int(1000 / newframetime));
-	self thread _fpsChange(newframetime);
-}
-
-_fpsChange(newframetime)
-{
-	self notify("fpschange");
-	self endon("fpschange");
-	wait 0.2;
-	self iprintln("Fps changed to: " + int(1000 / newframetime) + " (time: " + int(newFrameTime) + ")");
+	self openCJ\events\FPSChange::main(newFrameTime);
 }
 
 /*================

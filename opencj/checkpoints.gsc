@@ -124,6 +124,9 @@ onInit()
 		level.checkpoints_startCheckpoint.checkpointsFromStart = 0;
 		level.checkpoints_checkpoints = checkpoints;
 		enders = getAllEndCheckpoints();
+		if(!enders.size)
+			level.checkpoints_startCheckpoint.checkpointsTillEnd = 0;
+
 		for(i = 0; i < enders.size; i++)
 		{
 			openList = [];
