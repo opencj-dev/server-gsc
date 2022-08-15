@@ -27,17 +27,6 @@ onPlayerConnected()
 		self SV_GameSendServerCommand("d " + level.infiniteHudStrings[keys[i]].configstringIndex + " ", true);
 		//printf("sending command " + "d " + level.infiniteHudStrings[keys[i]].configstringIndex + " \n");
 	}
-
-	self.infhud = createInfiniteStringHud("test");
-	self.infhud.horzAlign = "center_safearea";
-	self.infhud.vertAlign = "center_safearea";
-	self.infhud.alignX = "center";
-	self.infhud.alignY = "middle";
-	self.infhud.x = 0;
-	self.infhud.y = -30;
-	self.infhud.fontscale = 1.5;
-	self.infhud.alpha = 1;
-	self.infhud setInfiniteHudText("infhud test", self, true);
 }
 
 createInfiniteStringHud(name)

@@ -41,13 +41,21 @@ setElevateOverride(value)
 applyElevateOverride()
 {
 	if(self.elevateOverride)
+	{
 		self allowElevate(true);
+	}
 	else if(self openCJ\playerRuns::isRunFinished())
+	{
 		self allowElevate(true);
+	}
 	else if(isDefined(self openCJ\checkpoints::getCheckpoint()) && openCJ\checkpoints::isElevateAllowed(self openCJ\checkpoints::getCheckpoint()))
+	{
 		self allowElevate(true);
+	}
 	else
+	{
 		self allowElevate(false);
+	}
 }
 
 onRunFinished(cp)
@@ -73,13 +81,12 @@ hasElevateOverrideEver()
 onElevate()
 {
 	if(self.elevateOverride || self openCJ\playerRuns::isRunFinished() || (isDefined(self openCJ\checkpoints::getCheckpoint()) && openCJ\checkpoints::isElevateAllowed(self openCJ\checkpoints::getCheckpoint())))
+	{
+		// This elevator is allowed
 		return;
+	}
 	else
 	{
-		if(!isDefined(self.elevateWarning) || self.elevateWarning < getTime() - 2000)
-		{
-			self.elevateWarning = getTime();
-			self iprintlnbold("You are trying to elevate. This is not enabled. Please load back, or use !elevateoverride to enable the elevator");
-		}
+		self iprintlnbold("Elevator detected, but not allowed. Load back or use !elevateoverride");
 	}
 }

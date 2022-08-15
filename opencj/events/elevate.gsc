@@ -1,7 +1,9 @@
 #include openCJ\util;
 
-main()
+main(isAllowedToEle)
 {
-	//called only when an elevate is detected while it is disabled for this particular player
-	self openCJ\elevate::onElevate()
+	if (!isAllowedToEle)
+	{
+		self openCJ\elevate::onElevate();
+	}
 }

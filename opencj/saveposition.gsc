@@ -66,7 +66,7 @@ createFlags()
 	}
 	if(openCJ\elevate::hasElevateOverrideEver())
 	{
-		flags |= level.saveFlags["elevateOverrideEver"];
+		flags |= level.saveFlags["elevatorOverrideEver"];
 	}
 	return flags;
 }
@@ -191,11 +191,12 @@ setSavedPosition()
 		entTargetName = undefined;
 		numOfEnt = undefined;
 	}
-
+	/*
 	if(isDefined(self openCJ\checkpoints::getCurrentCheckpointID()))
 		printf("saving with defined id, " + self openCJ\checkpoints::getCurrentCheckpointID() + "\n");
 	else
 		printf("saving with undef id\n");
+	*/
 	flags = self createFlags();
 	printf("flags: "  + flags + "\n");
 	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);

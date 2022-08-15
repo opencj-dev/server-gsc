@@ -72,6 +72,11 @@ CodeCallback_OnGroundChange(isOnGround, time)
 	self openCJ\events\onGroundChanged::main(isOnGround, time);
 }
 
+CodeCallback_OnElevate(isAllowedToEle)
+{
+	self openCJ\events\elevate::main(isAllowedToEle);
+}
+
 CodeCallback_PlayerBounced(serverTime)
 {
 	self openCJ\events\playerBounced::main(serverTime);
