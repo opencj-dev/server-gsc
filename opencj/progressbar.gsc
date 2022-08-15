@@ -53,15 +53,17 @@ _createProgressBar()
 
 _updateProgressBar()
 {
-	self.progressBar.alpha = 1;
+	
 	
 	if(self openCJ\playerRuns::isRunFinished())
 	{
 		progress = 640 + 20;
-		self.progressBar.color = (0, 1, 0);
+		self.progressBar.color = (0.4, 0.8, 0.4);
+		self.progressBar.alpha = 0.4;
 	}
 	else
 	{
+		self.progressBar.alpha = 0.5;
 		self.progressBar.color = (1, 1, 1);
 		checkpoint = self openCJ\checkpoints::getCheckpoint();
 		if(isDefined(checkpoint))

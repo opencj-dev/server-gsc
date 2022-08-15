@@ -19,6 +19,9 @@ onInit()
 	registerCommandString("rpgjumpsstring", "RPG Jumps: ", "Set the RPGJumps string used in the statistics hud\nUsage: !rpgjumpsstring [newstring]", ::_void);
 	registerCommandString("rpgshotsstring", "RPG Shots: ", "Set the RPGShots string used in the statistics hud\nUsage: !rpgshotsstring [newstring]", ::_void);
 	registerCommandString("doublerpgsstring", "Double RPGs: ", "Set the double RPGs string used in the statistics hud\nUsage: !doublerpgsstring [newstring]", ::_void);
+	registerCommandString("fpshaxstring", "FPS[H]: ", "Set the hax fps string used in the statistics hud\nUsage: !fpshaxstring [newstring]", ::_void);
+	registerCommandString("fpsmixstring", "FPS[M]: ", "Set the mix fps string used in the statistics hud\nUsage: !fpsmixstring [newstring]", ::_void);
+	registerCommandString("fpspurestring", "FPS: ", "Set the pure fps string used in the statistics hud\nUsage: !fpspurestring [newstring]", ::_void);
 }
 
 

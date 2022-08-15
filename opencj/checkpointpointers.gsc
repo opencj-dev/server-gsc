@@ -3,8 +3,8 @@
 onInit()
 {
 	level.checkpointShaders = [];
-	level.checkpointShaders[0] = "objective";
-	level.checkpointShaders[1] = "white";
+	level.checkpointShaders[0] = "opencj_checkpoint_green";
+	level.checkpointShaders[1] = "opencj_checkpoint_red";
 	
 	for(i = 0; i < level.checkpointShaders.size; i++)
 		precacheShader(level.checkpointShaders[i]);
@@ -13,6 +13,9 @@ onInit()
 onPlayerConnect()
 {
 	self.checkpointPointers_huds = [];
+	self.checkpointPointer_objectives = [];
+	for(i = 0; i < 16; i++)
+		self objective_player_delete(i);
 }
 
 onSpawnPlayer()
@@ -52,7 +55,6 @@ showCheckpointPointers()
 
 	checkpoints = self openCJ\checkpoints::getCheckpoints();
 
-
 	for(i = 0; i < checkpoints.size; i++)
 	{
 		if(i >= self.checkpointPointers_huds.size)
@@ -69,12 +71,23 @@ showCheckpointPointers()
 		self.checkpointPointers_huds[i].z = checkpoints[i].origin[2] + 10;
 		self.checkpointPointers_huds[i] thread _doJump(self);
 
+		if(i < 16)
+		{
+			self.checkpointPointers_objectives[i] = true;
+			self objective_player_add(i, "current", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
+		}
+
 	}
 	for(i = self.checkpointPointers_huds.size - 1; i >= checkpoints.size; i--)
 	{
 		self.checkpointPointers_huds[i] notify("stopJump");
 		self.checkpointPointers_huds[i] destroy();
 		self.checkpointPointers_huds[i] = undefined;
+		if(isDefined(self.checkpointPointers_objectives[i]))
+		{
+			self objective_player_delete(i);
+			self.checkpointPointers_objectives[i] = undefined;
+		}
 	}
 }
 
@@ -118,6 +131,11 @@ _hideCheckpointPointers()
 		self.checkpointPointers_huds[i] notify("stopJump");
 		self.checkpointPointers_huds[i] destroy();
 		self.checkpointPointers_huds[i] = undefined;
+		if(isDefined(self.checkpointPointers_objectives[i]))
+		{
+			self objective_player_delete(i);
+			self.checkpointPointers_objectives[i] = undefined;
+		}
 	}
 }
 

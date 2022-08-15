@@ -87,11 +87,6 @@ CodeCallback_SpectatorClientChanged(newClient)
 	self openCJ\events\spectatorClientChanged::main(newClient);
 }
 
-CodeCallback_WentFreeSpec()
-{
-	self openCJ\events\spectatorClientChanged::main(undefined);
-}
-
 CodeCallback_MoveForward()
 {
 	self openCJ\events\WASDPressed::main();

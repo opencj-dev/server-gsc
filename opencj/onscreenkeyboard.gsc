@@ -2,11 +2,11 @@
 
 onInit()
 {
-	level.onscreenKeyboardShader["forward"] = "white";
-	level.onscreenKeyboardShader["back"] = "white";
-	level.onscreenKeyboardShader["right"] = "white";
-	level.onscreenKeyboardShader["left"] = "white";
-	level.onscreenKeyboardShader["jump"] = "white";
+	level.onscreenKeyboardShader["forward"] = "opencj_key_w";
+	level.onscreenKeyboardShader["back"] = "opencj_key_s";
+	level.onscreenKeyboardShader["right"] = "opencj_key_d";
+	level.onscreenKeyboardShader["left"] = "opencj_key_a";
+	level.onscreenKeyboardShader["jump"] = "opencj_key_jump";
 	precacheShader(level.onscreenKeyboardShader["forward"]);
 	precacheShader(level.onscreenKeyboardShader["back"]);
 	precacheShader(level.onscreenKeyboardShader["right"]);
@@ -14,7 +14,7 @@ onInit()
 	precacheShader(level.onscreenKeyboardShader["jump"]);
 	if(getCvarInt("codversion") == 4)
 	{
-		level.onscreenKeyboardShader["sprint"] = "white";
+		level.onscreenKeyboardShader["sprint"] = "opencj_key_sprint";
 		precacheShader(level.onscreenKeyboardShader["sprint"]);
 	}
 }
@@ -139,7 +139,7 @@ _createKeyboard()
 	self.keyboard["jump"].vertAlign = "center_safearea";
 	self.keyboard["jump"].alignX = "center";
 	self.keyboard["jump"].alignY = "middle";
-	self.keyboard["jump"].x = 64;
+	self.keyboard["jump"].x = 74;
 	self.keyboard["jump"].y = 127;
 	self.keyboard["jump"].alpha = 0;
 	self.keyboard["jump"].archived = false;
@@ -151,7 +151,7 @@ _createKeyboard()
 		self.keyboard["sprint"].vertAlign = "center_safearea";
 		self.keyboard["sprint"].alignX = "center";
 		self.keyboard["sprint"].alignY = "middle";
-		self.keyboard["sprint"].x = -64;
+		self.keyboard["sprint"].x = -74;
 		self.keyboard["sprint"].y = 127;
 		self.keyboard["sprint"].alpha = 0;
 		self.keyboard["sprint"].archived = false;

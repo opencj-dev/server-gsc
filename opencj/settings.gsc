@@ -56,7 +56,7 @@ setting_set(name, value)
 	else if(level.settings[name].type == "int")
 	{
 		val = int(value);
-		if(val == 0 && value != "0")
+		if(val == 0 && value + "" != "0")
 			return undefined;
 		self.settings[name] = val;
 		return val;
@@ -64,7 +64,7 @@ setting_set(name, value)
 	else if(level.settings[name].type == "float")
 	{
 		val = float(value);
-		if(val == 0 && value != "0")
+		if(val == 0 && value + "" != "0")
 			return undefined;
 		self.settings[name] = val;
 		return val;
