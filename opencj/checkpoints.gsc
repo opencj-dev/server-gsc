@@ -56,36 +56,6 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 		self iprintlnbold("You passed a checkpoint");
 }
 
-_makeColorArray(colorString)
-{
-	colorStrings["0"] = (0, 0, 0);
-	colorStrings["1"] = (1, 0, 0);
-	colorStrings["2"] = (0, 1, 0);
-	colorStrings["3"] = (1, 0.9, 0);
-	colorStrings["4"] = (0, 0.1, 01);
-	colorStrings["5"] = (0.2, 0.5, 0.6);
-	colorStrings["6"] = (0.9, 0.3, 0.5);
-	colorStrings["7"] = (1, 1, 1);
-
-	colors = [];
-
-	for(i = 0; i < colorString.size; i++)
-	{
-		if(isDefined(colorStrings[colorString[i]]))
-			colors[colors.size] = colorStrings[colorString[i]];
-	}
-
-	if(!colors.size)
-		colors[colors.size] = colorStrings["2"]; //green by default\
-
-	return colors;
-}
-
-getCheckpointColors(cp)
-{
-	return cp.colors;
-}
-
 onInit()
 {
 	level.checkpoints_startCheckpoint = spawnStruct();
@@ -95,7 +65,7 @@ onInit()
 
 	if(openCJ\mapid::hasMapID())
 	{
-		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.color FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
+		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.ender FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
 
 		checkpoints = [];
 		for(i = 0; i < rows.size; i++)
@@ -109,10 +79,9 @@ onInit()
 				checkpoint.childIDs = [];
 			else
 				checkpoint.childIDs = strTok(rows[i][6], ",");
-			checkpoint.colors = _makeColorArray(rows[i][7]);
+			checkpoint.ender = rows[i][7];
 			checkpoint.hasParent = false;
 			checkpoints[checkpoints.size] = checkpoint;
-
 		}
 
 		for(i = 0; i < checkpoints.size; i++)
@@ -128,8 +97,9 @@ onInit()
 					if(checkpoints[k].id == int(checkpoints[i].childIDs[j]))
 					{
 						checkpoints[i].childs[checkpoints[i].childs.size] = checkpoints[k];
+						checkpoints[i].ender = undefined; //cannot have enders on mid-route checkpoints
 						checkpoints[k].hasParent = true;
-						printf("connecting checkpoint " + checkpoints[i].id + " to child cp " + checkpoints[k].id + "\n");
+						//printf("connecting checkpoint " + checkpoints[i].id + " to child cp " + checkpoints[k].id + "\n");
 						found = true;
 						break;
 					}
@@ -138,17 +108,123 @@ onInit()
 					printf("WARNING: Could not find child " + checkpoints[i].childIDS[j] + " for checkpoint " + checkpoints[i].id + "\n");
 			}
 			checkpoints[i].childIDs = undefined;
+			checkpoints[i].endCheckpoints = [];
 		}
-
-
 		for(i = 0; i < checkpoints.size; i++)
 		{
 			if(!checkpoints[i].hasParent)
+			{
 				level.checkpoints_startCheckpoint.childs[level.checkpoints_startCheckpoint.childs.size] = checkpoints[i];
+				checkpoints[i].checkpointsFromStart = 1;
+			}
 		}
+		level.checkpoints_startCheckpoint.checkpointsFromStart = 0;
 		level.checkpoints_checkpoints = checkpoints;
-
+		enders = getAllEndCheckpoints();
+		for(i = 0; i < enders.size; i++)
+		{
+			openList = [];
+			openList[openList.size] = enders[i];
+			enders[i].endCheckpoints[enders[i].endCheckpoints.size] = enders[i];
+			enders[i].checkpointsTillEnd = 0;
+			closedList = enders;
+			iterationNum = 0;
+			while(openList.size)
+			{
+				newOpenList = [];
+				for(j = 0; j < openList.size; j++)
+				{
+					if(!isDefined(openList[j].checkpointsTillEnd))
+						openList[j].checkpointsTillEnd = iterationNum;
+					parents = getCheckpointParents(openList[j]);
+					if(!parents.size)
+					{
+						if(!isDefined(level.checkpoints_startCheckpoint.checkpointsTillEnd))
+							level.checkpoints_startCheckpoint.checkpointsTillEnd = iterationNum + 1;
+					}
+					for(k = 0; k < parents.size; k++)
+					{
+						if(isInArray(parents[k], closedList))
+							continue;
+						if(isInArray(parents[k], openList))
+							continue;
+						if(isInArray(parents[k], newOpenList))
+							continue;
+						newOpenList[newOpenList.size] = parents[k];
+						parents[k].endCheckpoints[parents[k].endCheckpoints.size] = enders[i];
+					}
+					closedList[closedList.size] = openList[j];
+				}
+				openList = newOpenList;
+				iterationNum++;
+			}
+		}
+		openList = level.checkpoints_startCheckpoint.childs;
+		closedList = [];
+		iterationNum = 1;
+		while(openList.size)
+		{
+			newOpenList = [];
+			for(j = 0; j < openList.size; j++)
+			{
+				if(!isDefined(openList[j].checkpointsFromStart))
+					openList[j].checkpointsFromStart = iterationNum;
+				for(k = 0; k < openList[j].childs.size; k++)
+				{
+					if(isInArray(openList[j].childs[k], closedList))
+						continue;
+					if(isInArray(openList[j].childs[k], openList))
+						continue;
+					if(isInArray(openList[j].childs[k], newOpenList))
+						continue;
+					newOpenList[newOpenList.size] = openList[j].childs[k];
+				}
+				closedList[closedList.size] = openList[j];
+			}
+			openList = newOpenList;
+			iterationNum++;
+		}
 	}
+}
+
+getPassedCheckpointCount(checkpoint)
+{
+	return checkpoint.checkpointsFromStart;
+}
+
+getRemainingCheckpointCount(checkpoint)
+{
+	return checkpoint.checkpointsTillEnd;
+}
+
+getEndCheckpoints(checkpoint)
+{
+	return checkpoint.endCheckpoints;
+}
+
+getAllEndCheckpoints()
+{
+	enders = [];
+	for(i = 0; i < level.checkpoints_checkpoints.size; i++)
+	{
+		if(level.checkpoints_checkpoints[i].childs.size == 0)
+			enders[enders.size] = level.checkpoints_checkpoints[i];
+	}
+	return enders;
+}
+
+getCheckpointParents(checkpoint)
+{
+	parents = [];
+	for(i = 0; i < level.checkpoints_checkpoints.size; i++)
+	{
+		for(j = 0; j < level.checkpoints_checkpoints[i].childs.size; j++)
+		{
+			if(level.checkpoints_checkpoints[i].childs[j] == checkpoint)
+				parents[parents.size] = level.checkpoints_checkpoints[i];
+		}
+	}
+	return parents;
 }
 
 checkpointHasID(cp)
@@ -192,6 +268,11 @@ setCurrentCheckpointID(id)
 getCheckpoints()
 {
 	return self.checkpoints_checkpoint.childs;
+}
+
+getCheckpoint()
+{
+	return self.checkpoints_checkpoint;
 }
 
 onRunIDCreated()

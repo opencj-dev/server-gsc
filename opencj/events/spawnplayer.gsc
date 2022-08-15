@@ -24,6 +24,8 @@ main()
 	self openCJ\checkpoints::onSpawnPlayer();
 	self openCJ\showRecords::onSpawnPlayer();
 	self openCJ\onscreenKeyboard::onSpawnPlayer();
+	self openCJ\huds::onSpawnPlayer();
+	self openCJ\progressBar::onSpawnPlayer();
 
 	self setSharedSpawnVars();
 

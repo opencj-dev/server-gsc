@@ -6,6 +6,11 @@ onPlayerConnect()
 	self.playerRuns_spawnLinker = spawn("script_origin", (0, 0, 0));
 }
 
+hasJumpSlowdown()
+{
+	return getCvarInt("codversion") == 2; //placeholder
+}
+
 onPlayerLogin()
 {
 	self thread _createRunID();

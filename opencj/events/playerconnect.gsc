@@ -11,7 +11,9 @@ main()
 	self openCJ\country::onPlayerConnect();
 	self openCJ\events\WASDPressed::disableWASDCallback();
 	self openCJ\noclip::onPlayerConnect();
-	openCJ\onscreenKeyboard::onPlayerConnect();
+	self openCJ\onscreenKeyboard::onPlayerConnect();
+	self openCJ\huds::onPlayerConnect();
+	self openCJ\progressBar::onPlayerConnect();
 
 	self thread _dummy();
 	self waittill("begin");

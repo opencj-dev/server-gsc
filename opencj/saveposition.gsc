@@ -7,6 +7,8 @@ onInit()
 	level.saveFlags["speedMode"] = 2;
 	level.saveFlags["speedModeEver"] = 4;
 	level.saveFlags["rpg"] = 8;
+	level.saveFlags["elevator"] = 16;
+	level.saveFlags["elevator_ever"] = 32;
 }
 
 isCheating(save)

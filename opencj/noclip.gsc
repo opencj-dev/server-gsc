@@ -68,6 +68,7 @@ whileAlive()
 		dir += anglesToUp(self getPlayerAngles());
 	if(self leanLeftButtonPressed())
 		dir -= anglesToUp(self getPlayerAngles());
-	self.noclip_linkto.origin += vectorScale(dir, 20);
-	printf("moving noclip to : " + dir + "\n");
+	scale = 20 + 80 * self playerADS();
+	self.noclip_linkto.origin += vectorScale(dir, scale);
+	//printf("moving noclip to : " + dir + "\n");
 }

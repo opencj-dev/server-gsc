@@ -23,6 +23,8 @@ main()
 	self openCJ\checkpointPointers::onSpawnSpectator();
 	self openCJ\noclip::disableNoclip();
 	self openCJ\onscreenKeyboard::onSpawnSpectator();
+	self openCJ\huds::onSpawnSpectator();
+	self openCJ\progressBar::onSpawnSpectator();
 	
 	self stopFollowingMe();
 }

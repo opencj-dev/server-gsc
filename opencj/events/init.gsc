@@ -24,6 +24,7 @@ main()
 	openCJ\demos::onInit();
 	openCJ\chat::onInit();
 	openCJ\onscreenKeyboard::onInit();
+	openCJ\progressBar::onInit();
 
 	thread _everyFrame();
 }

@@ -57,51 +57,23 @@ showCheckpointPointers()
 		self.checkpointPointers_huds[i].x = checkpoints[i].origin[0];
 		self.checkpointPointers_huds[i].y = checkpoints[i].origin[1];
 		self.checkpointPointers_huds[i].z = checkpoints[i].origin[2] + 10;
-		self.checkpointPointers_huds[i] thread _doGlow(self, checkpoints[i].colors);
 		self.checkpointPointers_huds[i] thread _doJump(self);
 
 	}
 	for(i = self.checkpointPointers_huds.size - 1; i >= checkpoints.size; i--)
 	{
-		self.checkpointPointers_huds[i] notify("stopGlow");
+		self.checkpointPointers_huds[i] notify("stopJump");
 		self.checkpointPointers_huds[i] destroy();
 		self.checkpointPointers_huds[i] = undefined;
-	}
-}
-
-_doGlow(player, colors)
-{
-	player endon("disconnect");
-	self notify("stopGlow");
-	self endon("stopGlow");
-	printf("color size: " + colors.size + "\n");
-	if(colors.size == 1)
-	{
-		self.color = colors[0];
-		return;
-	}
-	frames = 10;
-	while(true)
-	{
-		for(i = 0; i < colors.size; i++)
-		{
-			curColor = colors[i];
-			nextColor = colors[(i + 1) % colors.size];
-			diff = nextColor - curColor;
-			for(j = 0; j < frames; j++)
-			{
-				self.color = curColor + vectorScale(diff, (1 / frames) * j);
-				wait 0.05;
-			}
-			wait 1;
-		}
 	}
 }
 
 _doJump(player)
 {
 	player endon("disconnect");
-	self endon("stopGlow");
+	self notify("stopJump");
+	self endon("stopJump");
+
 	offset[0] = (0, 0, 20) + (self.x, self.y, self.z);
 	offset[1] = (0, 0, 15) + (self.x, self.y, self.z);
 	offset[2] = (0, 0, 10) + (self.x, self.y, self.z);
@@ -133,7 +105,7 @@ _hideCheckpointPointers()
 {
 	for(i = self.checkpointPointers_huds.size - 1; i >= 0; i--)
 	{
-		self.checkpointPointers_huds[i] notify("stopGlow");
+		self.checkpointPointers_huds[i] notify("stopJump");
 		self.checkpointPointers_huds[i] destroy();
 		self.checkpointPointers_huds[i] = undefined;
 	}
@@ -146,7 +118,6 @@ _createNewCheckpointPointerHud()
 	hud.foreground = true;
 	hud.aligny = "top";
 	hud.alignx = "center";
-	hud.color = (0, 1, 0);
 	hud setShader(level.checkpointPointers_pointerMaterial, 8, 8);
 
 	hud setwaypoint(true);

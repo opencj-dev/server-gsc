@@ -5,6 +5,16 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+isInArray(value, array)
+{
+	for(i = 0; i < array.size; i++)
+	{
+		if(array[i] == value)
+			return true;
+	}
+	return false;
+}
+
 getSpectatorList(includeSelf)
 {
 	players = getEntArray("player", "classname");
