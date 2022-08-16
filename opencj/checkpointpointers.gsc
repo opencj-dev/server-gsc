@@ -76,7 +76,10 @@ showCheckpointPointers()
 		if(i < 16)
 		{
 			self.checkpointPointers_objectives[i] = true;
-			self objective_player_add(i, "active", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
+			if(getCvarInt("codversion") == 2)
+				self objective_player_add(i, "current", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
+			else
+				self objective_player_add(i, "active", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
 		}
 
 	}
