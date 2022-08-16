@@ -3,6 +3,11 @@
 
 #include openCJ\util;
 
+onInit()
+{
+    openCJ\infiniteHuds::initInfiniteHud("fpshistory");
+}
+
 // The following functions are for the spectator who is spectating a player
 
 onPlayerConnect()
@@ -144,7 +149,7 @@ _setFPSHistory(text)
     spectators = self getSpectatorList(false);
     for (i = 0; i < spectators.size; i++)
     {
-        spectators[i].fpshistory["hud"] openCJ\infiniteHuds::setInfiniteHudText(text, spectators[i], false); // TODO: precaching or COD2 won't work
+        spectators[i].fpshistory["hud"] openCJ\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
         spectators[i].fpshistory["hud"].alpha = 1;
     }
 

@@ -25,6 +25,7 @@ main()
 	self openCJ\onscreenKeyboard::onSpawnSpectator();
 	self openCJ\huds::onSpawnSpectator();
 	self openCJ\progressBar::onSpawnSpectator();
+	self openCJ\speedoMeter::onSpawnSpectator();
 	
 	self stopFollowingMe();
 }
