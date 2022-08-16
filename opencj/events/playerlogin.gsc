@@ -11,4 +11,5 @@ main()
 	self openCJ\menus::onPlayerLogin();
 	self openCJ\chat::onPlayerLogin();
 	self openCJ\playerNames::onPlayerLogin();
+	self openCJ\vote::onPlayerLogin();
 }

@@ -30,6 +30,7 @@ main()
 	openCJ\showRecords::onInit();
 	openCJ\stockPatch::onInit();
 	openCJ\fpsHistory::onInit();
+	openCJ\vote::onInit();
 
 	thread _everyFrame();
 }
