@@ -5,3 +5,9 @@ mod.ff
 q3config_server.cfg
 Library/*
 *.iwd
+*.exe
+images/
+materials/
+*.bat
+ui_mp/
+*.csv
