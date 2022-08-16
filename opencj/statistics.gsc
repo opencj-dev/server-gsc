@@ -278,12 +278,18 @@ _drawStatisticsHud(client)
 	newstring = self openCJ\settings::setting_get("timestring") + formatTimeString(client getTimePlayed(), true) + "\n";
 	newstring += self openCJ\settings::setting_get("savesstring") + client getSaveCount() + "\n";
 	newstring += self openCJ\settings::setting_get("loadsstring") + client getLoadCount() + "\n";
-	newstring += self openCJ\settings::setting_get("nadejumpsstring") + client getNadeJumps() + "\n";
-	newstring += self openCJ\settings::setting_get("nadethrowsstring") + client getNadeThrows() + "\n";
 	newstring += self openCJ\settings::setting_get("jumpsstring") + client getJumpCount() + "\n";
-	newstring += self openCJ\settings::setting_get("rpgjumpsstring") + client getRPGJumps() + "\n";
-	newstring += self openCJ\settings::setting_get("rpgshotsstring") + client getRPGShots() + "\n";
-	newstring += self openCJ\settings::setting_get("doublerpgsstring") + client getDoubleRPGs() + "\n";
+	if (getCvarInt("codversion") == 2)
+	{
+		newstring += self openCJ\settings::setting_get("nadejumpsstring") + client getNadeJumps() + "\n";
+		newstring += self openCJ\settings::setting_get("nadethrowsstring") + client getNadeThrows() + "\n";
+	}
+	else
+	{
+		newstring += self openCJ\settings::setting_get("rpgjumpsstring") + client getRPGJumps() + "\n";
+		newstring += self openCJ\settings::setting_get("rpgshotsstring") + client getRPGShots() + "\n";
+		newstring += self openCJ\settings::setting_get("doublerpgsstring") + client getDoubleRPGs() + "\n";
+	}
 
 	if(self.statistics_lastStatHudString != newstring)
 	{
