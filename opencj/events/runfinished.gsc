@@ -2,6 +2,7 @@
 
 main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 {
+	self iprintln("Run finished: " + openCJ\checkpoints::getCheckPointID(cp));
 	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
 	{
 		runID = self openCJ\playerRuns::getRunID();

@@ -3,13 +3,33 @@
 onInit()
 {
 	level.checkpointShaders = [];
-	level.checkpointShaders[0] = "opencj_checkpoint_green";
-	level.checkpointShaders[1] = "opencj_checkpoint_red";
-	level.checkpointShaders[2] = "opencj_checkpoint_yellow";
+	level.checkpointShaders["blue"] = "opencj_checkpoint_blue";
+	level.checkpointShaders["cyan"] = "opencj_checkpoint_cyan";
+	level.checkpointShaders["green"] = "opencj_checkpoint_green";
+	level.checkpointShaders["orange"] = "opencj_checkpoint_orange";
+	level.checkpointShaders["purple"] = "opencj_checkpoint_purple";
+	level.checkpointShaders["red"] = "opencj_checkpoint_red";
+	level.checkpointShaders["yellow"] = "opencj_checkpoint_yellow";
+	level.checkpointShaders["default"] = level.checkpointShaders["blue"];
+
+
+	level.checkpointShadersObjective = [];
+	keys = GetArrayKeys(level.checkpointShaders);
+	for (i = 0; i < keys.size; i++)
+	{
+		level.checkpointShadersObjective[keys[i]] = level.checkpointShaders[keys[i]];
+		if (getCvarInt("codversion") == 4)
+		{
+			level.checkpointShadersObjective[keys[i]] += "_obj";
+		}
+	}
 	
-	
-	for(i = 0; i < level.checkpointShaders.size; i++)
-		precacheShader(level.checkpointShaders[i]);
+	colors = getArrayKeys(level.checkpointShaders);
+	for(i = 0; i < colors.size; i++)
+	{
+		precacheShader(level.checkpointShaders[colors[i]]);
+		precacheShader(level.checkpointShadersObjective[colors[i]]);
+	}
 }
 
 onPlayerConnect()
@@ -62,11 +82,12 @@ showCheckpointPointers()
 		if(i >= self.checkpointPointers_huds.size)
 			self.checkpointPointers_huds[self.checkpointPointers_huds.size] = self _createNewCheckpointPointerHud();
 
-		shaderNum = openCJ\checkpoints::getCheckpointShaderNum(checkpoints[i]);
-		if(!isDefined(shadernum) || shaderNum < 0 || shaderNum >= level.checkpointShaders.size)
-			shaderNum = 0;
-		self.checkpointPointers_huds[i] setShader(level.checkpointShaders[shaderNum], 8, 8);
-		self.checkpointPointers_huds[i] setwaypoint(true, level.checkpointShaders[shaderNum]);
+		shaderColor = openCJ\checkpoints::getCheckpointShaderColor(checkpoints[i]);
+		shader_hud = _getShaderHud(shaderColor);
+		shader_objective = _getShaderObjective(shaderColor);
+
+		self.checkpointPointers_huds[i] setShader(shader_hud, 8, 8);
+		self.checkpointPointers_huds[i] setWaypoint(true);
 		
 		self.checkpointPointers_huds[i].x = checkpoints[i].origin[0];
 		self.checkpointPointers_huds[i].y = checkpoints[i].origin[1];
@@ -77,9 +98,9 @@ showCheckpointPointers()
 		{
 			self.checkpointPointers_objectives[i] = true;
 			if(getCvarInt("codversion") == 2)
-				self objective_player_add(i, "current", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
+				self objective_player_add(i, "current", checkpoints[i].origin, shader_objective); 
 			else
-				self objective_player_add(i, "active", checkpoints[i].origin, level.checkpointShaders[shaderNum]); 
+				self objective_player_add(i, "active", checkpoints[i].origin, shader_objective); 
 		}
 
 	}
@@ -94,6 +115,20 @@ showCheckpointPointers()
 			self.checkpointPointers_objectives[i] = undefined;
 		}
 	}
+}
+
+_getShaderHud(color)
+{
+	if(isDefined(color) && isDefined(level.checkpointShaders[color]))
+		return level.checkpointShaders[color];
+	return level.checkpointShaders["default"];
+}
+
+_getShaderObjective(color)
+{
+	if(isDefined(color) && isDefined(level.checkpointShadersObjective[color]))
+		return level.checkpointShadersObjective[color];
+	return level.checkpointShadersObjective["default"];
 }
 
 _doJump(player)
