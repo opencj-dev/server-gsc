@@ -5,8 +5,8 @@ onPlayerConnect()
     if (!isDefined(self.hudSpeed))
     {
         self.hudSpeed = [];
-        _initSpeedHud("curr", (1.0, 1.0, 1.0), -20);
-        _initSpeedHud("max", (1.0, 0.0, 0.0), 0);
+        _initSpeedHud("curr", (1.0, 1.0, 1.0), -30);
+        _initSpeedHud("max", (1.0, 0.3, 0.3), -10); // Has to be above progress bar
     }
 }
 
