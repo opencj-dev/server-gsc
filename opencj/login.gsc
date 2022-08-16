@@ -70,7 +70,7 @@ createNewAccount()
 		if(rows.size && isDefined(rows[0][0]))
 		{
 			printf("creating done login\n");
-			self.login_playerID = rows[0][0];
+			self.login_playerID = int(rows[0][0]);
 			self openCJ\loginHelper::storeUID(uid);
 			self openCJ\events\playerLogin::main();
 			return;
