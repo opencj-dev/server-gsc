@@ -108,6 +108,7 @@ _getRecords(checkpoints, persist, timems)
 	}
 
 	checkpointString = "(NULL";
+	checkpoints = openCJ\checkpoints::filterOutBrothers(checkpoints);
 	for(i = 0; i < checkpoints.size; i++)
 	{
 		if(self openCJ\checkpoints::checkpointHasID(checkpoints[i]))

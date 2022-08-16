@@ -42,18 +42,19 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 	self notify("checkpointNotify");
 	self endon("checkpointNotify");
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(cs.timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
+	self iprintln("cpid: " + cpID);
 	if(rows.size && isDefined(rows[0][0]))
 	{
 		diff = timePlayed - int(rows[0][0]);
 		if(diff > 0)
-			self iprintlnbold("You passed a checkpoint ^1+" + formatTimeString(diff, false));
+			self iprintln("You passed a checkpoint ^1+" + formatTimeString(diff, false));
 		else if( diff < 0)
-			self iprintlnbold("You passed a checkpoint ^2-" + formatTimeString(-1 * diff, false));
+			self iprintln("You passed a checkpoint ^2-" + formatTimeString(-1 * diff, false));
 		else
-			self iprintlnbold("You passed a checkpoint, no difference");
+			self iprintln("You passed a checkpoint, no difference");
 	}
 	else
-		self iprintlnbold("You passed a checkpoint");
+		self iprintln("You passed a checkpoint");
 }
 
 onInit()
@@ -66,7 +67,7 @@ onInit()
 
 	if(openCJ\mapid::hasMapID())
 	{
-		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.ender, a.elevate, a.endShaderNum FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
+		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.ender, a.elevate, a.endShaderColor, c.bigBrotherID FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID LEFT JOIN checkpointBrothers c ON a.cpID = c.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
 
 		checkpoints = [];
 		for(i = 0; i < rows.size; i++)
@@ -82,7 +83,10 @@ onInit()
 				checkpoint.childIDs = strTok(rows[i][6], ",");
 			checkpoint.ender = rows[i][7];
 			checkpoint.elevate = int(rows[i][8]);
-			checkpoint.endShaderNum = intOrUndefined(rows[i][9]);
+			checkpoint.endShaderColor = rows[i][9];
+			checkpoint.bigBrother = intOrUndefined(rows[i][10]);
+			//if(isDefined(checkpoint.endShaderColor))
+			//	printf("endshadercolor: " + checkpoint.endShaderColor + "\n");
 			checkpoint.hasParent = false;
 			checkpoints[checkpoints.size] = checkpoint;
 		}
@@ -115,11 +119,22 @@ onInit()
 		}
 		for(i = 0; i < checkpoints.size; i++)
 		{
-			if(!checkpoints[i].hasParent)
+			if(isDefined(checkpoints[i].bigBrother))
 			{
-				level.checkpoints_startCheckpoint.childs[level.checkpoints_startCheckpoint.childs.size] = checkpoints[i];
-				checkpoints[i].checkpointsFromStart = 1;
+				for(j = 0; j < checkpoints.size; j++)
+				{
+					if(checkpoints[j].id == checkpoints[i].bigBrother && checkpoints[j] != checkpoints[i])
+					{
+						checkpoints[i].bigBrother = checkpoints[j];
+						break;
+					}
+				}
 			}
+		}
+		for(i = 0; i < checkpoints.size; i++)
+		{
+			if(!checkpoints[i].hasParent)
+				level.checkpoints_startCheckpoint.childs[level.checkpoints_startCheckpoint.childs.size] = checkpoints[i];
 		}
 		level.checkpoints_startCheckpoint.checkpointsFromStart = 0;
 		level.checkpoints_checkpoints = checkpoints;
@@ -193,23 +208,24 @@ onInit()
 	}
 }
 
-getCheckpointShaderNum(checkpoint)
+getCheckpointShaderColor(checkpoint)
 {
 	if(!isDefined(checkpoint))
 		return undefined;
 	ends = getEndCheckpoints(checkpoint);
-	endShaderNums = [];
-	undefined_endShaderNum = false;
+	endShaderColors = [];
+	undefined_endShaderColor = false;
 	for(i = 0; i < ends.size; i++)
 	{
-		if(!isDefined(ends[i].endShaderNum))
-			undefined_endShaderNum = true;
-		else if(!isInArray(ends[i].endShaderNum, endShaderNums))
-			endShaderNums[endShaderNums.size] = ends[i].endShaderNum;
+		if(!isDefined(ends[i].endShaderColor))
+			undefined_endShaderColor = true;
+		else if(!isInArray(ends[i].endShaderColor, endShaderColors))
+			endShaderColors[endShaderColors.size] = ends[i].endShaderColor;
+			
 	}
-	if(endShaderNums.size != 1 || undefined_endShaderNum)
+	if(endShaderColors.size != 1 || undefined_endShaderColor)
 		return undefined;
-	return endShaderNums[0];
+	return endShaderColors[0];
 }
 
 isElevateAllowed(checkpoint)
@@ -322,6 +338,25 @@ onSpawnPlayer()
 	self.previousOnground = true;
 }
 
+filterOutBrothers(checkpoints)
+{
+	newcheckpoints = [];
+	brothers = [];
+	for(i = 0; i < checkpoints.size; i++)
+	{
+		if(isDefined(checkpoints[i].bigBrother))
+			brothers[brothers.size] = checkpoints[i];
+		else
+			newcheckpoints[newcheckpoints.size] = checkpoints[i];
+	}
+	for(i = 0; i < brothers.size; i++)
+	{
+		if(!isInArray(brothers[i].bigBrother, newcheckpoints))
+			newcheckpoints[newcheckpoints.size] = brothers[i].bigBrother;
+	}
+	return newcheckpoints;
+}
+
 whileAlive()
 {
 	for(i = 0; i < self.checkpoints_checkpoint.childs.size; i++)
@@ -341,25 +376,40 @@ whileAlive()
 					if(checkpointDist < previousCheckpointDist)
 					{
 						tOffset = int(((radius - checkpointDist)/(previousCheckpointDist - checkpointDist)) * -50);
-						printf("\n prevdist: " + previousCheckpointDist + " dist: " + checkpointDist + " radius: " + radius + " tOffset: " + tOffset + "\n\n");
+						//printf("\n prevdist: " + previousCheckpointDist + " dist: " + checkpointDist + " radius: " + radius + " tOffset: " + tOffset + "\n\n");
 						if(tOffset > 0)
 							tOffset = 0;
 						else if(tOffset < -50)
 							tOffset = -50;
 					}
 				}
-				printf("\ntOffset: " + tOffset + "\n\n");
+				//printf("\ntOffset: " + tOffset + "\n\n");
 				//self iprintlnbold("You passed checkpoint with ID " + self.checkpoints_checkpoint.childs[i].id);
 				cp = self.checkpoints_checkpoint.childs[i];
 				self.checkpoints_checkpoint = self.checkpoints_checkpoint.childs[i];
 				if(cp.childs.size == 0)
 				{
-					self openCJ\events\runFinished::main(cp, tOffset);
+					if(isDefined(cp.bigBrother))
+					{
+						self openCJ\events\runFinished::main(cp.bigBrother, tOffset);
+					}
+					else
+					{
+						self openCJ\events\runFinished::main(cp, tOffset);
+					}
 				}
 				else
 				{
-					self _checkpointPassed(cp, tOffset);
-					self openCJ\showRecords::onCheckpointPassed(cp, self openCJ\statistics::getTimePlayed() + tOffset);
+					if(isDefined(cp.bigBrother))
+					{
+						self _checkpointPassed(cp.bigBrother, tOffset);
+						self openCJ\showRecords::onCheckpointPassed(cp.bigBrother, self openCJ\statistics::getTimePlayed() + tOffset);
+					}
+					else
+					{
+						self _checkpointPassed(cp, tOffset);
+						self openCJ\showRecords::onCheckpointPassed(cp, self openCJ\statistics::getTimePlayed() + tOffset);
+					}
 					self openCJ\events\checkpointsChanged::main();
 				}
 				break;
