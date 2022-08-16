@@ -29,6 +29,7 @@ main()
 	openCJ\infiniteHuds::onInit();
 	openCJ\showRecords::onInit();
 	openCJ\stockPatch::onInit();
+	openCJ\fpsHistory::onInit();
 
 	thread _everyFrame();
 }

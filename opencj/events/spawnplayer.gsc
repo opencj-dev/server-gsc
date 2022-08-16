@@ -26,6 +26,7 @@ main()
 	self openCJ\onscreenKeyboard::onSpawnPlayer();
 	self openCJ\huds::onSpawnPlayer();
 	self openCJ\progressBar::onSpawnPlayer();
+	self openCJ\speedoMeter::onSpawnPlayer();
 
 	self setSharedSpawnVars();
 

@@ -4,8 +4,6 @@ onInit()
 {
 	//printf("preparing inf huds\n");
 	level.infiniteHudStrings = [];
-	initInfiniteHud("fpshistory");
-	initInfiniteHud("test");
 }
 
 initInfiniteHud(name)
