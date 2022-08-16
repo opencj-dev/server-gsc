@@ -1,5 +1,11 @@
 #include openCJ\util;
 
+onInit()
+{
+	level.showRecordsHighlightShader = "white";
+	precacheShader(level.showRecordsHighlightShader);
+}
+
 onCheckpointsChanged()
 {
 	self thread _getRecords(self openCJ\checkpoints::getCheckpoints(), false);
@@ -24,6 +30,19 @@ onPlayerConnect()
 {
 	self.showRecords_nameString = "";
 	self.showRecords_timeString = "";
+
+
+	self.showRecordsHighlight = newClientHudElem(self);
+	self.showRecordsHighlight.horzAlign = "right";
+	self.showRecordsHighlight.vertAlign = "top";
+	self.showRecordsHighlight.alignX = "left";
+	self.showRecordsHighlight.alignY = "bottom";
+	self.showRecordsHighlight.x = -202;
+	self.showRecordsHighlight.y = 50;
+	self.showRecordsHighlight.archived = false;
+	self.showRecordsHighlight.sort = -98;
+	self.showRecordsHighlight.color = (0.75, 0.75, 0.75);
+	self.showRecordsHighlight setShader(level.showRecordsHighlightShader, 195, 11);
 	self _hideRecords(true);
 }
 
@@ -74,6 +93,7 @@ _hideRecords(force)
 		self setClientCvar("openCJ_records_times", "");
 	self.showRecords_nameString = "";
 	self.showRecords_timeString = "";
+	self.showRecordsHighlight.alpha = 0;
 }
 
 _getRecords(checkpoints, persist, timems)
@@ -149,6 +169,8 @@ _updateRecords(client, rows, overrideTime, force)
 	ownNum = i;
 	rows[i][0] = client.name;
 	rows[i][1] = timePlayed;
+	self.showRecordsHighlight.y = 50 + 12 * ownNum;
+	self.showRecordsHighlight.alpha = 0.75;
 			
 	for(i = 0; i < rows.size; i++)
 	{

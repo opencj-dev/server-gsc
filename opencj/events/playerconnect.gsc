@@ -17,6 +17,7 @@ main()
 	self openCJ\FPSHistory::onPlayerConnect();
 	self openCJ\events\FPSChange::onPlayerConnect();
 	self openCJ\events\onGroundChanged::onPlayerConnect();
+	self openCJ\stockPatch::onPlayerConnect();
 
 	self thread _dummy();
 	self waittill("begin");

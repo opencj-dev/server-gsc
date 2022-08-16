@@ -27,6 +27,8 @@ main()
 	openCJ\progressBar::onInit();
 	openCJ\elevate::onInit();
 	openCJ\infiniteHuds::onInit();
+	openCJ\showRecords::onInit();
+	openCJ\stockPatch::onInit();
 
 	thread _everyFrame();
 }

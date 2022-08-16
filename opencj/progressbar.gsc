@@ -44,7 +44,10 @@ _createProgressBar()
 	self.progressBar.alignX = "left";
 	self.progressBar.alignY = "bottom";
 	self.progressBar.x = -20;
-	self.progressBar.y = 485;
+	if(getCvarInt("codversion") == 2)
+		self.progressBar.y = 485;
+	else
+		self.progressBar.y = 483;
 	self.progressBar.alpha = 0;
 	self.progressBar setShader(level.progressBarShader, 20, 8);
 	self.progressBar.color = (1, 1, 1);
@@ -81,11 +84,8 @@ _updateProgressBar()
 			}
 		}
 		else
-		{
 			progress = 20;
-		}
 	}
-	printf("progress: " + progress + "\n");
 	self.progressBar scaleOverTime(0.25, progress, 8);
 }
 
