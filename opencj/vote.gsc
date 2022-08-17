@@ -236,7 +236,9 @@ _voteSuccess()
 
 _changeMap(map)
 {
+	iprintlnbold("Switching map to " + map + " in 5 seconds..");
 	wait 5;
-	map(map);
+	setCvar("sv_maprotation", "map " + map);
+	exitLevel(false);
 }
 
