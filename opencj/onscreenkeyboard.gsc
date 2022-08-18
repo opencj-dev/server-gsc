@@ -28,8 +28,8 @@ whileAlive()
 
 onSpectatorClientChanged(newClient) //can be undefined for free spec
 {
-	if(!isDefined(newClient))
-		self _hideKeyboard();
+	// It will be shown again on next update
+	self _hideKeyboard();
 }
 
 onSpawnSpectator()
@@ -167,7 +167,6 @@ _createKeyboard()
 
 _hideKeyboard()
 {
-	printf("hiding keyboard\n");
 	self.keyboard["forward"].alpha = 0;
 	self.keyboard["back"].alpha = 0;
 	self.keyboard["right"].alpha = 0;

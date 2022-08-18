@@ -4,21 +4,21 @@ onInit()
 {
 	level.saveFlags = [];
 	level.saveFlags["cheating"] = 1;
-	level.saveFlags["speedMode"] = 2;
+	level.saveFlags["speedModeNow"] = 2;
 	level.saveFlags["speedModeEver"] = 4;
 	level.saveFlags["rpg"] = 8;
-	level.saveFlags["elevateOverride"] = 16;
-	level.saveFlags["elevatorOverrideEver"] = 32;
+	level.saveFlags["eleOverrideNow"] = 16;
+	level.saveFlags["eleOverrideEver"] = 32;
 }
 
-hasElevateOverride(save)
+getFlagEleOverrideNow(save)
 {
-	return (save.flags & level.saveFlags["elevateOverride"]) != 0;
+	return (save.flags & level.saveFlags["eleOverrideNow"]) != 0;
 }
 
-hasElevateOverrideEver(save)
+getFlagEleOverrideEver(save)
 {
-	return (save.flags & level.saveFlags["elevatorOverrideEver"]) != 0;
+	return (save.flags & level.saveFlags["eleOverrideEver"]) != 0;
 }
 
 isCheating(save)
@@ -26,9 +26,9 @@ isCheating(save)
 	return (save.flags & level.saveFlags["cheating"]) != 0;
 }
 
-hasSpeedMode(save)
+hasSpeedModeNow(save)
 {
-	return (save.flags & level.saveFlags["speedMode"]) != 0;
+	return (save.flags & level.saveFlags["speedModeNow"]) != 0;
 }
 
 hasSpeedModeEver(save)
@@ -50,7 +50,7 @@ createFlags()
 	}
 	if(self openCJ\speedMode::hasSpeedMode())
 	{
-		flags |= level.saveFlags["speedMode"];
+		flags |= level.saveFlags["speedModeNow"];
 	}
 	if(self openCJ\speedMode::hasSpeedModeEver())
 	{
@@ -60,13 +60,13 @@ createFlags()
 	{
 		flags |= level.saveFlags["rpg"];
 	}
-	if(openCJ\elevate::hasElevateOverride())
+	if(openCJ\elevate::hasEleOverrideNow())
 	{
-		flags |= level.saveFlags["elevateOverride"];
+		flags |= level.saveFlags["eleOverrideNow"];
 	}
-	if(openCJ\elevate::hasElevateOverrideEver())
+	if(openCJ\elevate::hasEleOverrideEver())
 	{
-		flags |= level.saveFlags["elevatorOverrideEver"];
+		flags |= level.saveFlags["eleOverrideEver"];
 	}
 	return flags;
 }
@@ -198,7 +198,7 @@ setSavedPosition()
 		printf("saving with undef id\n");
 	*/
 	flags = self createFlags();
-	printf("flags: "  + flags + "\n");
+	//printf("flags: "  + flags + "\n");
 	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);
 	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);
 }
@@ -216,12 +216,14 @@ getSavedPosition(backwardsCount)
 	save.doubleRPGs = self savePosition_getDoubleRPGs();
 	save.checkpointID = self savePosition_getCheckpointID();
 	save.flags = self savePosition_getFlags();
-	printf("flags: " + save.flags + "\n");
+	//printf("flags: " + save.flags + "\n");
 
+	/*
 	if(isdefined(save.checkpointID))
 		printf("cp id defined, " + save.checkpointID + "\n");
 	else
 		printf("cp id undef\n");
+	*/
 
 	groundEntity = self savePosition_getGroundEntity();
 
@@ -296,7 +298,12 @@ loadNormal()
 loadSecondary()
 {
 	self.savePosition_backwardsCount++;
-	self thread _loadNextFrame(self.savePosition_backwardsCount);
+	self loadBackwards(self.savePosition_backwardsCount);
+}
+
+loadBackwards(backwardsCount)
+{
+	self thread _loadNextFrame(backwardsCount);
 }
 
 _loadNextFrame(backwardsCount)

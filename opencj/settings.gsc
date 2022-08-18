@@ -2,79 +2,208 @@
 
 onInit()
 {
-	level.settings = [];
+    level.settings = [];
 }
 
 onPlayerConnect()
 {
-	printf("Clearing settings\n\n\n\n");
-	self.settings = [];
-	settings = getArrayKeys(level.settings);
-	for(i = 0; i < settings.size; i++)
-		self.settings[settings[i]] = level.settings[settings[i]].defaultVal;
+    self setDefaultSettings();
 }
 
-setting_createNewInt(name, min, max, defaultVal)
+getSetting(name)
 {
-	setting = spawnStruct();
-	setting.type = "int";
-	setting.min = min;
-	setting.max = max;
-	setting.defaultVal = defaultVal;
-	level.settings[name] = setting;
+    return self.settings[name];
 }
 
-setting_createNewString(name, defaultVal)
+onSetting(name, args)
 {
-	setting = spawnStruct();
-	setting.type = "string";
-	setting.defaultVal = defaultVal;
-	level.settings[name] = setting;
+    // For now we always have 1 argument
+    if(!isDefined(args) || (args.size != 1))
+    {
+        self sendLocalChatMessage("ERROR! Setting was called with args.size != 1", true);
+        return;
+    }
+    arg = args[0];
+
+    setting = level.settings[name];
+    if(!isDefined(setting))
+    {
+        self sendLocalChatMessage("ERROR! Setting is not defined, but it is... how?", true);
+        return;
+    }
+
+    switch(setting.type)
+    {
+        case "string":
+        {
+            if(arg.size < setting.minLen)
+            {
+                self sendLocalChatMessage("Length of argument " + arg + " is below minimum " + setting.minLen, true);
+                return;
+            }
+            if(arg.size > setting.maxLen)
+            {
+                self sendLocalChatMessage("Length of argument " + arg + " is above maximum " + setting.minLen, true);
+                return;
+            }
+
+            self.settings[name] = arg;
+        } break;
+        case "int":
+        {
+            if(!isValidInt(arg))
+            {
+                self sendLocalChatMessage("Argument " + arg + " is not a valid integer", true);
+                return;
+            }
+
+            arg = int(arg);
+            if(arg < setting.minVal)
+            {
+                self sendLocalChatMessage("Argument " + arg + " is below minimum " + setting.minVal, true);
+                return;
+            }
+            if(arg > setting.maxVal)
+            {
+                self sendLocalChatMessage("Argument " + arg + " is above maximum " + setting.maxVal, true);
+                return;
+            }
+
+            self.settings[name] = arg;
+        } break;
+        case "bool":
+        {
+            if(!isValidBool(arg))
+            {
+                self sendLocalChatMessage("Argument " + arg + " is not a valid bool", true);
+                return;
+            }
+
+            self.settings[name] = strToBool(arg);
+        } break;
+        case "float":
+        {
+            if(!isValidFloat(arg))
+            {
+                self sendLocalChatMessage("Argument " + arg + " is not a valid float", true);
+                return;
+            }
+
+            arg = float(arg);
+            if(arg < setting.minVal)
+            {
+                self sendLocalChatMessage("Argument " + arg + " is below minimum " + setting.minVal, true);
+                return;
+            }
+            if(arg > setting.maxVal)
+            {
+                self sendLocalChatMessage("Argument " + arg + " is above maximum " + setting.maxVal, true);
+                return;
+            }
+
+            self.settings[name] = arg;
+        } break;
+        default:
+        {
+            self sendLocalChatMessage("ERROR! Setting: " + name + " has invalid type: " + setting.type, true);
+            return;
+        }
+    }
+
+    // If a setting was changed, check if a dvar needs to be changed with it etc
+    if(isDefined(setting.updateFunc))
+    {
+        self [[setting.updateFunc]](self.settings[name]);
+    }
+
+    return;
 }
 
-setting_createNewFloat(name, min, max, defaultVal)
+setDefaultSettings()
 {
-	setting = spawnStruct();
-	setting.type = "float";
-	setting.min = min;
-	setting.max = max;
-	setting.defaultVal = defaultVal;
-	level.settings[name] = setting;
+    if(!isDefined(self.settings))
+    {
+        self.settings = [];
+    }
+
+	keys = getArrayKeys(level.settings);
+	for(i = 0; i < keys.size; i++)
+    {
+		self.settings[keys[i]] = level.settings[keys[i]].defaultVal;
+    }
 }
 
-setting_set(name, value)
+addSettingString(name, minLen, maxLen, defaultVal, help, updateFunc)
 {
-	if(!isDefined(level.settings[name]))
-		return undefined;
-	if(!isDefined(value))
-		return undefined;
-	if(level.settings[name].type == "string")
-	{
-		self.settings[name] = value;
-		return value;
-	}
-	else if(level.settings[name].type == "int")
-	{
-		val = int(value);
-		if(val == 0 && value + "" != "0")
-			return undefined;
-		self.settings[name] = val;
-		return val;
-	}
-	else if(level.settings[name].type == "float")
-	{
-		val = float(value);
-		if(val == 0 && value + "" != "0")
-			return undefined;
-		self.settings[name] = val;
-		return val;
-	}
-	return undefined;
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    if (isDefined(underlyingCmd))
+    {
+        level.settings[name].type = "string";
+        level.settings[name].minLen = minLen;
+        level.settings[name].maxLen = maxLen;
+        return underlyingCmd;
+    }
+
+    return undefined;
 }
 
-setting_get(name)
+addSettingInt(name, minVal, maxVal, defaultVal, help, updateFunc)
 {
-	if(!isDefined(level.settings[name]))
-		return undefined;
-	return self.settings[name];
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    if (isDefined(underlyingCmd))
+    {
+        level.settings[name].type = "int";
+        level.settings[name].minVal = minVal;
+        level.settings[name].maxVal = maxVal;
+        return underlyingCmd;
+    }
+
+    return undefined;
+}
+
+addSettingBool(name, defaultVal, help, updateFunc)
+{
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    if (isDefined(underlyingCmd))
+    {
+        level.settings[name].type = "bool";
+        return underlyingCmd;
+    }
+
+    return undefined;
+}
+
+addSettingFloat(name, minVal, maxVal, defaultVal, help, updateFunc)
+{
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    if (isDefined(underlyingCmd))
+    {
+        level.settings[name].type = "float";
+        level.settings[name].minVal = minVal;
+        level.settings[name].maxVal = maxVal;
+        return underlyingCmd;
+    }
+
+    return undefined;
+}
+
+_createSetting(name, defaultVal, help, updateFunc)
+{
+    if(isDefined(level.settings[name]))
+    {
+        printf("Attempted to register the same setting twice: " + name + "\n");
+        return undefined;
+    }
+    level.settings[name] = spawnStruct();
+    level.settings[name].defaultVal = defaultVal;
+    if(isDefined(updateFunc))
+    {
+        level.settings[name].updateFunc = updateFunc;
+    }
+    // For now always minArgs=maxArgs=1
+    // For now always minAdminLevel=0
+    // If we want to change this, just change the addSettingXXXX functions to accept the new parameters
+    cmd = openCJ\commands_base::registerCommand(name, help, undefined, 1, 1, 0, level.settings[name]);
+    
+    return cmd; // Return underlying command which contains the setting
 }

@@ -4,48 +4,67 @@ main(args)
 {
 	if(isDefined(args[0]))
 	{
+		// No messing around, filter out special characters
+		fullMsg = args[0];
+		for(i = 0; i < args.size; i++)
+		{
+			fullMsg += " " + args[i];
+		}
+		if(containsIllegalChars(fullMsg))
+		{
+			return;
+		}
+
+		// save, load ..
 		if(self openCJ\savePosition::onPlayerCommand(args))
+		{
 			return;
+		}
 
+		// UID related things
 		if(self openCJ\login::onPlayerCommand(args))
+		{
 			return;
+		}
 
-		if(self openCJ\commands::onPlayerCommand(args))
+		// Chat command: commands (kick, ignore, mute ..), settings (fov, rpgputaway, timestring ..)
+		if(self openCJ\commands_base::onPlayerCommand(args))
+		{
 			return;
+		}
 
+		// Non-chat commands
 		if(args[0] == "spawn")
-			self thread _doNextFrame(openCJ\events\spawnPlayer::main);
+		{
+			self thread doNextFrame(openCJ\events\spawnPlayer::main);
+		}
 		else if(args[0] == "spectate")
-			self thread _doNextFrame(openCJ\events\spawnSpectator::main);
+		{
+			self thread doNextFrame(openCJ\events\spawnSpectator::main);
+		}
 		else if(args[0] == "kill")
-			self _killNextFrame();
-		else if(args[0] == "elevate")
 		{
-			if(isDefined(args[1]) && (args[1] == "on" || args[1] == "off"))
-				self allowElevate(args[1] == "on");
+			self thread _killNextFrame();
 		}
-		else if(args[0] == "resetrun")
+		else if((args[0] == "say") || (args[0] == "say_team")) // Wrap the chat commands for ignore, mute functionality
 		{
-			self openCJ\playerRuns::resetRunId();
-		}
-		else if(args[0] == "say" || args[0] == "say_team")
 			self openCJ\chat::onChatMessage(args);
+		}
 		else
+		{
 			self clientCommand();
+		}
 	}
-}
-
-_doNextFrame(func)
-{
-	waittillframeend;
-
-	if(isDefined(self))
-		self [[func]]();
 }
 
 _killNextFrame()
 {
+	self endon("disconnect");
+
 	waittillframeend;
+
 	if(isDefined(self))
+	{
 		self suicide();
+	}
 }

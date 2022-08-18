@@ -12,7 +12,7 @@ main(backwardsCount)
 
 		if(getCvarInt("codversion") == 4)
 		{
-			giveRPG = self openCJ\settings::setting_get("rpgtweak") || openCJ\weapons::isRPG(self getCurrentWeapon());
+			giveRPG = self openCJ\settings::getSetting("rpgonload") || openCJ\weapons::isRPG(self getCurrentWeapon());
 		}
 		else
 		{
@@ -38,10 +38,11 @@ main(backwardsCount)
 
 		//set speed mode vars here
 		self openCJ\speedMode::setSpeedModeEver(openCJ\savePosition::hasSpeedModeEver(save));
-		self openCJ\speedMode::setSpeedMode(openCJ\savePosition::hasSpeedMode(save));
+		self openCJ\speedMode::setSpeedMode(openCJ\savePosition::hasSpeedModeNow(save));
 		//set elevate override vars here
-		self openCJ\elevate::setElevateOverrideEver(openCJ\savePosition::hasElevateOverrideEver(save));
-		self openCJ\elevate::setElevateOverride(openCJ\savePosition::hasElevateOverride(save));
+		
+		self openCJ\elevate::setEleOverrideEver(openCJ\savePosition::getFlagEleOverrideEver(save));
+		self openCJ\elevate::setEleOverrideNow(openCJ\savePosition::getFlagEleOverrideNow(save));
 
 		self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 		self openCJ\savePosition::printLoadSuccess();

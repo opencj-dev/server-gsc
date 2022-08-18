@@ -9,8 +9,9 @@ main()
 	openCJ\checkpoints::onInit();
 	openCJ\checkpointPointers::onInit();
 	openCJ\savePosition::onInit();
-
+	openCJ\commands_base::onInit();
 	openCJ\commands::onInit();
+	openCJ\settings::onInit();
 	openCJ\shellShock::onInit();
 	openCJ\spawnpoints::onInit();
 	openCJ\playerModels::onInit();
@@ -31,6 +32,8 @@ main()
 	openCJ\stockPatch::onInit();
 	openCJ\fpsHistory::onInit();
 	openCJ\vote::onInit();
+	openCJ\graphics::onInit();
+	openCJ\statistics::onInit();
 
 	thread _everyFrame();
 }

@@ -5,14 +5,87 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
-isInArray(value, array)
+sendChatMessage(msg)
 {
+	self SV_GameSendServerCommand("h \"" + msg + "\"", true); //last arg is reliable yes/no
+}
+
+sendLocalChatMessage(msg, isError)
+{
+	prefix = undefined;
+	if (isDefined(isError) && isError)
+	{
+		prefix = "^1[^7local^1]:^7 ";
+	}
+	else
+	{
+		prefix = "^3[^7local^3]:^7 ";
+	}
+	self sendChatMessage(prefix + msg);
+}
+
+isValidBool(str)
+{
+	if(!isDefined(str) || (str == ""))
+	{
+		return false;
+	}
+
+	if (isStrBoolTrue(str) || isStrBoolFalse(str)) return true;
+
+	return false;
+}
+
+isStrBoolTrue(str)
+{
+	str = tolower(str);
+	return (str == "on") || (str == "1") || (str == "true") || (str == "yes") || (str == "enable");
+}
+
+isStrBoolFalse(str)
+{
+	str = tolower(str);
+	return (str == "off") || (str == "0") || (str == "false") || (str == "no") || (str == "disable");
+}
+
+strToBool(str)
+{
+	if(!isValidBool(str)) return false; // Sanity check
+	if(isStrBoolTrue(str)) return true;
+
+	return false;
+}
+
+doNextFrame(func)
+{
+	self endon("disconnect");
+	waittillframeend;
+
+	if(isDefined(self))
+		self [[func]]();
+}
+
+isInArray(value, array, isint)
+{
+	if(!isDefined(isint)) isint = false;
+
 	for(i = 0; i < array.size; i++)
 	{
-		if(array[i] == value)
-			return true;
+		if(!isint)
+		{
+			if(array[i] == value) return true;
+		}
+		else
+		{
+			if(int(array[i]) == value) return true;
+		}
 	}
 	return false;
+}
+
+isIntInArray(arr, val)
+{
+	return isInArray(val, arr, true);
 }
 
 getSpectatorList(includeSelf)
@@ -92,7 +165,7 @@ findPlayerByArg(string)
 	tmp = "";
 	for(i = 0; i < string.size; i++)
 	{
-		if(isint(string[i]))
+		if(isValidInt(string[i]))
 			tmp += string[i];
 		else
 		{
@@ -172,24 +245,10 @@ findPlayerByArg(string)
 	return;
 }
 
-isInt(c)
+isDigit(c)
 {
-	switch(c)
-	{
-		case "0":
-		case "1":
-		case "2":
-		case "3":
-		case "4":
-		case "5":
-		case "6":
-		case "7":
-		case "8":
-		case "9":
-			return true;
-		default:
-			return false;
-	}
+	str = "" + c; // Make sure we're dealing with a string
+	return ((str.size == 1) && isValidInt(str));
 }
 
 stripColors(string)
@@ -200,7 +259,7 @@ stripColors(string)
 		gotColors = false;
 		for(i = 0; i < string.size - 1; i++)
 		{
-			if(string[i] == "^" && isInt(string[i + 1]))
+			if(string[i] == "^" && isDigit(string[i + 1]))
 			{
 				newstring = "";
 				if(i > 0)

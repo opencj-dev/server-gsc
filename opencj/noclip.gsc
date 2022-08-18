@@ -2,12 +2,14 @@
 
 onInit()
 {
-	openCJ\commands::registerCommand("noclip", "Enables/disables noclip", ::noclip);
+	cmd = openCJ\commands_base::registerCommand("noclip", "Enables/disables noclip.\nUsage: !noclip [speed]", ::noclip, 0, 1, 0);
+	openCJ\commands_base::addAlias(cmd, "ufo"); // It's not the same, but we don't have ufo anyway so..
 }
 
 onPlayerConnect()
 {
 	self.noclip = false;
+	self.noclip_speed = 20;
 }
 
 onRunIDCreated()
@@ -17,10 +19,43 @@ onRunIDCreated()
 
 noclip(args)
 {
-	if(self hasNoclip())
-		self disableNoclip();
+	wasEverEnabled = self hasNoclip();
+	wasEnabled = self hasNoclip();
+	shouldEnable = false;
+	if((args.size == 0) || !isValidInt(args[0]))
+	{
+		shouldEnable = !wasEnabled;
+	}
 	else
+	{
+		speed = int(args[0]);
+		if(speed > 50)
+		{
+			speed = 50;
+		}
+		else if(speed < 10)
+		{
+			speed = 10;
+		}
+
+		self.noclip_speed = speed;
+		shouldEnable = true;
+	}
+
+	if (shouldEnable && !wasEnabled)
+	{
 		self enableNoclip();
+		self sendLocalChatMessage("Noclip on");
+	}
+	else if (!shouldEnable && wasEnabled)
+	{
+		self disableNoclip();
+		self sendLocalChatMessage("Noclip off");
+		if (wasEverEnabled)
+		{
+			self sendLocalChatMessage("History load back until cheating flag is gone, or !reset");
+		}
+	}
 }
 
 hasNoclip()
@@ -30,19 +65,26 @@ hasNoclip()
 
 disableNoclip()
 {
+	if(!self hasNoclip()) return;
+
 	if(isDefined(self.noclip_linkto))
-		self.noclip_linkto delete();
-	if(self hasNoclip())
 	{
-		self.noclip = false;
-		self unlink();
+		self.noclip_linkto delete();
 	}
+
+	self.noclip = false;
+	self unlink();
 }
 
 enableNoclip()
 {
+	if(self hasNoclip()) return;
+
 	if(isDefined(self.noclip_linkto))
+	{
 		self.noclip_linkto delete();
+	}
+
 	self.noclip = true;
 	self openCJ\cheating::cheat();
 	self openCJ\playerRuns::startRun();
@@ -68,7 +110,14 @@ whileAlive()
 		dir += anglesToUp(self getPlayerAngles());
 	if(self leanLeftButtonPressed())
 		dir -= anglesToUp(self getPlayerAngles());
-	scale = 20 + 80 * self playerADS();
+	scale = self.noclip_speed;
+	if(self issprinting())
+	{
+		scale += 40;
+	}
+	else
+	{
+		scale += 40 * self playerADS();
+	}
 	self.noclip_linkto.origin += vectorScale(dir, scale);
-	//printf("moving noclip to : " + dir + "\n");
 }

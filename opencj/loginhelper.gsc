@@ -37,7 +37,6 @@ _storeUIDContinuous(uid)
 {
 	self endon("UIDStored");
 	self endon("disconnect");
-	printf("starting uid store\n");
 	uidstring = intToHexString(uid[0]) + "-" + intToHexString(uid[1]) + "-" + intToHexString(uid[2]) + "-" + intToHexString(uid[3]);
 
 	while(true)
@@ -45,7 +44,6 @@ _storeUIDContinuous(uid)
 		self openCJ\util::execClientCmd("seta openCJ_login login uid " + uidstring + "; writeconfig accounts/openCJ.cfg; login stored");
 		wait 0.5;
 	}
-	printf("Ending uid store\n");
 }
 
 onPlayerCommand(args)

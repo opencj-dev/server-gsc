@@ -2,14 +2,27 @@
 
 onInit()
 {
-	openCJ\commands::registerCommand("historyload", "Loads a run from your history\nUsage: !historyload [runid]", ::historyLoad);
+	cmd = openCJ\commands_base::registerCommand("runs", "Display all runs or load a previously saved run from your history\nUsage: !runs [runid]", ::historyLoad, 0, 1, 0);
+	openCJ\commands_base::addAlias(cmd, "historyload");
 }
 
-historyLoad(args)
+historyLoad(args) // TODO: support self-named runs
 {
-	runID = int(args[2]);
-	if(self openCJ\login::isLoggedIn())
-		self thread _historyLoad(runID);
+	if (args.size == 0)
+	{
+		self sendLocalChatMessage("Showing runs list is not implemented yet"); // TODO: support list of existing runs
+	}
+	else
+	{
+		if (isValidInt(args[0]))
+		{
+			runID = int(args[0]);
+			if(self openCJ\login::isLoggedIn())
+			{
+				self thread _historyLoad(runID);
+			}
+		}
+	}
 }
 
 _historyLoad(runID)
@@ -23,7 +36,7 @@ _historyLoad(runID)
 	}
 	else
 	{
-		self iprintln("Failed loading history save");
+		self iprintlnbold("^1Failed loading history save for run: " + runID);
 	}
 }
 

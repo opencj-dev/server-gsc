@@ -19,6 +19,7 @@ main()
 	self openCJ\events\onGroundChanged::onPlayerConnect();
 	self openCJ\stockPatch::onPlayerConnect();
 	self openCJ\speedoMeter::onPlayerConnect();
+	self openCJ\demos::onPlayerConnect();
 
 	self thread _dummy();
 	self waittill("begin");

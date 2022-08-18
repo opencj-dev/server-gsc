@@ -60,7 +60,7 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 onInit()
 {
 	level.checkpoints_startCheckpoint = spawnStruct();
-	level.checkpoints_startCheckpoint.elevate = false;
+	level.checkpoints_startCheckpoint.isEleAllowed = false;
 	level.checkpoints_startCheckpoint.childs = [];
 
 	level.checkpoints_checkpoints = [];
@@ -82,7 +82,7 @@ onInit()
 			else
 				checkpoint.childIDs = strTok(rows[i][6], ",");
 			checkpoint.ender = rows[i][7];
-			checkpoint.elevate = int(rows[i][8]);
+			checkpoint.isEleAllowed = int(rows[i][8]);
 			checkpoint.endShaderColor = rows[i][9];
 			checkpoint.bigBrother = intOrUndefined(rows[i][10]);
 			//if(isDefined(checkpoint.endShaderColor))
@@ -228,9 +228,9 @@ getCheckpointShaderColor(checkpoint)
 	return endShaderColors[0];
 }
 
-isElevateAllowed(checkpoint)
+isEleAllowed(checkpoint)
 {
-	return checkpoint.elevate;
+	return checkpoint.isEleAllowed;
 }
 
 getPassedCheckpointCount(checkpoint)
