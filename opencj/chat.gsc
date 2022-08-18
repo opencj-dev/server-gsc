@@ -3,64 +3,82 @@
 onInit()
 {
 	thread _getMessages();
-	openCJ\commands::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::sendPM);
+	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::sendPM);
+	openCJ\commands_base::addAlias(cmd, "whisper");
+	openCJ\commands_base::addAlias(cmd, "message");
 }
 
 onPlayerLogin()
 {
-	self thread _getIgnores();
+	self.ignoreList = [];
+	self thread _fetchIgnoreList();
 }
 
-_getIgnores()
+_fetchIgnoreList()
 {
-	self.ignoreList = [];
 	self endon("disconnect");
+
+	// Retrieve the player's ignore list
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT ignoreID FROM playerIgnore WHERE playerID = " + self openCJ\login::getPlayerID());
 	for(i = 0; i < rows.size; i++)
+	{
 		self.ignoreList[self.ignoreList.size] = int(rows[i][0]);
+	}
 }
 
-_getMessages(previousMessageID)
+_getMessages(previousMessageID) // CSC: Get player messages from servers that are not the current server
 {
 	if(!isDefined(previousMessageID))
 	{
+		// Initially, function is called without argument, so obtain last messageID
 		rows = openCJ\mySQL::mysqlAsyncQuery("SELECT MAX(messageID) FROM messages");
 		if(isDefined(rows[0][0]))
+		{
 			previousMessageID = rows[0][0];
+		}
 	}
 	else
 	{
+		// Every subsequent call to this function will only obtain any new messages (from other servers)
 		players = getEntArray("player", "classname");
 		rows = openCJ\mySQL::mysqlAsyncQuery("SELECT a.messageID, b.playerName, a.message, a.ignoredBy, a.server FROM (SELECT messageID, playerID, message, getIgnoredBy(playerID) ignoredBy, server FROM messages WHERE SERVER != '" + openCJ\mySQL::escapeString(getServerName()) + "' AND messageID > " + previousMessageID + ") a INNER JOIN playerInformation b ON a.playerID = b.playerID");
 		for(i = 0; i < rows.size; i++)
 		{
 			name = rows[i][1];
 			msg = rows[i][2];
-			ignoredBy = rows[i][3];
+			ignoredByCsv = rows[i][3];
 			server = rows[i][4];
-			if(isDefined(ignoredBy))
-				ignoreList = strtok(ignoredBy, ",");
-			else
-				ignoreList = [];
+			ignoredByList = undefined;
+
+			// The sender may or may not be ignored by anyone
+			if(isDefined(ignoredByCsv))
+			{
+				ignoredByList = strtok(ignoredByCsv, ",");
+			}
+
+			// This message will have to be sent to all players in this server..
 			for(j = 0; j < players.size; j++)
 			{
-				ignored = false;
-				for(k = 0; k < ignoreList.size; k++)
+				// ..unless the player is ignoring the sender
+				playerId = players[j] openCJ\login::getPlayerID();
+				if(!isDefined(ignoredByList) || !isIntInArray(ignoredByList, playerId))
 				{
-					if(players[j] openCJ\login::getPlayerID() == int(ignoreList[k]))
-					{
-						ignored = true;
-						break;
-					}
+					players[i] sendChatMessage("[" + server + "]" + name + ":^7 " +  msg);
 				}
-				if(!ignored)
-					players[j] SV_GameSendServerCommand("h \"[" + server + "]" + name + ":^7 " +  msg + "\"", true);
 			}
 		}
-		if(rows.size)
+
+		// If we got a result, set the message's id as the latest id that has been processed
+		if(rows.size > 0)
+		{
 			previousMessageID = rows[rows.size - 1][0];
+		}
 	}
+
+	// Throttle CSC polling to 0.5 seconds
 	wait 0.5;
+
+	// And do the whole thing again!
 	thread _getMessages(previousMessageID);
 }
 
@@ -68,18 +86,44 @@ onChatMessage(args)
 {
 	//say and say_team have identical behavior
 	if(!self openCJ\login::isLoggedIn())
+	{
+		// No chatting until logged in (automatic process)
 		return;
+	}
+
+	// Build the message (without the 'say' / 'say_team')
 	msg = "";
 	for(i = 1; i < args.size; i++)
+	{
 		msg += args[i] + " ";
+	}
+
+	// Direct the message to other players, keeping  in mind ignore, mute ..
 	players = getEntArray("player", "classname");
 	for(i = 0; i < players.size; i++)
 	{
 		if(!players[i] openCJ\login::isLoggedIn())
+		{
+			// Don't direct messages to any non-logged in players
 			continue;
+		}
+
 		if(players[i] isIgnoring(self))
+		{
+			// Don't direct messages to any players who are ignoring this player
 			continue;
-		players[i] SV_GameSendServerCommand("h \"" + self.name + ":^7 " +  msg + "\"", true); //last arg is reliablemsg yes/no
+		}
+		
+		/* Some weird client stuff here :(
+		if(self.pers["team"] == "spectator")
+		{
+			msg = "(Spectator) " + msg;
+		}
+		*/
+		// Send the message
+		players[i] sendChatMessage(self.name + ":^7 " +  msg);
+		
+		// Save into database for cross-server chat
 		thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT INTO messages (playerID, message, server) VALUES (" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(msg) + "', '" + openCJ\mySQL::escapeString(getServerName()) + "')");
 	}	
 }
@@ -90,7 +134,9 @@ isIgnoring(player)
 	for(i = 0; i < self.ignoreList.size; i++)
 	{
 		if(self.ignoreList == playerID)
+		{
 			return true;
+		}
 	}
 	return false;
 }
@@ -102,20 +148,29 @@ getServerName()
 
 sendPM(args)
 {
-	if(args.size > 3 && isDefined(args[2]))
+	// !pm <playerName> <message> [message] [message] ..
+	args[0] = stripcolors(args[0]);
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player) || player isIgnoring(self))
 	{
-		player = findPlayerByArg(args[2]);
-		if(!isDefined(player) || player isIgnoring(self))
-			return;
-		if(player == self)
-		{
-			self iprintln("Cannot pm self");
-			return;
-		}
-		message = args[3];
-		for(i = 4; i < args.size; i++)
-			message += " " + args[i];
-		player SV_GameSendServerCommand("h \"[pm]" + self.name + ":^7 " + message + "\"", true);
+		self sendLocalChatMessage("Player " + args[0] + " not found or they are ignoring you", true);
+		return;
+	}
+	
+	if(player == self)
+	{
+		self sendLocalChatMessage("Cannot pm self", true);
+		return;
 	}
 
+	// Construct the entire message as it may have spaces
+	message = args[1];
+	for(i = 2; i < args.size; i++)
+	{
+		message += " " + args[i];
+	}
+
+	// Send the message to the player, but also let the sender view their message back
+	self sendChatMessage("[you->^5" + stripcolors(player.name) + "^7]: " + message);
+	player sendChatMessage("[^5" + stripcolors(self.name) + "^7->you]: ^5" + message);
 }

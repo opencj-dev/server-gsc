@@ -2,8 +2,16 @@
 
 onInit()
 {
-	openCJ\commands::registerCommand("record", "starts/stops recording", ::record);
-	openCJ\commands::registerCommand("play", "starts/stops playback", ::play);
+	cmd = openCJ\commands_base::registerCommand("record", "starts/stops demo recording", ::record); // For testing purposes, as it's normally automatically done in background
+	openCJ\commands_base::addAlias(cmd, "startrecord");
+	cmd = openCJ\commands_base::registerCommand("play", "starts/stops demo playback", ::play);
+	openCJ\commands_base::addAlias(cmd, "demo");
+}
+
+onPlayerConnect()
+{
+	self.playing = false;
+	self.recording = false;
 }
 
 record(args)
@@ -11,13 +19,13 @@ record(args)
 	if(self.recording)
 	{
 		self.recording = false;
-		printf("angles end of recording: " + self getplayerangles() + "\n");
+		//printf("angles end of recording: " + self getplayerangles() + "\n");
 	}
 	else
 	{
 		self.playing = false;
 		self.recording = true;
-		printf("angles start of recording: " + self getplayerangles() + "\n");
+		//printf("angles start of recording: " + self getplayerangles() + "\n");
 		self.demo = [];
 	}
 }
@@ -32,7 +40,7 @@ play(args)
 	else
 	{
 		//self freezecontrols(true);
-		printf("angles start of playing: " + self getplayerangles() + "\n");
+		//printf("angles start of playing: " + self getplayerangles() + "\n");
 		self.recording = false;
 		self.playing = true;
 		self.framenumber = 0;

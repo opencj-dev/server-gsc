@@ -2,9 +2,12 @@
 
 onInit()
 {
-	openCJ\commands::registerCommand("speedmode", "Used to enable/disable speed mode\nUsage: !speedmode [on/off]", ::speedMode);
 	level.speedMode["normal"] = 190;
-	level.speedMode["speed"] = 500;
+	level.speedMode["maxspeed"] = 500;
+	level.speedMode["minspeed"] = 1;
+
+	cmd = openCJ\commands_base::registerCommand("speedmode", "Used to enable/disable speed mode\nUsage: !speedmode [<value>|off]", ::speedMode, 0, 1, 0);
+	openCJ\commands_base::addAlias(cmd, "speed");
 }
 
 onRunIDCreated()
@@ -16,14 +19,59 @@ onRunIDCreated()
 
 speedMode(args)
 {
-	value = args[2];
-	if(value == "on" || value == "off")
+	wasEverEnabled = self getSpeedModeEver();
+	wasEnabled = self getSpeedModeNow();
+	shouldEnable = false;
+	if(args.size == 0)
 	{
-		self setSpeedMode(value == "on");
-		self applySpeedMode();
+		shouldEnable = !wasEnabled;
 	}
 	else
-		self iprintln(level.commands_commands[args[1]].help);
+	{
+		value = args[0];
+		if(isValidBool(value))
+		{
+			shouldEnable = strToBool(value);
+		}
+		else if(isValidInt(value))
+		{
+			speed = int(value);
+			if (speed > level.speedMode["maxspeed"])
+			{
+				speed = level.speedMode["maxspeed"];
+			}
+			else if (speed < level.speedMode["minspeed"])
+			{
+				speed = level.speedMode["minspeed"];
+			}
+
+			self.speedModeSpeed = speed;
+			shouldEnable = true;
+			wasEnabled = false; // We want to re-enable with higher speed
+		}
+		else
+		{
+			self sendLocalChatMessage("Argument " + value + " is not a bool or integer", true);
+			return;
+		}
+	}
+
+	if(shouldEnable && !wasEnabled)
+	{
+		self setSpeedMode(true);
+		self applySpeedMode();
+		self sendLocalChatMessage("Speed mode on");
+	}
+	else if (!shouldEnable && wasEnabled)
+	{
+		self setSpeedMode(false);
+		self applySpeedMode();
+		self sendLocalChatMessage("Speed mode off");
+		if (wasEverEnabled)
+		{
+			self sendLocalChatMessage("History load back until cheating flag is gone, or !reset");
+		}
+	}
 }
 
 setSpeedModeEver(value)
@@ -33,19 +81,39 @@ setSpeedModeEver(value)
 
 setSpeedMode(value)
 {
-	if(isDefined(self.speedMode) && value == self.speedMode)
+	if(isDefined(self.speedMode) && (value == self.speedMode))
+	{
 		return;
+	}
+
 	self.speedMode = value;
 	if(self.speedMode)
+	{
 		self.speedModeEver = true;
+	}
+}
+
+getSpeedModeNow()
+{
+	return self.speedMode;
+}
+
+getSpeedModeEver()
+{
+	return self.speedModeEver;
 }
 
 applySpeedMode()
 {
+	if(!isDefined(self.speedModeSpeed))
+	{
+		self.speedModeSpeed = level.speedMode["max"];
+	}
+
 	if(self.speedMode)
 	{
-		self setClientCvar("g_speed", level.speedMode["speed"]);
-		self setg_speed(level.speedMode["speed"]);
+		self setClientCvar("g_speed", self.speedModeSpeed);
+		self setg_speed(self.speedModeSpeed);
 	}
 	else
 	{

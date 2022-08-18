@@ -52,12 +52,13 @@ onSpectatorClientChanged(newClient)
 onSpawnSpectator()
 {
     self.fpshistory["hud"].alpha = 0; // Not spectating anyone by default
-    _clearFPSHistory();
+    self _clearFPSHistory();
 }
 
 onSpawnPlayer()
 {
-    _clearFPSHistory();
+    self.fpshistory["hud"].alpha = 0;
+    self _clearFPSHistory();
 }
 
 // The following functions are for the player performing the jump
@@ -126,10 +127,12 @@ onOnGround(isOnGround) // threaded
 _clearFPSHistory()
 {
     self notify("fpshistory_clear");
+    self.fpshistory["text"] = "";
 
     spectators = self getSpectatorList(false);
     for (i = 0; i < spectators.size; i++)
     {
+        printf("Hiding FPS history for spec: " + spectators[i].name + "\n");
         spectators[i].fpshistory["hud"].alpha = 0;
     }
 }

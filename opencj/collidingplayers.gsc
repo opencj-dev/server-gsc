@@ -18,9 +18,9 @@ onFrame()
 				continue;
 			else if(_arePlayersColliding(players[i], players[j]))
 			{
-				if(!players[i] openCJ\settings::setting_get("hidecollidingplayers"))
+				if(!players[i] openCJ\settings::getSetting("hidecollidingplayers"))
 					players[j] showToPlayer(players[i]);
-				if(!players[j] openCJ\settings::setting_get("hidecollidingplayers"))
+				if(!players[j] openCJ\settings::getSetting("hidecollidingplayers"))
 					players[i] showToPlayer(players[j]);
 			}
 			else

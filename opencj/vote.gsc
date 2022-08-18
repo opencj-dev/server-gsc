@@ -2,22 +2,31 @@
 
 onInit()
 {
-	openCJ\commands::registerCommand("vote", "Vote", ::vote);
+	cmd = openCJ\commands_base::registerCommand("vote", "Vote for something.\nUsage: !vote <extend|map mp_mapname>", ::vote, 1, 2, 0);
 }
 
-vote(args) //say !vote map mapname or !vote yes/no
+vote(args) //say !vote map mapname or !vote yes/no or !vote extend
 {
 	if(!self openCJ\login::isLoggedIn())
+	{
 		return;
-	if(isDefined(args[2]) && args[2] == "map" && isDefined(args[3]))
-	{
-		self thread _doVoteMap(args[3]);
 	}
-	else if(isDefined(args[2]) && (args[2] == "yes" || args[2] == "no"))
+
+	if((args[0] == "map") && isDefined(args[1]))
 	{
-		vote = (args[2] == "yes");
-		if(isDefined(self.voted) && self.voted == vote)
+		// TODO: check if map exists
+		self thread _doVoteMap(args[1]);
+	}
+	else if(isValidBool(args[0]))
+	{
+		vote = strToBool(args[0]);
+
+		// Don't allow vote to be cast twice
+		if(isDefined(self.voted) && (self.voted == vote))
+		{
 			return;
+		}
+
 		self.voted = vote;
 		level _updateVoteCount();
 	}
