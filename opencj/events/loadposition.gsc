@@ -12,7 +12,7 @@ main(backwardsCount)
 
 		if(getCvarInt("codversion") == 4)
 		{
-			giveRPG = self openCJ\settings::setting_get("rpgtweak") || openCJ\savePosition::hasRPG(save);
+			giveRPG = self openCJ\settings::setting_get("rpgtweak") || openCJ\weapons::isRPG(self getCurrentWeapon());
 		}
 		else
 		{
