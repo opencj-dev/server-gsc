@@ -8,4 +8,5 @@ main()
 	self openCJ\chat::onPlayerLogin();
 	self openCJ\playerNames::onPlayerLogin();
 	self openCJ\vote::onPlayerLogin();
+	self thread openCJ\commands::onPlayerLogin(); // Executes a query
 }
