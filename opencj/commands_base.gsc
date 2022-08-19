@@ -56,7 +56,7 @@ onPlayerCommand(fullArgs)
 	{
 		fullMsg += " " + fullArgs[i];
 	}
-	printf(self.name + " is executing command: \"" + fullMsg + "\"\n");
+	printf(self.name + " is trying to executing command: \"" + fullMsg + "\"\n");
 	//self sendLocalChatMessage(fullMsg);
 
 	// Is it even a command we support?
@@ -64,6 +64,13 @@ onPlayerCommand(fullArgs)
 	if(!isDefined(cmd))
 	{
 		return false;
+	}
+
+	// Does the player have sufficient permissions?
+	if(self.adminLevel < cmd.minAdminLevel)
+	{
+		self sendLocalChatMessage("You do not have sufficient permissions to execute this command", true);
+		return true; // It was a command, but permissions were incorrect. Don't interpret this as a chat message anymore.
 	}
 
 	// Get rid of say/say_team and the command itself
