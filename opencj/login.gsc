@@ -25,32 +25,40 @@ _tryLogin()
 	self endon("disconnect");
 
 	uid = self openCJ\loginHelper::requestUID();
+	successfulLogin = validateLogin(uid);
+	if(successfulLogin)
+	{
+		return true;
+	}
 
-	if(!isDefined(uid) || uid.size != 4)
-	{
-		self createNewAccount();
-	}
-	else
-	{
-		self validateLogin(uid);
-	}
+	printf("Creating new account for '" + self.name + "'\n");
+	uid = self createNewAccount();
+	return self validateLogin(uid);
 }
 
 validateLogin(uid)
 {
 	self endon("disconnect");
 
+	if(!isDefined(uid) || (uid.size != 4))
+	{
+		printf("Player has no or invalid UID\n");
+		return false;
+	}
+
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
 
 	if(!rows.size || !isDefined(rows[0][0]))
 	{
-		self createNewAccount();
+		printf("No login found for player\n");
+		return false;
 	}
 	else
 	{
 		self.login_playerID = int(rows[0][0]);
 		self openCJ\events\playerLogin::main();
 		//self openCJ\menus::openIngameMenu();
+		return true;
 	}
 }
 
@@ -67,15 +75,15 @@ createNewAccount()
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ")");
 		if(rows.size && isDefined(rows[0][0]))
 		{
-			self.login_playerID = int(rows[0][0]);
 			self openCJ\loginHelper::storeUID(uid);
-			self openCJ\events\playerLogin::main();
-			return;
+			self iprintlnbold("Welcome to OpenCJ!");
+			return uid;
 		}
 		else
 		{
-			printf("creating acc failed\n");
+			printf("Failed to create account\n");
 		}
 	}
 	self iprintlnbold("Cannot create an account right now. Please try reconnecting");
+	return undefined;
 }
