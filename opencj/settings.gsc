@@ -64,6 +64,19 @@ restoreSettings()
     }
 }
 
+setSetting(name, val)
+{
+    if(!isDefined(level.settings[name]))
+    {
+        return false;
+    }
+
+    args = [];
+    args[0] = val;
+    onSetting(name, args);
+    return true;
+}
+
 getSetting(name)
 {
     return self.settings[name];

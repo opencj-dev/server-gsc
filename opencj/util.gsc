@@ -31,7 +31,7 @@ sendLocalChatMessage(msg, isError)
 
 isValidBool(str)
 {
-	if(!isDefined(str) || (str == ""))
+	if(!isDefined(str))
 	{
 		return false;
 	}
@@ -43,13 +43,13 @@ isValidBool(str)
 
 isStrBoolTrue(str)
 {
-	str = tolower(str);
+	str = tolower("" + str);
 	return (str == "on") || (str == "1") || (str == "true") || (str == "yes") || (str == "enable");
 }
 
 isStrBoolFalse(str)
 {
-	str = tolower(str);
+	str = tolower("" + str);
 	return (str == "off") || (str == "0") || (str == "false") || (str == "no") || (str == "disable");
 }
 
