@@ -7,7 +7,7 @@ onInit()
 	addAlias(cmd, "commands");
 }
 
-registerCommand(name, help, func, minArgs, maxArgs, minAdminLevel, setting)
+registerCommand(name, help, func, minArgs, maxArgs, minAdminLevel, settingName)
 {
 	cmd = spawnStruct();
 	cmd.help = help;
@@ -15,7 +15,7 @@ registerCommand(name, help, func, minArgs, maxArgs, minAdminLevel, setting)
 	cmd.minArgs = minArgs;
 	cmd.maxArgs = maxArgs;
 	cmd.minAdminLevel = minAdminLevel;
-	cmd.setting = setting;
+	cmd.settingName = settingName;
 	cmd.alias = false;
 	level.commands[name] = cmd;
 
@@ -92,9 +92,9 @@ onPlayerCommand(fullArgs)
 	}
 
 	// Command might be a setting, if so, let the settings handler deal with it
-	if(isDefined(cmd.setting))
+	if(isDefined(cmd.settingName))
 	{
-		self openCJ\settings::onSetting(fullArgs[1], args); // Name of setting and the arguments
+		self openCJ\settings::onSetting(cmd.settingName, args); // Name of setting and the arguments
 	}
 	else
 	{

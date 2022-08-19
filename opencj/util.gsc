@@ -5,6 +5,11 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+hasResult(rows)
+{
+	return ((rows.size > 0) && isDefined(rows[0][0]));
+}
+
 sendChatMessage(msg)
 {
 	self SV_GameSendServerCommand("h \"" + msg + "\"", true); //last arg is reliable yes/no

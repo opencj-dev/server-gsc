@@ -30,9 +30,13 @@ onPlayerConnect()
 onSpectatorClientChanged(newClient)
 {
 	if(!isDefined(newClient))
+	{
 		self _hideStatisticsHud(false);
+	}
 	else
+	{
 		self _drawStatisticsHUD(newClient);
+	}
 }
 
 whileAlive()

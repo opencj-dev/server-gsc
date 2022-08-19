@@ -7,13 +7,11 @@ main(rpg, name)
 	
 	if(self openCJ\weapons::isRPG(name))
 	{
-		printf("is rpg, calling onrpgfired\n");
 		self openCJ\weapons::onRPGFired(rpg, name);
 		self openCJ\statistics::onRPGFired(rpg, name);
 	}
 	else
 	{
-		printf("is not rpg, deleting\n");
 		rpg delete();
 	}
 }
