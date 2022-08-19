@@ -98,7 +98,7 @@ _createRunID()
 	else
 	{
 		self.playerRuns_runID = rows[0][0];
-		printf("Adding run instance number++\n\n\n");
+		//printf("Adding run instance number++\n");
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
 		if(rows.size && isDefined(rows[0][0]))
 		{
