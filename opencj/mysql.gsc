@@ -2,19 +2,19 @@
 
 onInit()
 {
-	host = "opencj.org";
-	user = "openCJ";
-	pass = "opencjpassword";
-	if(getCvarInt("codversion") == 2)
-		db = "openCJ_cod2";
-	else
-		db = "openCJ_cod4";
-	port = 3306;
+	level.database = [];
+	level.database["host"] = getCvar("db_host");
+	level.database["user"] = getCvar("db_user");;
+	level.database["pass"] = getCvar("db_pass");
+	level.database["port"] = int(getCvar("db_port"));
+	level.database["name"] = getCvar("db_base") + getCvar("codversion");
+	//printf("Got db info: " + level.database["host"] + "," + level.database["user"] + "," + "<censored>" + "," + level.database["port"] + "," + level.database["name"] + "\n");
+
 	level.mySQL = mysql_reuse_connection();
 	if(!isDefined(level.mySQL))
 	{
 		level.mySQL = mysql_init();
-		ret = mysql_real_connect(level.mySQL, host, user, pass, db, port);
+		ret = mysql_real_connect(level.mySQL, level.database["host"], level.database["user"], level.database["pass"], level.database["name"], level.database["port"]);
 		if(!ret)
 		{
 			printf("errno=" + mysql_errno(level.mySQL) + " error= " + mysql_error(level.mySQL) + "\n");
@@ -27,15 +27,7 @@ onInit()
 
 _asyncMySQL()
 {
-	host = "opencj.org";
-	user = "openCJ";
-	pass = "opencjpassword";
-	if(getCvarInt("codversion") == 2)
-		db = "openCJ_cod2";
-	else
-		db = "openCJ_cod4";
-	port = 3306;
-	mysql_async_initializer(host, user, pass, db, port, 4);
+	mysql_async_initializer(level.database["host"], level.database["user"], level.database["pass"], level.database["name"], level.database["port"], 4);
 	while(true)
 	{
 		list = mysql_async_getdone_list();

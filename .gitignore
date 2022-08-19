@@ -6,3 +6,4 @@ q3config_server.cfg
 Library/*
 *.iwd
 *.exe
+*.gpg
