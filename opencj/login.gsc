@@ -47,8 +47,7 @@ validateLogin(uid)
 	}
 
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
-
-	if(!rows.size || !isDefined(rows[0][0]))
+	if(!hasResult(rows))
 	{
 		printf("No login found for player\n");
 		return false;
@@ -73,7 +72,7 @@ createNewAccount()
 			uid[j] = createRandomInt();
 
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ")");
-		if(rows.size && isDefined(rows[0][0]))
+		if(hasResult(rows))
 		{
 			self openCJ\loginHelper::storeUID(uid);
 			self iprintlnbold("Welcome to OpenCJ!");
