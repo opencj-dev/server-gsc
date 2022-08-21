@@ -27,6 +27,7 @@ main()
 	self openCJ\huds::onSpawnPlayer();
 	self openCJ\progressBar::onSpawnPlayer();
 	self openCJ\speedoMeter::onSpawnPlayer();
+	self openCJ\FPSHistory::onSpawnPlayer();
 
 	self setSharedSpawnVars();
 

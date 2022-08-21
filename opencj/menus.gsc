@@ -13,6 +13,11 @@ onInit()
 		level.menu["login"] = "opencj_fps_userinfo";
 		precacheMenu(level.menu["login"]);
 	}
+	else
+	{
+		level.menu["fpsuserinfo"] = "opencj_fps_userinfo";
+		precacheMenu(level.menu["fpsuserinfo"]);
+	}
 }
 
 openLoginmenu()
@@ -26,4 +31,10 @@ onPlayerLogin()
 	//printf("opening menu...\n\n");
 	self setClientCvar("g_scriptMainMenu", level.menu["ingame"]);
 	//self openMenu(level.menu["ingame"]);
+}
+
+openFPSUserinfoMenu()
+{
+	self openMenu(level.menu["fpsuserinfo"]);
+	self closeMenu();
 }

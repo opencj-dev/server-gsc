@@ -3,6 +3,7 @@
 onPlayerConnected()
 {
 	self thread _tryLogin();
+	self openCJ\menus::openFPSUserinfoMenu();
 }
 
 onPlayerCommand(args)
@@ -36,7 +37,9 @@ _tryLogin()
 _getPlayerInformation(uid)
 {
 	self endon("disconnect");
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT playerID, adminLevel FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))");
+	query = "SELECT playerID, adminLevel FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))";
+	printf(query + "\n");
+	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 	if(hasResult(rows))
 	{
 		self.login_playerID = int(rows[0][0]);
@@ -80,12 +83,15 @@ createNewAccount()
 		for(j = 0; j < 4; j++)
 			uid[j] = createRandomInt();
 
-		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
+		query = "SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ", '" + openCJ\mySQL::escapeString(self.name) + "')";
+		printf(query + "\n");
+		rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 		if(hasResult(rows))
 		{
 			loginSuccess = self _getPlayerInformation(uid);
 			if(loginSuccess)
 			{
+				self openCJ\loginHelper::storeUID(uid);
 				self openCJ\events\playerLogin::main();
 				self iprintlnbold("Welcome to OpenCJ!");
 			}
