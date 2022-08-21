@@ -5,6 +5,11 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+isPlayerReady()
+{
+	return self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self openCJ\settings::areSettingsLoaded();
+}
+
 hasResult(rows)
 {
 	return ((rows.size > 0) && isDefined(rows[0][0]));
@@ -13,6 +18,20 @@ hasResult(rows)
 sendChatMessage(msg)
 {
 	self SV_GameSendServerCommand("h \"" + msg + "\"", true); //last arg is reliable yes/no
+}
+
+arrayConcat(array, separator)
+{
+	if(!isDefined(separator))
+		separator = " ";
+	if(!array.size)
+		return "";
+	string = array[0];
+	for(i = 1; i < array.size; i++)
+	{
+		string += separator + array[i];
+	}
+	return string;
 }
 
 sendLocalChatMessage(msg, isError)
@@ -27,6 +46,46 @@ sendLocalChatMessage(msg, isError)
 		prefix = "^3[^7local^3]:^7 ";
 	}
 	self sendChatMessage(prefix + msg);
+}
+
+subArray(array, begin, end)
+{
+	if(!isDefined(begin))
+	{
+		if(!isDefined(end))
+		{
+			return array;
+		}
+		begin = 0;
+	}
+	if(!isDefined(end))
+	{
+		end = array.size;
+	}
+	if(begin < 0)
+	{
+		begin = 0;
+	}
+	if(end > array.size)
+	{
+		end = array.size;
+	}
+	newArray = [];
+	for(i = begin; i < end; i++)
+	{
+		newArray[newArray.size] = array[i];
+	}
+	return newArray;
+}
+
+stringArrayToIntArray(array)
+{
+	newArray = [];
+	for(i = 0; i < array.size; i++)
+	{
+		newArray[newArray.size] = int(array[i]);
+	}
+	return newArray;
 }
 
 isValidBool(str)
@@ -55,7 +114,7 @@ isStrBoolFalse(str)
 
 strToBool(str)
 {
-	if(!isValidBool(str)) return false; // Sanity check
+	if(!isValidBool(str)) return undefined; // Sanity check
 	if(isStrBoolTrue(str)) return true;
 
 	return false;
@@ -70,27 +129,13 @@ doNextFrame(func)
 		self [[func]]();
 }
 
-isInArray(value, array, isint)
+isInArray(value, array)
 {
-	if(!isDefined(isint)) isint = false;
-
 	for(i = 0; i < array.size; i++)
 	{
-		if(!isint)
-		{
-			if(array[i] == value) return true;
-		}
-		else
-		{
-			if(int(array[i]) == value) return true;
-		}
+		if(array[i] == value) return true;
 	}
 	return false;
-}
-
-isIntInArray(arr, val)
-{
-	return isInArray(val, arr, true);
 }
 
 getSpectatorList(includeSelf)

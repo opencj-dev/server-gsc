@@ -31,6 +31,7 @@ main()
 	openCJ\showRecords::onInit();
 	openCJ\stockPatch::onInit();
 	openCJ\fpsHistory::onInit();
+	openCJ\fps::onInit();
 	openCJ\vote::onInit();
 	openCJ\graphics::onInit();
 	openCJ\statistics::onInit();

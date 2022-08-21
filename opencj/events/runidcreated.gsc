@@ -15,6 +15,7 @@ main()
 	self openCJ\speedMode::onRunIDCreated();
 	self openCJ\noclip::onRunIDCreated();
 	self openCJ\elevate::onRunIDCreated();
+	self openCJ\fps::onRunIDCreated();
 
 	self openCJ\events\spawnPlayer::main();
 }

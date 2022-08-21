@@ -15,12 +15,13 @@ main()
 	self openCJ\huds::onPlayerConnect();
 	self openCJ\progressBar::onPlayerConnect();
 	self openCJ\FPSHistory::onPlayerConnect();
-	self openCJ\events\FPSChange::onPlayerConnect();
 	self openCJ\events\onGroundChanged::onPlayerConnect();
 	self openCJ\stockPatch::onPlayerConnect();
 	self openCJ\speedoMeter::onPlayerConnect();
 	self openCJ\demos::onPlayerConnect();
-	self openCJ\commands::onPlayerConnect();
+	self openCJ\commands_base::onPlayerConnect();
+
+	self player_onconnect();
 
 	self thread _dummy();
 	self waittill("begin");

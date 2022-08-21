@@ -48,7 +48,7 @@ setSharedSpawnVars(giveRPG)
 	self openCJ\playerModels::setPlayerModel();
 	
 	self openCJ\statistics::resetAFKOrigin();
-	self openCJ\checkpointPointers::onSpawnPlayer();
+	self openCJ\checkpointPointers::showCheckpointPointers();
 
 	if(getCvarInt("codversion") == 2)
 		self setContents(256);
@@ -60,8 +60,8 @@ setSharedSpawnVars(giveRPG)
 	self jumpClearStateExtended();
 	self openCJ\noclip::disableNoclip();
 	self openCJ\speedMode::applySpeedMode();
-	self openCJ\elevate::onSpawnPlayer();
-	self openCJ\FPSHistory::onSpawnPlayer();
+	self openCJ\elevate::updateServerEleOverride();
+	self openCJ\FPSHistory::hideAndClearFPSHistory();
 }
 
 _dummy()

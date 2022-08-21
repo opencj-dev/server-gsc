@@ -59,11 +59,9 @@ whileAlive()
 	// Draw statistics HUD for ourselves
 	self _drawStatisticsHud(self);
 	
-	specs = self getSpectatorList(true);
+	specs = self getSpectatorList(false);
 	for(i = 0; i < specs.size; i++)
 	{
-		if(specs[i] == self) continue;
-
 		specs[i] _drawStatisticsHud(self);
 	}
 }
@@ -322,6 +320,13 @@ _drawStatisticsHud(client)
 		newstring += self openCJ\settings::getSetting("rpgshotsstring") + " " + client getRPGShots() + "\n";
 		newstring += self openCJ\settings::getSetting("doublerpgsstring") + " " + client getDoubleRPGs() + "\n";
 	}
+	if(client openCJ\fps::hasHaxFPS())
+		newstring += self openCJ\settings::getSetting("fpshaxstring");
+	else if(client openCJ\fps::hasMixFPS())
+		newstring += self openCJ\settings::getSetting("fpsmixstring");
+	else
+		newstring += self openCJ\settings::getSetting("fpspurestring");
+	newstring += client openCJ\fps::getCurrentFPS() + "\n";
 
 	if(self.statistics_lastStatHudString != newstring)
 	{

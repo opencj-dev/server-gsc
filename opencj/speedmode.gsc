@@ -12,7 +12,7 @@ onInit()
 
 onRunIDCreated()
 {
-	self.speedMode = undefined;
+	self.speedModeNow = undefined;
 	self.speedModeEver = false;
 	self setSpeedMode(false);
 }
@@ -81,13 +81,13 @@ setSpeedModeEver(value)
 
 setSpeedMode(value)
 {
-	if(isDefined(self.speedMode) && (value == self.speedMode))
+	if(isDefined(self.speedModeNow) && (value == self.speedModeNow))
 	{
 		return;
 	}
 
-	self.speedMode = value;
-	if(self.speedMode)
+	self.speedModeNow = value;
+	if(self.speedModeNow)
 	{
 		self.speedModeEver = true;
 	}
@@ -95,7 +95,7 @@ setSpeedMode(value)
 
 getSpeedModeNow()
 {
-	return self.speedMode;
+	return self.speedModeNow;
 }
 
 getSpeedModeEver()
@@ -110,7 +110,7 @@ applySpeedMode()
 		self.speedModeSpeed = level.speedMode["max"];
 	}
 
-	if(self.speedMode)
+	if(self.speedModeNow)
 	{
 		self setClientCvar("g_speed", self.speedModeSpeed);
 		self setg_speed(self.speedModeSpeed);
@@ -124,7 +124,7 @@ applySpeedMode()
 
 hasSpeedMode()
 {
-	return self.speedMode;
+	return self.speedModeNow;
 }
 
 hasSpeedModeEver()

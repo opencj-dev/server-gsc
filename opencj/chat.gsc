@@ -26,6 +26,30 @@ _fetchIgnoreList()
 	}
 }
 
+removeFromIgnoreList(playerID)
+{
+	for(i = 0; i < self.ignoreList.size; i++)
+	{
+		if(self.ignoreList[i] == playerID)
+		{
+			self.ignoreList[i] = self.ignoreList[self.ignoreList.size - 1];
+			self.ignoreList[self.ignoreList.size - 1] = undefined;
+			return true;
+		}
+	}
+	return undefined;
+}
+
+addToIgnoreList(playerID)
+{
+	if(!isInArray(playerID, self.ignoreList))
+	{
+		self.ignoreList[self.ignoreList.size] = PlayerID;
+		return true;
+	}
+	return false;
+}
+
 _getMessages(previousMessageID) // CSC: Get player messages from servers that are not the current server
 {
 	if(!isDefined(previousMessageID))
@@ -51,9 +75,11 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 			ignoredByList = undefined;
 
 			// The sender may or may not be ignored by anyone
+			ignoredByListInt = [];
 			if(isDefined(ignoredByCsv))
 			{
-				ignoredByList = strtok(ignoredByCsv, ",");
+				ignoredByListString = strtok(ignoredByCsv, ",");
+				ignoredByListInt = StringArrayToIntArray(ignoredByListString);
 			}
 
 			// This message will have to be sent to all players in this server..
@@ -61,7 +87,7 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 			{
 				// ..unless the player is ignoring the sender
 				playerId = players[j] openCJ\login::getPlayerID();
-				if(!isDefined(ignoredByList) || !isIntInArray(ignoredByList, playerId))
+				if(!isInArray(ignoredByListInt, playerId))
 				{
 					players[i] sendChatMessage("[" + server + "]" + name + ":^7 " +  msg);
 				}
@@ -75,7 +101,7 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 		}
 	}
 
-	// Throttle CSC polling to 0.5 seconds
+	// Throttle CSC polling to 0.5 seconds plus exec time of query
 	wait 0.5;
 
 	// And do the whole thing again!
@@ -121,7 +147,10 @@ onChatMessage(args)
 		}
 		*/
 		// Send the message
-		players[i] sendChatMessage(self.name + ":^7 " +  msg);
+		if(players[i].pers["team"] == "spectator")
+			players[i] sendChatMessage("(Spectator)" + self.name + "^7: " + msg);
+		else
+			players[i] sendChatMessage(self.name + "^7: " + msg);
 		
 		// Save into database for cross-server chat
 		thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT INTO messages (playerID, message, server) VALUES (" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(msg) + "', '" + openCJ\mySQL::escapeString(getServerName()) + "')");
@@ -133,7 +162,7 @@ isIgnoring(player)
 	playerID = player openCJ\login::getPlayerID();
 	for(i = 0; i < self.ignoreList.size; i++)
 	{
-		if(self.ignoreList == playerID)
+		if(self.ignoreList[i] == playerID)
 		{
 			return true;
 		}
@@ -149,7 +178,6 @@ getServerName()
 sendPM(args)
 {
 	// !pm <playerName> <message> [message] [message] ..
-	args[0] = stripcolors(args[0]);
 	player = findPlayerByArg(args[0]);
 	if(!isDefined(player) || player isIgnoring(self))
 	{

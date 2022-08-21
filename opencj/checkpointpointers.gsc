@@ -40,11 +40,6 @@ onPlayerConnect()
 		self objective_player_delete(i);
 }
 
-onSpawnPlayer()
-{
-	self showCheckpointPointers();
-}
-
 onRunIDCreated()
 {
 	self _hideCheckpointPointers();

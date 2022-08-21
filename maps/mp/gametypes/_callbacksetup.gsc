@@ -84,6 +84,10 @@ CodeCallback_PlayerBounced(serverTime)
 
 CodeCallback_SpectatorClientChanged(newClient)
 {
+	if(isDefined(newClient))
+		iprintln("changed spec client " +  newClient getEntityNumber());
+	else
+		iprintln("changed spec client to undef");
 	self openCJ\events\spectatorClientChanged::main(newClient);
 }
 
@@ -109,7 +113,8 @@ CodeCallback_MoveLeft()
 
 CodeCallback_FPSChange(newFrameTime)
 {
-	self openCJ\events\FPSChange::main(newFrameTime);
+	//self openCJ\events\FPSChange::main(newFrameTime);
+	self thread openCJ\events\fpsChange::onPmoveFPSChange(newFrameTime);
 }
 
 /*================

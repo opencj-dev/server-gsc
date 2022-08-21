@@ -77,6 +77,36 @@ _getRowsAndFree(result)
 	return rows;
 }
 
+mysqlAsyncLongQuerySetup()
+{
+	return mysql_setup_longquery();
+}
+
+mysqlAsyncLongQueryAppend(queryID, queryPart)
+{
+	return mysql_append_longquery(queryID, queryPart);
+}
+
+mysqlAsyncLongQueryExecuteSave(queryID)
+{
+	if(isPlayer(self))
+		self endon("disconnect");
+	//printf("Adding async query: " + query + "\n");
+	id = mysql_async_execute_longquery(queryID, true);
+	level waittill("mysqlQueryDone" + id, rows);
+	return rows;
+}
+
+mysqlAsyncLongQueryExecuteNoave(queryID)
+{
+	if(isPlayer(self))
+		self endon("disconnect");
+	//printf("Adding async query: " + query + "\n");
+	id = mysql_async_execute_longquery(queryID, false);
+	level waittill("mysqlQueryDone" + id, rows);
+	return rows;
+}
+
 mysqlAsyncQuery(query)
 {
 	if(isPlayer(self))
