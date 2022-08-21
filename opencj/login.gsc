@@ -3,7 +3,10 @@
 onPlayerConnected()
 {
 	self thread _tryLogin();
-	self openCJ\menus::openFPSUserinfoMenu();
+	if(getCvarInt("codversion") == 4)
+	{
+		self openCJ\menus::openFPSUserinfoMenu();
+	}
 }
 
 onPlayerCommand(args)
