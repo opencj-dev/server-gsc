@@ -97,53 +97,57 @@ getSetting(name)
 parseSettingValue(setting, value)
 {
 	if(!isDefined(value))
+	{
 		return undefined;
-    switch(setting.type)
-    {
-        case "string":
-        {
-            if(value.size < setting.minLen || value.size > setting.maxLen)
-            {
-                return undefined;
-            }
-            return value;
-		}
-        case "int":
-        {
-            if(!isValidInt(value))
-            {
-				return undefined;
-            }
-			value = int(value);
-            if(value < setting.minVal || value > setting.maxVal)
-            {
-                return undefined;
-            }
-			return value;
-        }
-        case "bool":
-        {
-            if(!isValidBool(value))
-            {
-                return undefined;
-            }
-            return strToBool(value);
-        }
-        case "float":
-        {
-            if(!isValidFloat(value))
-            {
-                return undefined;
-            }
+	}
 
-            value = float(value);
-            if(value < setting.minVal || value > setting.maxVal)
-            {
+	switch(setting.type)
+	{
+		case "string":
+		{
+			if((value.size < setting.minLen) || (value.size > setting.maxLen))
+			{
 				return undefined;
 			}
 			return value;
-        }
-    }
+		}
+		case "int":
+		{
+			if(!isValidInt(value))
+			{
+				return undefined;
+			}
+
+			value = int(value);
+			if((value < setting.minVal) || (value > setting.maxVal))
+			{
+				return undefined;
+			}
+			return value;
+		}
+		case "bool":
+		{
+			if(!isValidBool(value))
+			{
+				return undefined;
+			}
+			return strToBool(value);
+		}
+		case "float":
+		{
+			if(!isValidFloat(value))
+			{
+				return undefined;
+			}
+
+			value = float(value);
+			if((value < setting.minVal) || (value > setting.maxVal))
+			{
+				return undefined;
+			}
+			return value;
+		}
+	}
 	return undefined;
 }
 
