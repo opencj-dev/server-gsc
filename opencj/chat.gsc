@@ -139,22 +139,20 @@ onChatMessage(args)
 			// Don't direct messages to any players who are ignoring this player
 			continue;
 		}
-		
-		/* Some weird client stuff here :(
-		if(self.pers["team"] == "spectator")
-		{
-			msg = "(Spectator) " + msg;
-		}
-		*/
+
 		// Send the message
 		if(players[i].pers["team"] == "spectator")
+		{
 			players[i] sendChatMessage("(Spectator)" + self.name + "^7: " + msg);
+		}
 		else
+		{
 			players[i] sendChatMessage(self.name + "^7: " + msg);
-		
-		// Save into database for cross-server chat
-		thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT INTO messages (playerID, message, server) VALUES (" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(msg) + "', '" + openCJ\mySQL::escapeString(getServerName()) + "')");
-	}	
+		}
+	}
+
+	// Save into database for cross-server chat
+	thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT INTO messages (playerID, message, server) VALUES (" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(msg) + "', '" + openCJ\mySQL::escapeString(getServerName()) + "')");
 }
 
 isIgnoring(player)

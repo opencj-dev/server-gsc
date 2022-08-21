@@ -20,6 +20,7 @@ main()
 	self openCJ\speedoMeter::onPlayerConnect();
 	self openCJ\demos::onPlayerConnect();
 	self openCJ\commands_base::onPlayerConnect();
+	self openCJ\playerNames::onPlayerConnect();
 
 	self player_onconnect();
 
