@@ -26,14 +26,25 @@ _tryLogin()
 
 	uid = self openCJ\loginHelper::requestUID();
 	successfulLogin = validateLogin(uid);
-	if(successfulLogin)
+	if(!successfulLogin)
 	{
+		printf("Creating new account for '" + self.name + "'\n");
+		self createNewAccount();
+	}
+}
+
+_getPlayerInformation(uid)
+{
+	self endon("disconnect");
+	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT playerID, adminLevel FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))");
+	if(hasResult(rows))
+	{
+		self.login_playerID = int(rows[0][0]);
+		self openCJ\commands_base::setAdminLevel(int(rows[0][1]));
 		return true;
 	}
-
-	printf("Creating new account for '" + self.name + "'\n");
-	uid = self createNewAccount();
-	return self validateLogin(uid);
+	else
+		return false;
 }
 
 validateLogin(uid)
@@ -45,19 +56,17 @@ validateLogin(uid)
 		printf("Player has no or invalid UID\n");
 		return false;
 	}
-
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
-	if(!hasResult(rows))
+	loginSuccess = self _getPlayerInformation(uid);
+	if(loginSuccess)
 	{
-		printf("No login found for player\n");
-		return false;
+		self thread openCJ\mySQL::mysqlAsyncQueryNosave("CALL setName(" + self.login_playerID + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
+		self openCJ\events\playerLogin::main();
+		return true;
 	}
 	else
 	{
-		self.login_playerID = int(rows[0][0]);
-		self openCJ\events\playerLogin::main();
-		//self openCJ\menus::openIngameMenu();
-		return true;
+		printf("No login found for player\n");
+		return false;
 	}
 }
 
@@ -71,12 +80,21 @@ createNewAccount()
 		for(j = 0; j < 4; j++)
 			uid[j] = createRandomInt();
 
-		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ")");
+		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
 		if(hasResult(rows))
 		{
-			self openCJ\loginHelper::storeUID(uid);
-			self iprintlnbold("Welcome to OpenCJ!");
-			return uid;
+			loginSuccess = self _getPlayerInformation(uid);
+			if(loginSuccess)
+			{
+				self openCJ\events\playerLogin::main();
+				self iprintlnbold("Welcome to OpenCJ!");
+			}
+			else
+			{
+				//this should not happen unless mysql server dies during these queries.
+				self iprintlnbold("Cannot create an account right now. Please try reconnecting");
+			}
+			return;
 		}
 		else
 		{
@@ -84,5 +102,4 @@ createNewAccount()
 		}
 	}
 	self iprintlnbold("Cannot create an account right now. Please try reconnecting");
-	return undefined;
 }

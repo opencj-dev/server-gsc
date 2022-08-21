@@ -56,6 +56,7 @@ _loadSavesFromDatabase(runID, instanceNumber)
 	self openCJ\healthRegen::resetHealthRegen();
 	self openCJ\shellShock::resetShellShock();
 	self openCJ\checkpointPointers::showCheckpointPointers();
+	//add flags and fps
 	
 	for(i = rowsSaves.size - 1; i >= 0; i--)
 	{
@@ -77,7 +78,7 @@ _getEntNum(targetName, numOfEnt)
 	return undefined;
 }
 
-saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, doubleRPGs, checkpointID, flags)
+saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, doubleRPGs, checkpointID, fps, flags)
 {
 	self endon("disconnect");
 	if(self openCJ\playerRuns::isRunFinished())
@@ -109,7 +110,7 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, dou
 	alpha = int(angles[0]);
 	beta = int(angles[1]);
 	gamma = int(angles[2]);
-	rows = openCJ\mySQL::mysqlAsyncQuery("SELECT savePosition(" + runID + ", " + runInstance + ", " + x + ", " + y + ", " + z + ", " + alpha + ", " + beta + ", " + gamma + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + RPGJumps + ", " + nadeJumps + ", " + doubleRPGs + ", " + RPGShots + ", " + nadeThrows + ", " + checkpointID + ", " + flags + ", " + entTargetName + ", " + numOfEnt + ")");
+	rows = openCJ\mySQL::mysqlAsyncQuery("SELECT savePosition(" + runID + ", " + runInstance + ", " + x + ", " + y + ", " + z + ", " + alpha + ", " + beta + ", " + gamma + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + RPGJumps + ", " + nadeJumps + ", " + doubleRPGs + ", " + RPGShots + ", " + nadeThrows + ", " + checkpointID + ", " + fps + ", " + flags + ", " + entTargetName + ", " + numOfEnt + ")");
 	if(!isDefined(rows[0][0]))
 	{
 		//run has been loaded by another instance

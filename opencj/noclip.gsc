@@ -29,9 +29,9 @@ noclip(args)
 	else
 	{
 		speed = int(args[0]);
-		if(speed > 50)
+		if(speed > 100)
 		{
-			speed = 50;
+			speed = 100;
 		}
 		else if(speed < 10)
 		{
@@ -78,12 +78,11 @@ disableNoclip()
 
 enableNoclip()
 {
-	if(self hasNoclip()) return;
-
 	if(isDefined(self.noclip_linkto))
 	{
 		self.noclip_linkto delete();
 	}
+	if(self hasNoclip()) return;
 
 	self.noclip = true;
 	self openCJ\cheating::cheat();
@@ -113,11 +112,11 @@ whileAlive()
 	scale = self.noclip_speed;
 	if(self issprinting())
 	{
-		scale += 40;
+		scale *= 3;
 	}
 	else
 	{
-		scale += 40 * self playerADS();
+		scale *= (1 + 3 * self playerADS());
 	}
 	self.noclip_linkto.origin += vectorScale(dir, scale);
 }

@@ -36,13 +36,24 @@ main(backwardsCount)
 		self openCJ\checkpoints::onLoadPosition();
 		self openCJ\speedoMeter::onLoadPosition();
 
+
 		//set speed mode vars here
 		self openCJ\speedMode::setSpeedModeEver(openCJ\savePosition::hasSpeedModeEver(save));
 		self openCJ\speedMode::setSpeedMode(openCJ\savePosition::hasSpeedModeNow(save));
 		//set elevate override vars here
-		
 		self openCJ\elevate::setEleOverrideEver(openCJ\savePosition::getFlagEleOverrideEver(save));
 		self openCJ\elevate::setEleOverrideNow(openCJ\savePosition::getFlagEleOverrideNow(save));
+		//set hax/mix vars here
+		self openCJ\fps::setHaxFPS(openCJ\savePosition::hasHaxFPS(save));
+		if(self openCJ\fps::getCurrentFPS() != save.fps)
+		{
+			self openCJ\fps::setMixFPS(true);
+		}
+		else
+		{
+			self openCJ\fps::setMixFPS(openCJ\savePosition::hasMixFPS(save));
+		}
+		self openCJ\fps::onLoadPosition();
 
 		self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 		self openCJ\savePosition::printLoadSuccess();

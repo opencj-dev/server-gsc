@@ -55,7 +55,7 @@ onSpawnSpectator()
     self _clearFPSHistory();
 }
 
-onSpawnPlayer()
+hideAndClearFPSHistory()
 {
     self.fpshistory["hud"].alpha = 0;
     self _clearFPSHistory();

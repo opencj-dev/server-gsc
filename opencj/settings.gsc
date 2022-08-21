@@ -5,6 +5,11 @@ onInit()
     level.settings = [];
 }
 
+areSettingsLoaded()
+{
+	return self.settingsLoaded;
+}
+
 onCompletedInit() // Called after all onInit functions have been called
 {
     // At this point all settings will have been added, and no precaches will be done anymore
@@ -20,7 +25,8 @@ onCompletedInit() // Called after all onInit functions have been called
 
 onPlayerConnect()
 {
-    self.settings = [];
+    self.settingValues = [];
+    self.settingsLoaded = false;
     self setDefaultSettings();
 }
 
@@ -36,7 +42,7 @@ setDefaultSettings()
     {
         name = keys[i];
         // Only fill in default value here, but don't apply it. Defaults may not be to the player's liking and should only be a last resort.
-        self.settings[name] = level.settings[name].defaultVal;
+        self.settingValues[name] = level.settings[name].defaultVal;
     }
 }
 
@@ -51,7 +57,7 @@ restoreSettings()
         value = self getPlayerSettingFromDb(name);
         if(isDefined(value))
         {
-            self.settings[name] = value;
+            self.settingValues[name] = value;
             if(isDefined(level.settings[name].updateFunc))
             {
                 self [[level.settings[name].updateFunc]](value);
@@ -62,6 +68,7 @@ restoreSettings()
             // Default value already filled in on connect
         }
     }
+    self.settingsLoaded = true;
 }
 
 setSetting(name, val)
@@ -79,7 +86,7 @@ setSetting(name, val)
 
 getSetting(name)
 {
-    return self.settings[name];
+    return self.settingValues[name];
 }
 
 onSetting(name, args)
@@ -114,7 +121,7 @@ onSetting(name, args)
                 return;
             }
 
-            self.settings[name] = arg;
+            self.settingValues[name] = arg;
         } break;
         case "int":
         {
@@ -136,7 +143,7 @@ onSetting(name, args)
                 return;
             }
 
-            self.settings[name] = arg;
+            self.settingValues[name] = arg;
         } break;
         case "bool":
         {
@@ -146,7 +153,7 @@ onSetting(name, args)
                 return;
             }
 
-            self.settings[name] = strToBool(arg);
+            self.settingValues[name] = strToBool(arg);
         } break;
         case "float":
         {
@@ -168,7 +175,7 @@ onSetting(name, args)
                 return;
             }
 
-            self.settings[name] = arg;
+            self.settingValues[name] = arg;
         } break;
         default:
         {
@@ -180,11 +187,11 @@ onSetting(name, args)
     // If a setting was changed, check if a dvar needs to be changed with it etc
     if(isDefined(setting.updateFunc))
     {
-        self [[setting.updateFunc]](self.settings[name]);
+        self [[setting.updateFunc]](self.settingValues[name]);
     }
 
     // Update setting in database
-    self thread writePlayerSettingToDb(level.settings[name], self.settings[name]);
+    self thread writePlayerSettingToDb(level.settings[name], self.settingValues[name]);
     return;
 }
 
@@ -260,6 +267,10 @@ _createSetting(name, defaultVal, help, updateFunc)
     // For now always minAdminLevel=0
     // If we want to change this, just change the addSettingXXXX functions to accept the new parameters
     cmd = openCJ\commands_base::registerCommand(name, help, undefined, 1, 1, 0, name);
+    if(!isDefined(cmd))
+    {
+		level.settings[name] = undefined;
+	}
     
     return cmd; // Return underlying command which contains the setting
 }

@@ -14,10 +14,8 @@ onInit()
 	else
 	{
 	    underlyingCmd = openCJ\settings::addSettingBool("rpgonload", false, "Enable/disable rpg on load.\nUsage: !rpgonload [on/off]");
-    	openCJ\commands_base::addAlias(underlyingCmd, "rpgtweak");
 
 	    underlyingCmd = openCJ\settings::addSettingBool("rpgputaway", false, "Enable/disable rpg putaway on fire.\nUsage: !rpgputaway [on/off]");
-    	openCJ\commands_base::addAlias(underlyingCmd, "rpgtweak2");
 
 		_registerLoadout("default", "deserteagle_mp");
 		_registerRPG("default", "rpg_mp");

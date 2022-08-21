@@ -16,7 +16,6 @@ registerCommand(name, help, func, minArgs, maxArgs, minAdminLevel, settingName)
 	cmd.maxArgs = maxArgs;
 	cmd.minAdminLevel = minAdminLevel;
 	cmd.settingName = settingName;
-	cmd.alias = false;
 	level.commands[name] = cmd;
 
 	return level.commands[name];
@@ -26,8 +25,18 @@ addAlias(cmd, alias) // If we want specific help functions per alias, just chang
 {
 	// Just register a new command with the same variables. Can't re-use command, because any changes we do in here..
 	// ..such as setting a flag that this is an alias, would apply to the original command as well
-	aliasCmd = registerCommand(alias, cmd.help, cmd.func, cmd.minArgs, cmd.maxArgs, cmd.minAdminLevel, cmd.setting);
-	aliasCmd.alias = true;
+	aliasCmd = spawnStruct();
+	aliasCmd.cmd = cmd;
+	level.commands[alias] = aliasCmd;
+}
+
+onPlayerConnect()
+{
+    self.adminLevel = 0; // Will be updated after login
+}
+setAdminLevel(value)
+{
+	self.adminLevel = value;
 }
 
 onPlayerCommand(fullArgs)
@@ -39,28 +48,29 @@ onPlayerCommand(fullArgs)
 		return false;
 	}
 
-	if((fullArgs[1][0] != "!") && (fullArgs[1][0] != "."))
-	{
-		return false;
-	}
-	fullArgs[1] = getsubstr(tolower(fullArgs[1]), 1);
-
 	// If first argument is say or say_team, it means there is possibly a command afterwards
 	if((fullArgs[0] != "say") && (fullArgs[0] != "say_team"))
 	{
 		return false;
 	}
 
-	fullMsg = fullArgs[1];
-	for(i = 2; i < fullArgs.size; i++)
+	if((fullArgs[1][0] != "!") && (fullArgs[1][0] != "."))
 	{
-		fullMsg += " " + fullArgs[i];
+		return false;
 	}
+	fullArgs[1] = getsubstr(tolower(fullArgs[1]), 1);
+
+	fullMsg = arrayConcat(subArray(fullArgs, 1));
+
 	printf(self.name + " is trying to executing command: \"" + fullMsg + "\"\n");
 	//self sendLocalChatMessage(fullMsg);
 
 	// Is it even a command we support?
 	cmd = level.commands[fullArgs[1]];
+	if(isDefined(cmd.cmd))
+	{
+		cmd = cmd.cmd; //redirect alias commands to their real command counterpart
+	}
 	if(!isDefined(cmd))
 	{
 		return false;
@@ -74,11 +84,7 @@ onPlayerCommand(fullArgs)
 	}
 
 	// Get rid of say/say_team and the command itself
-	args = [];
-	for(i = 0; i < fullArgs.size - 2; i++)
-	{
-		args[i] = fullArgs[i + 2];
-	}
+	args = subArray(fullArgs, 2);
 
 	// Check the number of arguments is correct for this command
 	if (isDefined(cmd.minArgs) && (args.size < cmd.minArgs))
@@ -96,7 +102,7 @@ onPlayerCommand(fullArgs)
 	{
 		self openCJ\settings::onSetting(cmd.settingName, args); // Name of setting and the arguments
 	}
-	else
+	if(isDefined(cmd.func))
 	{
 		// Execute the command with any arguments that may have been passed
 		self [[cmd.func]](args);
@@ -107,6 +113,12 @@ onPlayerCommand(fullArgs)
 
 _showHelp(args)
 {
+	self thread _showHelpWithPacing(args);
+}
+
+_showHelpWithPacing(args)
+{
+	self endon("disconnect");
 	if(isDefined(args) && (args.size > 0))
 	{
 		// Specific help: show help for command
@@ -130,7 +142,7 @@ _showHelp(args)
 		for(i = keys.size - 1; i > 0; i--)
 		{
 			cmd = level.commands[keys[i]];
-			if(cmd.alias)
+			if(isDefined(cmd.cmd))
 			{
 				// Don't list the aliases, that will take up too much text in the chat box
 				continue;
@@ -149,6 +161,7 @@ _showHelp(args)
 			{
 				self sendLocalChatMessage(availableCommands);
 				availableCommands = "";
+				wait 2;
 			}
 			else
 			{

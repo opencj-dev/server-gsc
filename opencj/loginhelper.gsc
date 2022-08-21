@@ -3,7 +3,8 @@
 requestUID()
 {
 	self endon("disconnect");
-	self openCJ\util::execClientCmd("writeconfig temp.cfg; exec accounts/openCJ.cfg; vstr openCJ_login; unbind all; exec temp; login failed");
+	//self openCJ\util::execClientCmd("writeconfig temp.cfg; exec accounts/openCJ.cfg; vstr openCJ_login; unbind all; exec temp; login failed");
+	self openCJ\menus::openLoginmenu();
 
 	self waittill("UIDReceived", uidstring);
 

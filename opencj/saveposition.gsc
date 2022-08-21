@@ -9,6 +9,18 @@ onInit()
 	level.saveFlags["rpg"] = 8;
 	level.saveFlags["eleOverrideNow"] = 16;
 	level.saveFlags["eleOverrideEver"] = 32;
+	level.saveFlags["haxfps"] = 64;
+	level.saveFlags["mixfps"] = 128;
+}
+
+hasHaxFPS(save)
+{
+	return (save.flags & level.saveFlags["haxfps"]) != 0;
+}
+
+hasMixFPS(save)
+{
+	return (save.flags & level.saveFlags["mixfps"]) != 0;
 }
 
 getFlagEleOverrideNow(save)
@@ -67,6 +79,14 @@ createFlags()
 	if(openCJ\elevate::hasEleOverrideEver())
 	{
 		flags |= level.saveFlags["eleOverrideEver"];
+	}
+	if(openCJ\fps::hasHaxFPS())
+	{
+		flags |= level.saveFlags["haxfps"];
+	}
+	if(openCJ\fps::hasMixFPS())
+	{
+		flags |= level.saveFlags["mixfps"];
 	}
 	return flags;
 }
@@ -199,8 +219,9 @@ setSavedPosition()
 	*/
 	flags = self createFlags();
 	//printf("flags: "  + flags + "\n");
-	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);
-	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), flags);
+	fps = self openCJ\fps::getCurrentFPS();
+	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
+	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
 }
 
 getSavedPosition(backwardsCount)
@@ -216,6 +237,7 @@ getSavedPosition(backwardsCount)
 	save.doubleRPGs = self savePosition_getDoubleRPGs();
 	save.checkpointID = self savePosition_getCheckpointID();
 	save.flags = self savePosition_getFlags();
+	save.fps = self savePosition_getFPS();
 	//printf("flags: " + save.flags + "\n");
 
 	/*

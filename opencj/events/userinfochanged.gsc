@@ -2,6 +2,8 @@
 
 main()
 {
+	printf("userinfo changed\n");
 	self openCJ\playerNames::onUserInfoChanged();
-	self clientuserinfochanged();
+	self openCJ\events\fpsChange::onUserInfoChanged();
+	self clientUserInfoChanged();
 }

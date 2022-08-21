@@ -2,7 +2,6 @@
 
 main()
 {
-	self thread openCJ\commands::onPlayerLogin(); // Executes a query
 	self thread openCJ\settings::onPlayerLogin(); // Executes queries
 	self openCJ\playerRuns::onPlayerLogin();
 	self openCJ\country::onPlayerLogin();

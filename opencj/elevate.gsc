@@ -29,13 +29,13 @@ _onCommandEleOverride(args)
 	if(shouldEnable && !wasEnabled)
 	{
 		self setEleOverrideNow(true);
-		self _updateServerEleOverride();
+		self updateServerEleOverride();
 		self sendLocalChatMessage("Your run now allows elevators. If you don't want this, load back to before you enabled elevators.");
 	}
 	else if(!shouldEnable && wasEnabled)
 	{
 		self setEleOverrideNow(false);
-		self _updateServerEleOverride();
+		self updateServerEleOverride();
 		self sendLocalChatMessage("Elevators have been turned off.");
 		if (wasEverEnabled)
 		{
@@ -50,25 +50,19 @@ onRunIDCreated()
 	// New run started, all ele things are not relevant anymore
 	self.eleOverrideNow = false;
 	self.eleOverrideEver = false;
-	self _updateServerEleOverride();
-}
-
-onSpawnPlayer()
-{
-	// If player spawns, server may not correctly know the right allowEle status
-	self _updateServerEleOverride();
+	self updateServerEleOverride();
 }
 
 onRunFinished(cp)
 {
 	// Run is finished, so not in run... allow elevators
-	self _updateServerEleOverride();
+	self updateServerEleOverride();
 }
 
 onCheckpointsChanged()
 {
 	// Checkpoint changed, maybe the next one allows an elevator to be used
-	self _updateServerEleOverride();
+	self updateServerEleOverride();
 }
 
 setEleOverrideEver(value)
@@ -102,7 +96,7 @@ hasEleOverrideEver()
 	return self.eleOverrideEver;
 }
 
-_updateServerEleOverride() // Send allowElevate status to server code
+updateServerEleOverride() // Send allowElevate status to server code
 {
 	if(self.eleOverrideNow)
 	{
@@ -128,7 +122,7 @@ _updateServerEleOverride() // Send allowElevate status to server code
 
 onElevate()
 {
-	if(self.eleOverrideNow || self openCJ\playerRuns::isRunFinished() || self _isEleAllowedThisCheckpoint())
+	if(self.eleOverrideNow || self openCJ\playerRuns::isRunFinished() || self _isEleAllowedThisCheckpoint() || self openCJ\cheating::isCheating())
 	{
 		// This elevator is allowed
 		return;
