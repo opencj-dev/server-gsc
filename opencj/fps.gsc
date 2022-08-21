@@ -27,7 +27,7 @@ onLoadPosition()
 			printf("trying to load\n");
 			self iPrintLnBold("Loaded because hax detected");
 			self setClientCvar("com_maxfps", 125);
-			self set_userinfo("com_maxfps", "125");
+			//self set_userinfo("com_maxfps", "125");
 			self clearfpsfilter();
 			self.fps = 125;
 			self _fpsChange(125);
@@ -53,7 +53,7 @@ haxFPSDetection()
 			printf("trying to load\n");
 			self iPrintLnBold("Loaded because hax detected");
 			self setClientCvar("com_maxfps", 125);
-			self set_userinfo("com_maxfps", "125");
+			//self set_userinfo("com_maxfps", "125");
 			self clearfpsfilter();
 			self.fps = 125;
 			self _fpsChange(125);

@@ -1,5 +1,10 @@
 #include openCJ\util;
 
+onInit()
+{
+	setClientNameMode("auto_change"); //allow renaming during round
+}
+
 onPlayerLogin()
 {
 	self.oldName = self.name;

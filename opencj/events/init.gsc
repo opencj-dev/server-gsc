@@ -35,6 +35,7 @@ main()
 	openCJ\vote::onInit();
 	openCJ\graphics::onInit();
 	openCJ\statistics::onInit();
+	openCJ\playerNames::onInit();
 
 	thread _everyFrame();
 
