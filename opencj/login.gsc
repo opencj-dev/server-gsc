@@ -26,8 +26,14 @@ _tryLogin()
 	self endon("disconnect");
 
 	uid = self openCJ\loginHelper::requestUID();
-	successfulLogin = validateLogin(uid);
-	if(!successfulLogin)
+
+	loginSuccess = self _getPlayerInformation(uid);
+	if(loginSuccess)
+	{
+		self thread openCJ\mySQL::mysqlAsyncQueryNosave("CALL setName(" + self.login_playerID + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
+		self openCJ\settings::loadSettingsFromDatabase();
+	}
+	else
 	{
 		printf("Creating new account for '" + self.name + "'\n");
 		self createNewAccount();
@@ -37,6 +43,9 @@ _tryLogin()
 _getPlayerInformation(uid)
 {
 	self endon("disconnect");
+	if(!isDefined(uid))
+		return false;
+
 	query = "SELECT playerID, adminLevel FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))";
 	printf(query + "\n");
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
@@ -48,29 +57,6 @@ _getPlayerInformation(uid)
 	}
 	else
 		return false;
-}
-
-validateLogin(uid)
-{
-	self endon("disconnect");
-
-	if(!isDefined(uid) || (uid.size != 4))
-	{
-		printf("Player has no or invalid UID\n");
-		return false;
-	}
-	loginSuccess = self _getPlayerInformation(uid);
-	if(loginSuccess)
-	{
-		self thread openCJ\mySQL::mysqlAsyncQueryNosave("CALL setName(" + self.login_playerID + ", '" + openCJ\mySQL::escapeString(self.name) + "')");
-		self openCJ\events\playerLogin::main();
-		return true;
-	}
-	else
-	{
-		printf("No login found for player\n");
-		return false;
-	}
 }
 
 createNewAccount()
@@ -92,7 +78,7 @@ createNewAccount()
 			if(loginSuccess)
 			{
 				self openCJ\loginHelper::storeUID(uid);
-				self openCJ\events\playerLogin::main();
+				self openCJ\settings::onNewAccount();
 				self iprintlnbold("Welcome to OpenCJ!");
 			}
 			else

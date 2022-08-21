@@ -10,29 +10,11 @@ areSettingsLoaded()
 	return self.settingsLoaded;
 }
 
-onCompletedInit() // Called after all onInit functions have been called
-{
-    // At this point all settings will have been added, and no precaches will be done anymore
-    keys = getArrayKeys(level.settings);
-    for(i = 0; i < keys.size; i++)
-    {
-        name = keys[i];
-        id = writeGlobalSettingToDb(name);
-        level.settings[name].id = id;
-        //printf("Setting id for setting " + name + " to " + id + "\n");
-    }
-}
-
 onPlayerConnect()
 {
     self.settingValues = [];
     self.settingsLoaded = false;
     self setDefaultSettings();
-}
-
-onPlayerLogin()
-{
-    self restoreSettings();
 }
 
 setDefaultSettings()
@@ -46,29 +28,52 @@ setDefaultSettings()
     }
 }
 
-restoreSettings()
+loadSettingsFromDatabase()
 {
-    self endon("disconnect");
+	self endon("disconnect");
 
-    keys = getArrayKeys(level.settings);
-    for(i = 0; i < keys.size; i++)
-    {
-        name = keys[i];
-        value = self getPlayerSettingFromDb(name);
-        if(isDefined(value))
-        {
-            self.settingValues[name] = value;
-            if(isDefined(level.settings[name].updateFunc))
-            {
-                self [[level.settings[name].updateFunc]](value);
-            }
-        }
-        else
-        {
-            // Default value already filled in on connect
-        }
-    }
-    self.settingsLoaded = true;
+	query = "SELECT a.settingName, b.value FROM settings a INNER JOIN playerSettings b ON a.settingID = b.settingID";
+
+	availableSettings = getArrayKeys(level.settings);
+
+	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+	if(isDefined(rows))
+	{
+		for(i = 0; i < rows.size; i++)
+		{
+			name = rows[i][0];
+			if(isInArray(name, availableSettings))
+			{
+				value = parseSettingValue(level.settings[name], rows[i][1]);
+				if(!isDefined(value))
+				{
+					self iprintln("Not setting " + name + " because it has an invalid stored value");
+					self thread _clearSetting(name);
+				}
+				else
+				{
+					self.settingValues[name] = value;
+					if(isDefined(level.settings[name].updateFunc))
+					{
+						self [[level.settings[name].updateFunc]](value);
+					}
+				}
+			}
+		}
+	}
+	self.settingsLoaded = true;
+	self openCJ\events\playerLogin::main();
+}
+
+onNewAccount()
+{
+	self.settingsLoaded = true;
+	self openCJ\events\playerLogin::main();
+}
+
+_clearSetting(name)
+{
+	self thread openCJ\mySQL::mysqlAsyncQueryNosave("DELETE FROM playerSettings WHERE playerID = " + self openCJ\login::getPlayerID() + " AND settingID = (SELECT settingID FROM settings WHERE setting = " + openCJ\mySQL::escapeString(name) + ")");
 }
 
 setSetting(name, val)
@@ -89,6 +94,59 @@ getSetting(name)
     return self.settingValues[name];
 }
 
+parseSettingValue(setting, value)
+{
+	if(!isDefined(value))
+		return undefined;
+    switch(setting.type)
+    {
+        case "string":
+        {
+            if(value.size < setting.minLen || value.size > setting.maxLen)
+            {
+                return undefined;
+            }
+            return value;
+		}
+        case "int":
+        {
+            if(!isValidInt(value))
+            {
+				return undefined;
+            }
+			value = int(value);
+            if(value < setting.minVal || value > setting.maxVal)
+            {
+                return undefined;
+            }
+			return value;
+        }
+        case "bool":
+        {
+            if(!isValidBool(value))
+            {
+                return undefined;
+            }
+            return strToBool(value);
+        }
+        case "float":
+        {
+            if(!isValidFloat(value))
+            {
+                return undefined;
+            }
+
+            value = float(value);
+            if(value < setting.minVal || value > setting.maxVal)
+            {
+				return undefined;
+			}
+			return value;
+        }
+    }
+	return undefined;
+}
+
 onSetting(name, args)
 {
     // For now we always have 1 argument
@@ -100,11 +158,6 @@ onSetting(name, args)
     arg = args[0];
 
     setting = level.settings[name];
-    if(!isDefined(setting) || !isDefined(setting.id))
-    {
-        self sendLocalChatMessage("ERROR! Setting is not defined, but it is... how?", true);
-        return;
-    }
 
     switch(setting.type)
     {
@@ -191,7 +244,7 @@ onSetting(name, args)
     }
 
     // Update setting in database
-    self thread writePlayerSettingToDb(level.settings[name], self.settingValues[name]);
+    self thread writePlayerSettingToDb(name, self.settingValues[name]);
     return;
 }
 
@@ -275,115 +328,9 @@ _createSetting(name, defaultVal, help, updateFunc)
     return cmd; // Return underlying command which contains the setting
 }
 
-getGlobalSettingIdFromDb(name)
-{
-    query = "SELECT settingID FROM settings WHERE settingName = '" + name + "'";
-    rows = openCJ\mySQL::mysqlAsyncQuery(query);
-    if(hasResult(rows) && isValidInt(rows[0][0]))
-    {
-        return int(rows[0][0]);
-    }
-
-    return undefined; // Setting not found
-}
-
-writeGlobalSettingToDb(name)
-{
-    // Check if this is a new setting that should be added to the database
-    id = getGlobalSettingIdFromDb(name);
-    if(!isDefined(id))
-    {
-        // Unknown setting, so insert it into the database
-        query = "INSERT INTO settings (settingName) VALUES ('" + name + "')";
-        openCJ\mySQL::mysqlAsyncQuery(query);
-
-        // Now the settingId needs to be obtained, and since we use various threads for mySQL we shouldn't trust on last inserted id
-        id = getGlobalSettingIdFromDb(name);
-    }
-
-    return id;
-}
-
-getPlayerSettingFromDb(name)
-{
-    if(!isDefined(name))
-    {
-        return undefined;
-    }
-
-    value = undefined;
-    query = "SELECT " + level.settings[name].type + "Value FROM playerSettings WHERE playerID = " + self openCJ\login::getPlayerID() + " AND settingID = " + level.settings[name].id;
-    switch(level.settings[name].type)
-    {
-        case "string":
-        {
-            rows = openCJ\mySQL::mysqlAsyncQuery(query);
-            if(hasResult(rows))
-            {
-                value = rows[0][0];
-            }
-        } break;
-        case "int":
-        {
-            rows = openCJ\mySQL::mysqlAsyncQuery(query);
-            if(hasResult(rows))
-            {
-                if(isValidInt(rows[0][0]))
-                {
-                    value = int(rows[0][0]);
-                }
-                else
-                {
-                    printf("ERROR! Not a valid int: '" + rows[0][0] + "' for setting " + name + "\n");
-                }
-            }
-        } break;
-        case "bool":
-        {
-            rows = openCJ\mySQL::mysqlAsyncQuery(query);
-            if(hasResult(rows))
-            {
-                if(isValidBool(rows[0][0]))
-                {
-                    value = strToBool(rows[0][0]);
-                }
-                else
-                {
-                    printf("ERROR! Not a valid bool: '" + rows[0][0] + "' for setting " + name + "\n");
-                }
-            }
-        } break;
-        case "float":
-        {
-            rows = openCJ\mySQL::mysqlAsyncQuery(query);
-            if(hasResult(rows))
-            {
-                if(isValidFloat(rows[0][0]))
-                {
-                    value = float(rows[0][0]);
-                }
-                else
-                {
-                    printf("ERROR! Not a valid float: '" + rows[0][0] + "' for setting " + name + "\n");
-                }
-            }
-        } break;
-        default:
-        {
-            printf("ERROR! Unknown settings type: " + level.settings[name].type + "\n");
-        }
-    }
-
-    return value;
-}
-
 writePlayerSettingToDb(setting, value)
 {
-    playerId = self openCJ\login::getPlayerID();
-
-    valColumnName = setting.type + "Value"; // i.e. boolValue
-    query = "INSERT INTO playerSettings (playerID, settingID, " + valColumnName + ") VALUES (" +
-            playerId + ", " + setting.id + ", " + value + ") ON DUPLICATE KEY UPDATE " + valColumnName + " = " + value;
-    //printf(query + "\n");
-    rows = openCJ\mySQL::mysqlAsyncQuery(query);
+	query = "CALL setPlayerSetting(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(setting) + "', '" + openCJ\mySQL::escapeString(value) + "')";
+	printf(query + "\n");
+	self thread openCJ\mySQL::mysqlAsyncQueryNosave(query);
 }

@@ -5,9 +5,13 @@ onInit()
 	setClientNameMode("auto_change"); //allow renaming during round
 }
 
-onPlayerLogin()
+onPlayerConnect()
 {
 	self.oldName = self.name;
+}
+
+onPlayerLogin()
+{
 	self.forcedName = undefined;
 }
 

@@ -38,9 +38,6 @@ main()
 	openCJ\playerNames::onInit();
 
 	thread _everyFrame();
-
-	// Do NOT call any onInit() functions after here.
-	thread openCJ\settings::onCompletedInit(); // Executes queries
 }
 
 _everyFrame()
