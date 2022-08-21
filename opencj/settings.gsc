@@ -330,7 +330,7 @@ _createSetting(name, defaultVal, help, updateFunc)
 
 writePlayerSettingToDb(setting, value)
 {
-	query = "CALL setPlayerSetting(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(setting) + "', '" + openCJ\mySQL::escapeString(value) + "')";
+	query = "CALL setPlayerSetting(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(setting) + "', '" + openCJ\mySQL::escapeString(value + "") + "')";
 	printf(query + "\n");
 	self thread openCJ\mySQL::mysqlAsyncQueryNosave(query);
 }
