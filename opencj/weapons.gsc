@@ -107,7 +107,6 @@ _giveRPG(name, spawnWeapon)
 onRPGFired(rpg, name)
 {
 	self giveMaxAmmo(name);
-	printf("rpg fired\n");
 	if(self openCJ\settings::getSetting("rpgputaway"))
 	{
 		self setWeaponAmmoClip(name, 1);
