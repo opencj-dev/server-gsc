@@ -67,13 +67,13 @@ onPlayerCommand(fullArgs)
 
 	// Is it even a command we support?
 	cmd = level.commands[fullArgs[1]];
-	if(isDefined(cmd.cmd))
-	{
-		cmd = cmd.cmd; //redirect alias commands to their real command counterpart
-	}
 	if(!isDefined(cmd))
 	{
 		return false;
+	}
+	if(isDefined(cmd.cmd))
+	{
+		cmd = cmd.cmd; // Redirect alias commands to their real command counterpart
 	}
 
 	// Does the player have sufficient permissions?
