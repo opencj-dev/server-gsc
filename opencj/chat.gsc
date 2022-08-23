@@ -141,7 +141,7 @@ onChatMessage(args)
 		}
 
 		// Send the message
-		if(players[i].pers["team"] == "spectator")
+		if(self.pers["team"] == "spectator")
 		{
 			players[i] sendChatMessage("(Spectator)" + self.name + "^7: " + msg);
 		}
