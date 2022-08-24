@@ -268,7 +268,7 @@ getSavedPosition(backwardsCount)
 onLoadBind()
 {
 	// If player is spectating (regardless of free spec or not), allow them to spawn
-	if ((self.pers["team"] == "spectator"))
+	if (self.pers["team"] == "spectator")
 	{
 		self openCJ\events\spawnPlayer::main();
 		waittillframeend;
@@ -277,13 +277,32 @@ onLoadBind()
 	self loadNormal();
 }
 
+onSaveBind()
+{
+	if (self.pers["team"] == "spectator")
+	{
+		spectating = self getSpectatorClient();
+		if (isDefined(spectating) && (spectating != self))
+		{
+			if (getCvarInt("codversion") == 4) // TODO: implement followPlayer for CoD4
+			{
+				self followPlayer(-1);
+			}
+		}
+	}
+	else
+	{
+		self saveNormal();
+	}
+}
+
 onPlayerCommand(args)
 {
 	switch(args[0])
 	{
 		case "save":
 		{
-			self saveNormal();
+			self thread doNextFrame(::onSaveBind);
 			return true;
 		}
 		case "load":
@@ -307,7 +326,7 @@ onPlayerCommand(args)
 				}
 				else if(args[3] == "save")
 				{
-					self saveNormal();
+					self thread doNextFrame(::onSaveBind);
 					return true;
 				}
 				else if(args[3] == "loadsecondary")
