@@ -19,12 +19,15 @@ main(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hit
 	if(self openCJ\weapons::isRPG(weapon))
 		return;
 
-	if(damage >= self.health)
+	if (getCvarInt("codversion") == 2)
 	{
-		if(self openCJ\events\loadPosition::main(0))
+		if(damage >= self.health)
 		{
-			self openCJ\statistics::addTimeUntil(getTime() + 5000);
-			return;
+			if(self openCJ\events\loadPosition::main(0))
+			{
+				self openCJ\statistics::addTimeUntil(getTime() + 5000);
+				return;
+			}
 		}
 	}
 
