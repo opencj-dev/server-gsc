@@ -147,10 +147,14 @@ onSpawnPlayer()
 
 canLoadError(backwardsCount)
 {
-	if(self.sessionState != "playing")
+	if((self.sessionState != "playing") && (self.sessionState != "spectator"))
+	{
 		return 999;
+	}
 	if(self openCJ\noclip::hasNoclip())
+	{
 		return 4;
+	}
 	error = self savePosition_selectSave(backwardsCount);
 	return error;
 }
@@ -334,9 +338,10 @@ _loadNextFrame(backwardsCount)
 	self endon("saveLoadPositionCommand");
 
 	waittillframeend;
-
 	if(isDefined(self))
+	{
 		self openCJ\events\loadPosition::main(backwardsCount);
+	}
 }
 
 _saveNextFrame()
