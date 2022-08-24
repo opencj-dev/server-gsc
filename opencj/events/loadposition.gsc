@@ -7,12 +7,6 @@ main(backwardsCount)
 		return;
 	}
 
-	// If player is free spec, allow them to spawn
-	if ((self.pers["team"] == "spectator") && !isDefined(self getSpectatorClient()))
-	{
-		self openCJ\events\spawnPlayer::main();
-	}
-
 	error = self openCJ\savePosition::canLoadError(backwardsCount);
 	if(!error)
 	{
