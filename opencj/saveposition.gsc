@@ -265,6 +265,18 @@ getSavedPosition(backwardsCount)
 	return save;
 }
 
+onLoadBind()
+{
+	// If player is spectating (regardless of free spec or not), allow them to spawn
+	if ((self.pers["team"] == "spectator"))
+	{
+		self openCJ\events\spawnPlayer::main();
+		waittillframeend;
+	}
+
+	self loadNormal();
+}
+
 onPlayerCommand(args)
 {
 	switch(args[0])
@@ -276,7 +288,7 @@ onPlayerCommand(args)
 		}
 		case "load":
 		{
-			self loadNormal();
+			self thread doNextFrame(::onLoadBind);
 			return true;
 		}
 		case "loadsecondary":
@@ -290,7 +302,7 @@ onPlayerCommand(args)
 			{
 				if(args[3] == "load")
 				{
-					self loadNormal();
+					self thread doNextFrame(::onLoadBind);
 					return true;
 				}
 				else if(args[3] == "save")
