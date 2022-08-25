@@ -27,6 +27,7 @@ onInit()
 	underlyingCmd = openCJ\settings::addSettingInt("fov", 13, 160, 90, "Set your field-of-view\nUsage: !fov [value between 13 and 160]", ::_onSettingFOV);
     underlyingCmd = openCJ\settings::addSettingInt("fullbright", 0, 1, 0, "Enable/disable fullbright\nUsage: !fullbright [on/off]", ::_onSettingFullbright);
 	underlyingCmd = openCJ\settings::addSettingBool("hidecollidingplayers", 0, "Hide colliding players\nUsage: !hidecollidingplayers [on/off]");
+	underlyingCmd = openCJ\settings::addSettingBool("viewbob", 0, "Change view bobbing\nUsage: !viewbob [on/off]", ::_onSettingViewBob);
 }
 
 onPlayerConnected()
@@ -59,4 +60,13 @@ _onSettingFOV(newVal)
 _onSettingFullbright(newVal)
 {
 	self setClientCvar("r_fullbright", newVal);
+}
+
+_onSettingViewBob(newVal)
+{
+	if(newVal > 0)
+	{
+		newVal = 8;
+	}
+	self setClientCvar("bg_bobmax", newVal);
 }
