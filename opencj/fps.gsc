@@ -131,11 +131,11 @@ onFPSChangedUserinfo(newFPS)
 	{
 		return;
 	}
-	iprintln("userinfo fps");
+
 	if(isHaxFPS(newFPS))
 	{
 		//user is haxxing
-		iprintln("hax from userinfo" + newFPS);
+		//iprintln("hax from userinfo" + newFPS);
 		self haxFPSDetection();
 	}
 	else if(newFPS != self getCurrentFPS())
@@ -202,7 +202,7 @@ getCurrentFPS()
 
 isHaxFPS(fps)
 {
-	self iprintln("checking fps " + fps + " for hax");
+	//self iprintln("checking fps " + fps + " for hax");
 	switch(fps)
 	{
 		case 43:
