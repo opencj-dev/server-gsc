@@ -137,8 +137,11 @@ onInit()
 				level.checkpoints_startCheckpoint.childs[level.checkpoints_startCheckpoint.childs.size] = checkpoints[i];
 		}
 		level.checkpoints_startCheckpoint.checkpointsFromStart = 0;
+
 		level.checkpoints_checkpoints = checkpoints;
 		enders = getAllEndCheckpoints();
+		level.checkpoints_startCheckpoint.endCheckpoints = enders;
+		level.checkpoints_startCheckpoint.enderName = _calculateEnderName(enders);
 		if(!enders.size)
 			level.checkpoints_startCheckpoint.checkpointsTillEnd = 0;
 
@@ -204,6 +207,55 @@ onInit()
 			}
 			openList = newOpenList;
 			iterationNum++;
+		}
+		for(i = 0; i < checkpoints.size; i++)
+		{
+			checkpoints[i].enderName = _calculateEnderName(checkpoints[i].endCheckpoints);
+		}
+	}
+}
+
+getEnderName(checkpoint)
+{
+	return checkpoint.enderName;
+}
+
+_calculateEnderName(endCheckpoints)
+{
+	enders = [];
+	hasUndefinedEnders = false;
+	for(i = 0; i < endCheckpoints.size; i++)
+	{
+		if(!isDefined(endCheckpoints[i].ender))
+		{
+			hasUndefinedEnders = true;
+			continue;
+		}
+		if(!isInArray(endCheckpoints[i].ender, enders))
+		{
+			enders[enders.size] = endCheckpoints[i].ender;
+		}
+	}
+	if(hasUndefinedEnders)
+	{
+		if(enders.size == 0)
+		{
+			return undefined;
+		}
+		else
+		{
+			return undefined;
+		}
+	}
+	else
+	{
+		if(enders.size == 1)
+		{
+			return enders[0];
+		}
+		else
+		{
+			return undefined;
 		}
 	}
 }
