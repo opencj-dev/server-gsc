@@ -32,10 +32,8 @@ loadSettingsFromDatabase()
 {
 	self endon("disconnect");
 
-	query = "SELECT a.settingName, b.value FROM settings a INNER JOIN playerSettings b ON a.settingID = b.settingID";
-
-	availableSettings = getArrayKeys(level.settings);
-
+    availableSettings = getArrayKeys(level.settings);
+	query = "SELECT a.settingName, b.value FROM settings a INNER JOIN playerSettings b ON a.settingID = b.settingID WHERE b.playerID = " + self openCJ\login::getPlayerID();
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 	if(isDefined(rows))
 	{
