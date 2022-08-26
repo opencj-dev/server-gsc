@@ -3,15 +3,132 @@
 onInit()
 {
 	thread _getMessages();
-	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::sendPM);
+	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::sendPM, 2, undefined, 0);
 	openCJ\commands_base::addAlias(cmd, "whisper");
 	openCJ\commands_base::addAlias(cmd, "message");
+	openCJ\commands_base::registerCommand("mute", "Mute a player\nUsage: !mute [player] [time]\nTime is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::mute, 1, 2, 0);
+	openCJ\commands_base::registerCommand("unmute", "Unmute a player\nUsage: !unmute [player]", ::unmute, 1, 1, 0);
+}
+
+mute(args)
+{
+	// !mute <playerName> [time]
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player) || player isIgnoring(self))
+	{
+		self sendLocalChatMessage("Player " + args[0] + " not found", true);
+		return;
+	}
+	
+	if(player == self)
+	{
+		self sendLocalChatMessage("Cannot mute self", true);
+		return;
+	}
+	time = undefined;
+	if(isDefined(args[1]) && isValidInt(getsubstr(args[1], 0, args[1].size - 1)))
+	{
+		time = int(getsubstr(args[1], 0, args[1].size - 1));
+		switch(args[1][args[1].size - 1])
+		{
+			case "d":
+				time *= 24;
+			case "h":
+				time *= 60;
+			case "m":
+				time *= 60;
+				break;
+			default:
+			{
+				self sendLocalChatMessage("Incorrect time format given", true);
+				return;
+			}
+		}
+		if(time > 60 * 60 * 24 * 7)
+		{
+			self sendLocalChatMessage("Cannot mute for more than 7 days", true);
+			return;
+		}
+		query = "UPDATE playerInformation SET mutedUntil = ADDTIME(NOW(), SEC_TO_TIME(" + time + ")) WHERE playerID = " + player openCJ\login::getPlayerID();
+		printf(query + "\n");
+		openCJ\mySQL::mysqlAsyncQueryNosave(query);
+	}
+	player setMuted(true);
+	player unmuteAfterTime(time);
+}
+
+unmute(args)
+{
+	// !mute <playerName> [time]
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player) || player isIgnoring(self))
+	{
+		self sendLocalChatMessage("Player " + args[0] + " not found", true);
+		return;
+	}
+	
+	if(player == self)
+	{
+		self sendLocalChatMessage("Cannot unmute self", true);
+		return;
+	}
+	query = "UPDATE playerInformation SET mutedUntil = NULL WHERE playerID = " + player openCJ\login::getPlayerID();
+	printf(query + "\n");
+	openCJ\mySQL::mysqlAsyncQueryNosave(query);
+	player setMuted(false);
+}
+
+onPlayerConnect()
+{
+	self applyMute(false);
 }
 
 onPlayerLogin()
 {
 	self.ignoreList = [];
 	self thread _fetchIgnoreList();
+}
+
+unmuteAfterTime(seconds)
+{
+	if(isDefined(seconds) && seconds > 0)
+	{
+		self thread _unmuteCountdown(seconds);
+	}
+}
+
+applyMute(value)
+{
+	self.muted = value;
+}
+
+isMuted()
+{
+	return self.muted;
+}
+
+setMuted(value)
+{
+	if(value)
+	{
+		self iprintlnbold("You have been muted");
+		self applyMute(value);
+	}
+	else
+	{
+		self notify("unmuteCountdown");
+		self iprintlnbold("You have been unmuted");
+		self applyMute(value);
+	}
+}
+
+_unmuteCountdown(seconds)
+{
+	self endon("disconnect");
+	self notify("unmuteCountdown");
+	self endon("unmuteCountdown");
+	wait seconds;
+	self setMuted(false);
 }
 
 _fetchIgnoreList()
@@ -116,6 +233,11 @@ onChatMessage(args)
 		// No chatting until logged in (automatic process)
 		return;
 	}
+	if(self isMuted())
+	{
+		self sendLocalChatMessage("You are currently muted", true);
+		return;
+	}
 
 	// Build the message (without the 'say' / 'say_team')
 	msg = "";
@@ -180,6 +302,11 @@ sendPM(args)
 	if(!isDefined(player) || player isIgnoring(self))
 	{
 		self sendLocalChatMessage("Player " + args[0] + " not found or they are ignoring you", true);
+		return;
+	}
+	if(self isMuted())
+	{
+		self sendLocalChatMessage("You are currently muted", true);
 		return;
 	}
 	

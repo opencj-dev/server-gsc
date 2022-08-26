@@ -5,6 +5,13 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+abs(value)
+{
+	if(value < 0)
+		return value * -1;
+	return value;
+}
+
 isPlayerReady()
 {
 	return self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self openCJ\settings::areSettingsLoaded();
