@@ -1,6 +1,7 @@
 CodeCallback_StartGameType()
 {
 	openCJ\events\init::main();
+	maps\mp\gametypes\cj::onStartGameType();
 }
 
 CodeCallback_PlayerConnect()
