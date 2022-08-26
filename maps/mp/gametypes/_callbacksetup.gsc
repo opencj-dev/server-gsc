@@ -68,7 +68,7 @@ CodeCallback_StartJump(time)
 	self openCJ\buttonPress::onJump(time);
 }
 
-CodeCallback_OnGroundChange(isOnGround, time)
+CodeCallback_OnGroundChange(isOnGround, time, origin)
 {
 	self openCJ\events\onGroundChanged::main(isOnGround, time);
 }
