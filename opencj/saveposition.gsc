@@ -284,10 +284,7 @@ onSaveBind()
 		spectating = self getSpectatorClient();
 		if (isDefined(spectating) && (spectating != self))
 		{
-			if (getCvarInt("codversion") == 4) // TODO: implement followPlayer for CoD4
-			{
-				self followPlayer(-1);
-			}
+			self followPlayer(-1); // TODO: implement for CoD2
 		}
 	}
 	else
