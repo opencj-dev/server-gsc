@@ -23,7 +23,37 @@ onInit()
 
 	cmd = openCJ\commands_base::registerCommand("resetrun", "Resets your current run.", ::_onCommandResetRun, 0, 0, 0);
 	openCJ\commands_base::addAlias(cmd, "reset");
+
+	cmd = openCJ\commands_base::registerCommand("toggletarget", "Toggles a reference target.", ::_onCommandToggleTarget, 0, 0, 0);
+	openCJ\commands_base::addAlias(cmd, "target");
 }
+
+onPlayerDisconnect()
+{
+    if (isDefined(self.targetRef))
+    {
+        self.targetRef delete();
+    }
+}
+
+_onCommandToggleTarget(args)
+{
+	if (isDefined(self.targetRef)) 
+	{
+		self.targetRef delete();
+		self iPrintLn("^3[Target beta] Removed target");
+	} 
+	else 
+	{
+		targetRef = spawn("script_model", self getOrigin());
+		targetRef setModel("body_mp_usmc_specops"); // @TODO: change to something simple
+		targetRef hide();
+		targetRef showToPlayer(self);
+		self iPrintLn("^3[Target beta] Added target!");
+		self.targetRef = targetRef;
+	}
+}
+
 
 _onCommandIgnore(args)
 {
