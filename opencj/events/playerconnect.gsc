@@ -21,6 +21,7 @@ main()
 	self openCJ\demos::onPlayerConnect();
 	self openCJ\commands_base::onPlayerConnect();
 	self openCJ\playerNames::onPlayerConnect();
+	self openCJ\chat::onPlayerConnect();
 
 	self player_onconnect();
 

@@ -38,10 +38,3 @@ _arePlayersColliding(p1, p2)
 		return true;
 	return false;
 }
-
-abs(v)
-{
-	if(v < 0)
-		return (-1 * v);
-	return v;
-}

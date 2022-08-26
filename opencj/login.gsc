@@ -49,13 +49,18 @@ _getPlayerInformation(uid)
 	if(!isDefined(uid))
 		return false;
 
-	query = "SELECT playerID, adminLevel FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))";
+	query = "SELECT playerID, adminLevel, IF(mutedUntil < NOW(), NULL, TIMESTAMPDIFF(SECOND, NOW(), mutedUntil)) FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))";
 	printf(query + "\n");
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 	if(hasResult(rows))
 	{
 		self.login_playerID = int(rows[0][0]);
 		self openCJ\commands_base::setAdminLevel(int(rows[0][1]));
+		if(isDefined(rows[0][2])) //muted until [seconds] into future
+		{
+			self openCJ\chat::applyMute(true);
+			self openCJ\chat::unmuteAfterTime(int(rows[0][2]));
+		}
 		return true;
 	}
 	else
