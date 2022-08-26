@@ -22,6 +22,7 @@ main()
 	self openCJ\commands_base::onPlayerConnect();
 	self openCJ\playerNames::onPlayerConnect();
 	self openCJ\chat::onPlayerConnect();
+	self openCJ\playerCollision::onPlayerConnect();
 
 	self player_onconnect();
 

@@ -13,6 +13,7 @@ main()
 		self openCJ\noclip::whileAlive();
 		self openCJ\onscreenKeyboard::whileAlive();
 		self openCJ\huds::whileAlive();
+
 		wait 0.05;
 	}
 }

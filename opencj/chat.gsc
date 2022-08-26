@@ -99,6 +99,7 @@ unmuteAfterTime(seconds)
 
 applyMute(value)
 {
+	self openCJ\playerCollision::onMuteChanged(value);
 	self.muted = value;
 }
 
@@ -109,6 +110,7 @@ isMuted()
 
 setMuted(value)
 {
+
 	if(value)
 	{
 		self iprintlnbold("You have been muted");

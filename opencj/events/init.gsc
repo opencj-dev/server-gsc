@@ -36,6 +36,7 @@ main()
 	openCJ\graphics::onInit();
 	openCJ\statistics::onInit();
 	openCJ\playerNames::onInit();
+	openCJ\playerCollision::onInit();
 
 	thread _everyFrame();
 }
