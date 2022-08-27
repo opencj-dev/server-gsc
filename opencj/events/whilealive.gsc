@@ -14,6 +14,9 @@ main()
 		self openCJ\onscreenKeyboard::whileAlive();
 		self openCJ\huds::whileAlive();
 		self openCJ\playerNames::whileAlive();
+		self openCJ\records::whileAlive();
+
+		self openCJ\platformDetect::whileAlive(); //debug file
 
 		wait 0.05;
 	}

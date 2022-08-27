@@ -22,6 +22,7 @@ onInit()
 			return;
 		}
 	}
+	level.asyncMySQLDontStoreRows = [];
 	thread _asyncMySQL();
 }
 
@@ -34,8 +35,23 @@ _asyncMySQL()
 		for(i = 0; i < list.size; i++)
 		{
 			result = mysql_async_getresult_and_free(list[i]);
-			rows = _getRowsAndFree(result);
-			level notify("mysqlQueryDone" + list[i], rows);
+			noRows = false;
+			for(j = 0; j < level.asyncMySQLDontStoreRows.size; j++)
+			{
+				if(list[i] == level.asyncMySQLDontStoreRows[j])
+				{
+					level.asyncMySQLDontStoreRows[j] = level.asyncMySQLDontStoreRows[level.asyncMySQLDontStoreRows.size - 1];
+					level.asyncMySQLDontStoreRows[level.asyncMySQLDontStoreRows.size - 1] = undefined;
+					level notify("mysqlQueryDoneNoRows" + list[i], result);
+					noRows = true;
+					break;
+				}
+			}
+			if(!noRows)
+			{
+				rows = _getRowsAndFree(result);
+				level notify("mysqlQueryDone" + list[i], rows);
+			}
 		}
 		wait 0.05;
 	}
@@ -97,7 +113,17 @@ mysqlAsyncLongQueryExecuteSave(queryID)
 	return rows;
 }
 
-mysqlAsyncLongQueryExecuteNoave(queryID)
+mysqlAsyncQueryNoRows(query)
+{
+	if(isPlayer(self))
+		self endon("disconnect");
+	//printf("Adding async query: " + query + "\n");
+	id = mysql_async_create_query(query);
+	level.asyncMySQLDontStoreRows[level.asyncMySQLDontStoreRows.size] = id;
+	level waittill("mysqlQueryDoneNoRows" + id, result);
+	return result;
+}
+mysqlAsyncLongQueryExecuteNosave(queryID)
 {
 	if(isPlayer(self))
 		self endon("disconnect");
