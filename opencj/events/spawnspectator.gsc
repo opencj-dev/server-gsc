@@ -29,4 +29,6 @@ main()
 	self openCJ\FPSHistory::onSpawnSpectator();
 	
 	self stopFollowingMe();
+
+	self thread openCJ\events\whileSpectating::main();
 }

@@ -5,7 +5,7 @@ main()
 	self endon("disconnect");
 	self endon("spawned");
 
-	while(self.sessionState == "playing" || (isDefined(self.playing) && self.playing))
+	while(self.sessionState == "playing")
 	{
 		self openCJ\statistics::whileAlive();
 		self openCJ\checkpoints::whileAlive();
@@ -13,6 +13,10 @@ main()
 		self openCJ\noclip::whileAlive();
 		self openCJ\onscreenKeyboard::whileAlive();
 		self openCJ\huds::whileAlive();
+		self openCJ\playerNames::whileAlive();
+		self openCJ\records::whileAlive();
+
+		self openCJ\platformDetect::whileAlive(); //debug file
 
 		wait 0.05;
 	}

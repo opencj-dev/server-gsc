@@ -201,6 +201,11 @@ setTimePlayed(value)
 		self.statistics_startTime = getTime() - value;
 }
 
+getFrameNumber()
+{
+	return self getTimePlayed() / 50;
+}
+
 getTimePlayed()
 {
 	if(isDefined(self.statistics_stopTime))

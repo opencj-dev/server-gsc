@@ -8,6 +8,86 @@ onInit()
 	openCJ\commands_base::addAlias(cmd, "message");
 	openCJ\commands_base::registerCommand("mute", "Mute a player\nUsage: !mute [player] [time]\nTime is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::mute, 1, 2, 0);
 	openCJ\commands_base::registerCommand("unmute", "Unmute a player\nUsage: !unmute [player]", ::unmute, 1, 1, 0);
+	cmd = openCJ\commands_base::registerCommand("ignore", "Temporarily ignore a specific player until map change. Usage: !ignore <playerName|playerId>", ::_onCommandIgnore, 1, 1, 0);
+	openCJ\commands_base::addAlias(cmd, "tignore");
+	cmd = openCJ\commands_base::registerCommand("pignore", "Permanently ignore a specific player. Usage: !pignore <playerName|playerId>", ::_onCommandPermIgnore, 1, 1, 0);
+	openCJ\commands_base::addAlias(cmd, "pignore");
+
+	cmd = openCJ\commands_base::registerCommand("unignore", "Unignore a player, regardless of whether the ignore was temporary or permanent. Usage: !unignore <playerName|playerId>", ::_onCommandUnIgnore, 1, 1, 0);
+	openCJ\commands_base::addAlias(cmd, "tignore");
+}
+
+
+_onCommandIgnore(args)
+{
+	// !ignore <playerName>
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player))
+	{
+		self sendLocalChatMessage("Player " + args[0] + " not found", true);
+		return;
+	}
+	
+	if(player == self)
+	{
+		self sendLocalChatMessage("Cannot ignore self", true);
+		return;
+	}
+	if(self isIgnoring(player))
+	{
+		self sendLocalChatMessage("Already ignoring " + player.name, true);
+		return;
+	}
+	self addToIgnoreList(player openCJ\login::getPlayerID());
+	self sendLocalChatMessage("Ignoring " + player.name, false);
+}
+
+_onCommandPermIgnore(args)
+{
+	// !pignore <playerName>
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player))
+	{
+		self sendLocalChatMessage("Player " + args[0] + " not found", true);
+		return;
+	}
+	
+	if(player == self)
+	{
+		self sendLocalChatMessage("Cannot ignore self", true);
+		return;
+	}
+	ignoreID = player openCJ\login::getPlayerID();
+	if(!self isIgnoring(player))
+	{
+		self addToIgnoreList(ignoreID);
+	}
+	self sendLocalChatMessage("Permanently ignoring " + player.name, false);
+	self thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT IGNORE INTO playerIgnore (playerID, ignoreID) VALUES (" + self openCJ\login::getPlayerID() + ", " + ignoreID + ")");
+}
+
+_onCommandUnIgnore(args)
+{
+	// !pignore <playerName>
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player))
+	{
+		self sendLocalChatMessage("Player " + args[0] + " not found", true);
+		return;
+	}
+	
+	if(player == self)
+	{
+		self sendLocalChatMessage("Cannot unignore self", true);
+		return;
+	}
+	ignoreID = player openCJ\login::getPlayerID();
+	if(self isIgnoring(player))
+	{
+		self removeFromIgnoreList(ignoreID);
+		self sendLocalChatMessage("Unignoring " + player.name, false);
+		self thread openCJ\mySQL::mysqlAsyncQueryNosave("DELETE FROM playerIgnore WHERE playerID = " + self openCJ\login::getPlayerID() + " AND ignoreID = " + ignoreID);
+	}
 }
 
 mute(args)
@@ -86,6 +166,17 @@ onPlayerConnect()
 onPlayerLogin()
 {
 	self.ignoreList = [];
+	players = getEntArray("player", "classname");
+	for(i = 0; i < players.size; i++)
+	{
+		if(players[i] openCJ\login::isLoggedIn())
+		{
+			if(players[i] isIgnoring(self))
+			{
+				players[i] openCJ\playerCollision::onIgnore(self);
+			}
+		}
+	}
 	self thread _fetchIgnoreList();
 }
 
@@ -141,7 +232,7 @@ _fetchIgnoreList()
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT ignoreID FROM playerIgnore WHERE playerID = " + self openCJ\login::getPlayerID());
 	for(i = 0; i < rows.size; i++)
 	{
-		self.ignoreList[self.ignoreList.size] = int(rows[i][0]);
+		self addToIgnoreList(int(rows[i][0]));
 	}
 }
 
@@ -151,6 +242,11 @@ removeFromIgnoreList(playerID)
 	{
 		if(self.ignoreList[i] == playerID)
 		{
+			player = getPlayerByPlayerID(playerID);
+			if(isDefined(player))
+			{
+				self openCJ\playerCollision::onUnIgnore(player);
+			}
 			self.ignoreList[i] = self.ignoreList[self.ignoreList.size - 1];
 			self.ignoreList[self.ignoreList.size - 1] = undefined;
 			return true;
@@ -163,7 +259,12 @@ addToIgnoreList(playerID)
 {
 	if(!isInArray(playerID, self.ignoreList))
 	{
-		self.ignoreList[self.ignoreList.size] = PlayerID;
+		player = getPlayerByPlayerID(playerID);
+		if(isDefined(player))
+		{
+			self openCJ\playerCollision::onIgnore(player);
+		}
+		self.ignoreList[self.ignoreList.size] = playerID;
 		return true;
 	}
 	return false;
