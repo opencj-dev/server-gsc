@@ -5,6 +5,32 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+getEyePos()
+{
+	if(self getstance() == "stand")
+		return self.origin + (0, 0, 40);
+	else if(self getstance() == "duck")
+		return self.origin + (0, 0, 20);
+	else
+		return self.origin + (0, 0, 5);
+}
+
+getPlayerByPlayerID(playerID) //gets a player that's logged in AND has a certain playerID. If player is not on server, returns undefined.
+{
+	players = getEntArray("player", "classname");
+	for(i = 0; i < players.size; i++)
+	{
+		if(players[i] openCJ\login::isLoggedIn())
+		{
+			if(players[i] openCJ\login::getPlayerID() == playerID)
+			{
+				return players[i];
+			}
+		}
+	}
+	return players[i];
+}
+
 abs(value)
 {
 	if(value < 0)
