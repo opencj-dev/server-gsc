@@ -20,7 +20,7 @@ _onCommandRecord(args)
 	}
 	else
 	{
-		runID = self openCJ\playerRuns::getRunID();
+		runID = int(self openCJ\playerRuns::getRunID());
 		result = createDemo(runID);
 		if(result == -1)
 		{
@@ -151,6 +151,8 @@ onPlayerConnect()
 	self.recordingDemo = false;
 	self.playingDemo = false;
 	self.recordingDemoId = undefined;
+	self.playbackFrame = 0;
+	self.playbackPaused = false;
 }
 
 whileAlive()
@@ -168,38 +170,57 @@ whileAlive()
 			self linkto(self.linker, "", (0, 0, 0), (0, 0, 0));
 		}
 
+		if(self meleeButtonPressed()) 
+		{
+			while(self meleeButtonPressed())
+			{
+				wait .05;
+			}
+
+			self.playbackPaused = !self.playbackPaused;
+			if(self.playbackPaused)
+			{
+				self iprintln("Playback paused");
+			}
+			else
+			{
+				self iprintln("Playback resumed");
+			}
+		}
+
+		if (self.playbackPaused)
+		{
+			return;
+		}
+
+		newFrame = self.playbackFrame;
 		if(self leftButtonPressed()) // Reverse
 		{
-			self skipPlaybackFrames(-2);
+			newFrame = self skipPlaybackFrames(-2);
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 		}
 		else if(self rightButtonPressed()) // Forward
 		{
-			self skipPlaybackFrames(2);
+			newFrame = self skipPlaybackFrames(2);
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 		}
 		else if(self leanLeftButtonPressed()) // TODO: key frame instead of 10 frames
 		{
-			self skipPlaybackFrames(-10);
+			newFrame = self skipPlaybackFrames(-10);
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 		}
 		else if(self leanRightButtonPressed()) // TODO: key frame instead of 10 frames
 		{
-			self skipPlaybackFrames(10);
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
-		}
-		else if(self meleeButtonPressed()) 
-		{
+			newFrame = self skipPlaybackFrames(10);
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 		}
 		else if(!self jumpButtonPressed()) // Nothing interesting pressed
 		{
-			self nextPlaybackFrame();
+			newFrame = self nextPlaybackFrame();
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 		}
@@ -210,7 +231,7 @@ whileAlive()
 			oldAngles = self readPlaybackFrame_angles();
 
 			// Grab info of next frame
-			self nextPlaybackFrame();
+			newFrame = self nextPlaybackFrame();
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 
@@ -234,6 +255,15 @@ whileAlive()
 		// Player is linked, so update linker origin and player angles for this frame
 		self.linker.origin = newOrigin;
 		self setPlayerAngles(newAngles);
+
+		// Check if demo ended. TODO: loop if player enabled it
+		if ((self.playbackFrame != 0) && (newFrame == self.playbackFrame))
+		{
+			self.playingDemo = false;
+			self.playbackFrame = 0;
+			self.playbackPaused = false;
+			self iprintln("Demo ended");
+		}
 	}
 }
 
