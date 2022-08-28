@@ -158,10 +158,10 @@ onFPSChangedDetection(newFPS)
 	{
 		return;
 	}
-	if(isHaxFPS(newFPS) || (newFPS > self getCurrentFPS() && !self hasMixFPS()))
+	if(isHaxFPS(newFPS) || ((newFPS > self getCurrentFPS()) && !self hasMixFPS()))
 	{
 		//user is haxxing
-		iprintln("hax from detector" + newFPS);
+		iprintln("Hax detected: " + newFPS); // TODO: seems we get false positive (76) sometimes
 		self haxFPSDetection();
 	}
 	else if(newFPS != self getCurrentFPS())
