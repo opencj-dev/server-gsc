@@ -45,9 +45,6 @@ _onCommandPlayback(args)
 {
 	if(isDefined(args[0]))
 	{
-		self iprintln("^2Starting ^7playback");
-		self.recordingDemo = false;
-		self.slowmoCount = 0;
 		query = "SELECT x, y, z, a, b, c, isKeyFrame FROM playerRecordings WHERE runID = " + int(args[0]) + " ORDER BY frameNum ASC";
 		self thread _doLoadRecordingQuery(query, int(args[0]));
 	}
@@ -81,6 +78,12 @@ _doLoadRecordingQuery(query, demoId)
 		self iprintln("Demo was not found!");
 		return;
 	}
+
+	self iprintln("^2Starting ^7playback");
+	self.recordingDemo = false;
+	self.playbackFrame = 0;
+	self.playbackPaused = false;
+	self.slowmoCount = 0;
 
 	// Check if the demo was already previously loaded
 	createDemoResult = createDemo(demoId);
@@ -146,6 +149,11 @@ _loadDemo(demoId, result, rowcount)
     mysql_free_result(result);
 }
 
+isPlayingDemo()
+{
+	return self.playingDemo;
+}
+
 onPlayerConnect()
 {
 	self.recordingDemo = false;
@@ -155,11 +163,28 @@ onPlayerConnect()
 	self.playbackPaused = false;
 }
 
+onPlayPauseDemo()
+{
+	self.playbackPaused = !self.playbackPaused;
+	if(self.playbackPaused)
+	{
+		self iprintln("Playback paused");
+	}
+	else
+	{
+		self iprintln("Playback resumed");
+	}
+}
+
 whileAlive()
 {
 	if(self.recordingDemo && !self.playingDemo)
 	{
-		self _storeFrameToDB();
+		if(!self _storeFrameToDB())
+		{
+			self.recordingDemo = false;
+			self iprintlnbold("Demo recording errror? Stopping..");
+		}
 	}
 	else if(self.playingDemo)
 	{
@@ -170,30 +195,13 @@ whileAlive()
 			self linkto(self.linker, "", (0, 0, 0), (0, 0, 0));
 		}
 
-		if(self meleeButtonPressed()) 
-		{
-			while(self meleeButtonPressed())
-			{
-				wait .05;
-			}
-
-			self.playbackPaused = !self.playbackPaused;
-			if(self.playbackPaused)
-			{
-				self iprintln("Playback paused");
-			}
-			else
-			{
-				self iprintln("Playback resumed");
-			}
-		}
-
 		if (self.playbackPaused)
 		{
 			return;
 		}
 
 		newFrame = self.playbackFrame;
+		appliedSlowMo = false;
 		if(self leftButtonPressed()) // Reverse
 		{
 			newFrame = self skipPlaybackFrames(-2);
@@ -231,7 +239,7 @@ whileAlive()
 			oldAngles = self readPlaybackFrame_angles();
 
 			// Grab info of next frame
-			newFrame = self nextPlaybackFrame();
+			nextFrame = self nextPlaybackFrame();
 			newOrigin = self readPlaybackFrame_origin();
 			newAngles = self readPlaybackFrame_angles();
 
@@ -244,10 +252,13 @@ whileAlive()
 			self.slowmoCount++;
 			if(self.slowmoCount == slowMoCount)
 			{
+				// We actually went to new frame
+				newFrame = nextFrame;
 				self.slowmoCount = 0;
 			}
 			else
 			{
+				appliedSlowMo = true;
 				self prevPlaybackFrame();
 			}
 		}
@@ -257,38 +268,68 @@ whileAlive()
 		self setPlayerAngles(newAngles);
 
 		// Check if demo ended. TODO: loop if player enabled it
-		if ((self.playbackFrame != 0) && (newFrame == self.playbackFrame))
+		if ((newFrame != 0) && (newFrame == self.playbackFrame) && !appliedSlowMo)
 		{
 			self.playingDemo = false;
-			self.playbackFrame = 0;
-			self.playbackPaused = false;
+			self.linker delete();
+			self unlink();
 			self iprintln("Demo ended");
+			return;
 		}
+
+		// Remember where we left off so we know if the demo is ended
+		self.playbackFrame = newFrame;
 	}
 }
 
 _storeFrameToDB()
 {
+	// We send every frame to the server..
+	origin = self.origin;
+	angles = self getPlayerAngles();
+	result = addFrameToDemo(self.recordingDemoId, (int(origin[0]), int(origin[1]), int(origin[2])), (int(angles[0]), int(angles[1]), int(angles[2])), false); // TODO: isKeyFrame
+	if(!isDefined(result))
+	{
+		printf("Demo for player %s doesn't exist, stopping adding frames!\n" + self.name);
+		if(isDefined(self.recordLongQueryID))
+		{
+			self openCJ\mySQL::mySQLAsyncLongQueryFree(self.recordLongQueryID);
+			self.recordLongQueryID = undefined;
+		}
+		return false;
+	}
+
+	// ..but we don't store to db every frame, that would overload db
+	// We build a long query with multiple frames
 	if(!isDefined(self.recordLongQueryID))
 	{
 		self.recordLongQueryID = self openCJ\mySQL::mysqlAsyncLongQuerySetup();
 		self.recordLongQueryFrameCount = 1;
-		self.recordLongQueryRemainingChars = 10239;
-		query = "SELECT storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", " + openCJ\statistics::getFrameNumber() + ", " + self.origin[0] + ", " + self.origin[1] + ", " + self.origin[2] + ", " + self getPlayerAngles()[0] + ", " + self getPlayerAngles()[1] + ", " + self getPlayerAngles()[2] + ", 1)";
+		self.recordLongQueryRemainingChars = 10240; // 10 kB allowed
+		baseQuery = "SELECT storeDemoFrame(";
 	}
 	else
 	{
-		query =  ", storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", " + openCJ\statistics::getFrameNumber() + ", " + self.origin[0] + ", " + self.origin[1] + ", " + self.origin[2] + ", " + self getPlayerAngles()[0] + ", " + self getPlayerAngles()[1] + ", " + self getPlayerAngles()[2] + ", 1)";
+		baseQuery =  ", storeDemoFrame(";
 		self.recordLongQueryFrameCount++;
 	}
-	//printf("query is: " + query + "\n");
+
+	query = baseQuery + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", "
+					+ openCJ\statistics::getFrameNumber() + ", " + origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
+					+ angles[0] + ", " + angles[1] + ", " + angles[2]
+					+ ", 1)";
+	
+	// Let's append these frames to the query
 	self openCJ\mySQL::mySQLAsyncLongQueryAppend(self.recordLongQueryID, query);
 	self.recordLongQueryRemainingChars -= query.size;
-	if(self.recordLongQueryRemainingChars < 250 || self.recordLongQueryFrameCount > 200)
+
+	// Sync to db if there is not enough room left in the max allowed long query size, or if we reached 200 frames (10 seconds)
+	if((self.recordLongQueryRemainingChars < 250) || (self.recordLongQueryFrameCount >= 200))
 	{
 		self thread _executeStoreQuery(self.recordLongQueryID);
-		self.recordLongQueryID = undefined;
+		self.recordLongQueryID = undefined; // This will in turn reset the frame count
 	}
+	return true;
 }
 
 _executeStoreQuery(queryID)
@@ -300,12 +341,12 @@ _executeStoreQuery(queryID)
 		for(i = 0; i < rows[0].size; i++)
 		{
 			if(rows[0][i] != "0")
-				continue;
-			else
 			{
-				self iprintln("Storing failed because this run was loaded by another profile");
-				break;
+				continue;
 			}
+
+			self iprintln("Storing failed because this run was loaded by another profile");
+			break;
 		}
 	}
 	

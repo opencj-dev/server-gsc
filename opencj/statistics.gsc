@@ -25,6 +25,7 @@ onInit()
 onPlayerConnect()
 {
 	self _hideStatisticsHud(true);
+	self.isAFK = true;
 }
 
 onSpectatorClientChanged(newClient)
@@ -39,21 +40,41 @@ onSpectatorClientChanged(newClient)
 	}
 }
 
-whileAlive()
+isAFK()
 {
-	if(self isOnGround())
-		self.statistics_lastJump = undefined;
+	return self.isAFK;
+}
 
-	if(self.statistics_AFKOrigin != self.origin)
+setAFK(value)
+{
+	self.isAFK = value;
+	if(value)
+	{
+		self openCJ\statistics::pauseTimer();
+	}
+	else
 	{
 		self.statistics_AFKTimer = getTime() + 5000;
 		self.statistics_AFKOrigin = self.origin;
 		if(self openCJ\playerRuns::hasRunStarted())
 			self openCJ\statistics::startTimer();
 	}
+}
+
+whileAlive()
+{
+	if(self isOnGround())
+	{
+		self.statistics_lastJump = undefined;
+	}
+
+	if(self.statistics_AFKOrigin != self.origin)
+	{
+		self setAFK(false);
+	}
 	else if(self.statistics_AFKTimer < getTime())
 	{
-		self openCJ\statistics::pauseTimer();
+		self setAFK(true);
 	}
 
 	// Draw statistics HUD for ourselves
@@ -69,8 +90,7 @@ whileAlive()
 resetAFKOrigin()
 {
 	self.statistics_lastJump = undefined;
-	self.statistics_AFKOrigin = self.origin;
-	self.statistics_AFKTimer = getTime() + 5000;
+	self setAFK(false);
 }
 
 onRunFinished(cp)
@@ -94,6 +114,7 @@ onRunIDCreated()
 
 	self.statistics_lastRPG = undefined;
 	self.statistics_lastJump = undefined;
+	self setAFK(true);
 }
 
 addTimeUntil(newtime)

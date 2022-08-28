@@ -3,7 +3,15 @@
 onMeleeButton()
 {
 	if(self.sessionState != "playing")
+	{
 		return;
+	}
+
+	if (self openCJ\demos::isPlayingDemo())
+	{
+		self openCJ\demos::onPlayPauseDemo();
+		return;
+	}
 
 	if(isDefined(self.buttons_lastMelee) && getTime() - self.buttons_lastMelee < 500)
 	{
@@ -13,7 +21,9 @@ onMeleeButton()
 		self openCJ\saveposition::saveNormal();
 	}
 	else
+	{
 		self.buttons_lastMelee = getTime();
+	}
 }
 
 onUseButton()

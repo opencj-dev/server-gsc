@@ -98,6 +98,11 @@ mysqlAsyncLongQuerySetup()
 	return mysql_setup_longquery();
 }
 
+mysqlAsyncLongQueryFree(handle)
+{
+	return mysql_free_longquery(handle);
+}
+
 mysqlAsyncLongQueryAppend(queryID, queryPart)
 {
 	return mysql_append_longquery(queryID, queryPart);
