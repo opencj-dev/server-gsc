@@ -6,39 +6,8 @@ onInit()
 	level.readyDemos = []; // Loaded to enough frames
 
 	clearAllDemos();
-	cmd = openCJ\commands_base::registerCommand("record", "Start recording a demo", ::_onCommandRecord, 0, 0, 0);
 	cmd = openCJ\commands_base::registerCommand("playback", "Play back an existing recording", ::_onCommandPlayback, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "demo");
-}
-
-_onCommandRecord(args)
-{
-	if(self.recordingDemo)
-	{
-		self.recordingDemo = false;
-		self iprintln("^1Stopped ^7recording");
-	}
-	else
-	{
-		runID = int(self openCJ\playerRuns::getRunID());
-		result = createDemo(runID);
-		if(result == -1)
-		{
-			// Demo for this runId already existed, so we should destroy it
-			self iprintln("Deleting previous demo from same run..");
-			destroyDemo(runID);
-			result = createDemo(runID);
-			if(result != runID)
-			{
-				self iprintln("^1Failed to start recording");
-				printf("Failed to create new demo for player %s\n", self.name);
-				return;
-			}
-		}
-		self.recordingDemoId = runID;
-		self.recordingDemo = true;
-		self iprintln("^2Started ^7recording");
-	}
 }
 
 _onCommandPlayback(args)
@@ -80,7 +49,6 @@ _doLoadRecordingQuery(query, demoId)
 	}
 
 	self iprintln("^2Starting ^7playback");
-	self.recordingDemo = false;
 	self.playbackFrame = 0;
 	self.playbackPaused = false;
 	self.slowmoCount = 0;
@@ -156,9 +124,7 @@ isPlayingDemo()
 
 onPlayerConnect()
 {
-	self.recordingDemo = false;
 	self.playingDemo = false;
-	self.recordingDemoId = undefined;
 	self.playbackFrame = 0;
 	self.playbackPaused = false;
 }
@@ -178,11 +144,10 @@ onPlayPauseDemo()
 
 whileAlive()
 {
-	if(self.recordingDemo && !self.playingDemo)
+	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && !self openCJ\statistics::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating() && !self isPlayingDemo())
 	{
 		if(!self _storeFrameToDB())
 		{
-			self.recordingDemo = false;
 			self iprintlnbold("Demo recording errror? Stopping..");
 		}
 	}
@@ -287,7 +252,7 @@ _storeFrameToDB()
 	// We send every frame to the server..
 	origin = self.origin;
 	angles = self getPlayerAngles();
-	result = addFrameToDemo(self.recordingDemoId, (int(origin[0]), int(origin[1]), int(origin[2])), (int(angles[0]), int(angles[1]), int(angles[2])), false); // TODO: isKeyFrame
+	/*result = addFrameToDemo(self openCJ\playerRuns::getRunID(), (int(origin[0]), int(origin[1]), int(origin[2])), (int(angles[0]), int(angles[1]), int(angles[2])), false); // TODO: isKeyFrame
 	if(!isDefined(result))
 	{
 		printf("Demo for player %s doesn't exist, stopping adding frames!\n" + self.name);
@@ -297,7 +262,7 @@ _storeFrameToDB()
 			self.recordLongQueryID = undefined;
 		}
 		return false;
-	}
+	}*/
 
 	// ..but we don't store to db every frame, that would overload db
 	// We build a long query with multiple frames
@@ -306,15 +271,15 @@ _storeFrameToDB()
 		self.recordLongQueryID = self openCJ\mySQL::mysqlAsyncLongQuerySetup();
 		self.recordLongQueryFrameCount = 1;
 		self.recordLongQueryRemainingChars = 10240; // 10 kB allowed
-		baseQuery = "SELECT storeDemoFrame(";
+		baseQuery = "SELECT ";
 	}
 	else
 	{
-		baseQuery =  ", storeDemoFrame(";
+		baseQuery =  ", ";
 		self.recordLongQueryFrameCount++;
 	}
 
-	query = baseQuery + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", "
+	query = baseQuery + "storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", "
 					+ openCJ\statistics::getFrameNumber() + ", " + origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
 					+ angles[0] + ", " + angles[1] + ", " + angles[2]
 					+ ", 1)";
