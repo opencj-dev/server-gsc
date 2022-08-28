@@ -2,6 +2,9 @@
 
 onInit()
 {
+	level.demosBeingLoaded = []; // Not yet ready to play
+	level.readyDemos = []; // Loaded to enough frames
+
 	clearAllDemos();
 	cmd = openCJ\commands_base::registerCommand("record", "Start recording a demo", ::_onCommandRecord, 0, 0, 0);
 	cmd = openCJ\commands_base::registerCommand("playback", "Play back an existing recording", ::_onCommandPlayback, 0, 1, 0);
@@ -17,6 +20,22 @@ _onCommandRecord(args)
 	}
 	else
 	{
+		runID = self openCJ\playerRuns::getRunID();
+		result = createDemo(runID);
+		if(result == -1)
+		{
+			// Demo for this runId already existed, so we should destroy it
+			self iprintln("Deleting previous demo from same run..");
+			destroyDemo(runID);
+			result = createDemo(runID);
+			if(result != runID)
+			{
+				self iprintln("^1Failed to start recording");
+				printf("Failed to create new demo for player %s\n", self.name);
+				return;
+			}
+		}
+		self.recordingDemoId = runID;
 		self.recordingDemo = true;
 		self iprintln("^2Started ^7recording");
 	}
@@ -26,22 +45,27 @@ _onCommandPlayback(args)
 {
 	if(isDefined(args[0]))
 	{
-		self iprintln("^Starting ^7playback");
+		self iprintln("^2Starting ^7playback");
 		self.recordingDemo = false;
 		self.slowmoCount = 0;
 		query = "SELECT x, y, z, a, b, c, isKeyFrame FROM playerRecordings WHERE runID = " + int(args[0]) + " ORDER BY frameNum ASC";
-		self thread _doLoadRecordingQuery(query, int(args[0]) + "");
+		self thread _doLoadRecordingQuery(query, int(args[0]));
 	}
 	else
 	{
 		self iprintln("^1Stopped ^7playback");
 		self.playingDemo = false;
+		if(isDefined(self.linker))
+		{
+			self.linker delete();
+		}
 		self unlink();
 	}
 }
 
-_doLoadRecordingQuery(query, demoname)
+_doLoadRecordingQuery(query, demoId)
 {
+	level endon("map_ended");
 	self endon("disconnect");
 
 	result = openCJ\mySQL::mysqlAsyncQueryNoRows(query);
@@ -58,20 +82,56 @@ _doLoadRecordingQuery(query, demoname)
 		return;
 	}
 
-	// Destroy any currently active demo and 
-	self destroyDemo();
-	self createDemo(demoname);
+	// Check if the demo was already previously loaded
+	createDemoResult = createDemo(demoId);
+	// -1 -> already loaded
+	// -2 -> no free spots (if this happens we should just increase it, for now it's 512)
+	if(createDemoResult == -1)
+	{
+		// Already loaded, great. Don't have to let the player wait!
+	}
+	else if(createDemoResult == -2)
+	{
+		// Oh no, we ran out of free space.
+		printf("Ran out of free demo space... oops\n");
+		return;
+	}
+	else // createDemoResult will be demoId
+	{
+		self iprintln("Loading demo..");
+		thread _loadDemo(demoId, result, rowcount); // TODO: load all demos at map start, or perhaps the map before?
+		while (!isDefined(level.readyDemos[demoId]))
+		{
+			wait .05;
+		}
+	}
+
+	self iprintln("^2Demo ready to play!");
+
+	self selectPlaybackDemo(demoId);
+	self.playingDemo = true;
+}
+
+_loadDemo(demoId, result, rowcount)
+{
+	level endon("map_ended");
+	if(isDefined(level.demosBeingLoaded[demoId]) || isDefined(level.readyDemos[demoId]))
+	{
+		// Already (being) loaded
+		return;
+	}
+
+	level.demosBeingLoaded[demoId] = 1;
 
 	nrDemoFramesToLoad = 300;
 	for(i = 0; i < rowcount; i++)
 	{
 		row = mysql_fetch_row(result);
-		self addFrameToDemo((int(row[0]), int(row[1]), int(row[2])), (int(row[3]), int(row[4]), int(row[5])), int(row[6]));
+		addFrameToDemo(demoId, (int(row[0]), int(row[1]), int(row[2])), (int(row[3]), int(row[4]), int(row[5])), int(row[6]));
 		if(i == nrDemoFramesToLoad)
 		{
-			// Start demo playback when we have enough frames preloaded, but keep loading
-			self selectPlaybackDemo(demoname);
-			self.playingDemo = true;
+			// Allow player's demo playback to start when we have sufficient frames preloaded, but keep loading
+			level.readyDemos[demoId] = 1;
 		}
 		else if((i > nrDemoFramesToLoad) && ((i % nrDemoFramesToLoad) == 0))
 		{
@@ -81,26 +141,21 @@ _doLoadRecordingQuery(query, demoname)
 	}
 
 	// At this point we've loaded all frames
-
-	// If demo was shorter than number of frames we wanted to preload, then we still need to set playback
-	if(i < nrDemoFramesToLoad)
-	{
-		self selectPlaybackDemo(demoname);
-		self.playingDemo = true;
-	}
-
-	mysql_free_result(result);
+	level.demosBeingLoaded[demoId] = undefined;
+    
+    mysql_free_result(result);
 }
 
 onPlayerConnect()
 {
 	self.recordingDemo = false;
 	self.playingDemo = false;
+	self.recordingDemoId = undefined;
 }
 
 whileAlive()
 {
-	if(self.recordingDemo)
+	if(self.recordingDemo && !self.playingDemo)
 	{
 		self _storeFrameToDB();
 	}
