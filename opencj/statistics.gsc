@@ -333,7 +333,7 @@ _drawStatisticsHud(client)
 		newstring += self openCJ\settings::getSetting("fpspurestring");
 	newstring += client openCJ\fps::getCurrentFPS() + "\n";
 	
-	route = openCJ\checkpoints::getEnderName(self openCJ\checkpoints::getCheckpoint());
+	route = openCJ\checkpoints::getEnderName(client openCJ\checkpoints::getCheckpoint());
 	if(isDefined(route))
 	{
 		newstring += "Route: " + route + "\n";
