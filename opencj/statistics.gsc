@@ -346,9 +346,9 @@ _drawStatisticsHud(client)
 		newstring += self openCJ\settings::getSetting("rpgshotsstring") + " " + client getRPGShots() + "\n";
 		newstring += self openCJ\settings::getSetting("doublerpgsstring") + " " + client getDoubleRPGs() + "\n";
 	}
-	if(client openCJ\fps::hasHaxFPS())
+	if(client openCJ\fps::hasUsedHaxFPS())
 		newstring += self openCJ\settings::getSetting("fpshaxstring");
-	else if(client openCJ\fps::hasMixFPS())
+	else if(client openCJ\fps::hasUsedMixFPS())
 		newstring += self openCJ\settings::getSetting("fpsmixstring");
 	else
 		newstring += self openCJ\settings::getSetting("fpspurestring");

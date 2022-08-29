@@ -49,16 +49,15 @@ main(backwardsCount)
 		self openCJ\elevate::setEleOverrideEver(openCJ\savePosition::getFlagEleOverrideEver(save));
 		self openCJ\elevate::setEleOverrideNow(openCJ\savePosition::getFlagEleOverrideNow(save));
 		//set hax/mix vars here
-		self openCJ\fps::setHaxFPS(openCJ\savePosition::hasHaxFPS(save));
+		self openCJ\fps::setUsedHaxFPS(openCJ\savePosition::hasHaxFPS(save));
 		if(self openCJ\fps::getCurrentFPS() != save.fps)
 		{
-			self openCJ\fps::setMixFPS(true);
+			self openCJ\fps::setUsedMixFPS(true);
 		}
 		else
 		{
-			self openCJ\fps::setMixFPS(openCJ\savePosition::hasMixFPS(save));
+			self openCJ\fps::setUsedMixFPS(openCJ\savePosition::hasMixFPS(save));
 		}
-		self openCJ\fps::onLoadPosition();
 
 		self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 		self openCJ\savePosition::printLoadSuccess();

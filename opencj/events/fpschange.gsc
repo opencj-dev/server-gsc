@@ -9,15 +9,19 @@ onPmoveFPSChange(newFrameTime)
 	wait 0.2;
     newFPS = int(1000 / newFrameTime);
 
-	self openCJ\fps::onFPSChangedDetection(newFPS);
+	self openCJ\fps::onDetectedFPSChange(newFPS);
 }
 
 onUserInfoChanged()
 {
-
 	newFPS = self getUserInfo("com_maxfps");
+
 	if(isDefined(newFPS))
-		self openCJ\fps::onFPSChangedUserinfo(int(newFPS));
+	{
+		self openCJ\fps::onUserInfoFPSChange(int(newFPS));
+	}
 	else
-		self openCJ\fps::fpsNotInUserinfo();
+	{
+		self openCJ\fps::onFPSNotInUserInfo();
+	}
 }

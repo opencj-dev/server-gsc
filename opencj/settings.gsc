@@ -151,16 +151,17 @@ parseSettingValue(setting, value)
 
 onSetting(name, args)
 {
-    // For now we always have 1 argument
-    if(!isDefined(args) || (args.size != 1))
+    // For now we always have 0-1 arguments
+    if(!isDefined(args) || (args.size > 1) || ((args.size == 0) && (level.settings[name].type != "bool")))
     {
-        self sendLocalChatMessage("ERROR! Setting was called with args.size != 1", true);
+        self sendLocalChatMessage("ERROR! Setting was called with unexpected args.size", true);
         return;
     }
     arg = args[0];
 
     setting = level.settings[name];
 
+    updated = false;
     switch(setting.type)
     {
         case "string":
@@ -177,6 +178,7 @@ onSetting(name, args)
             }
 
             self.settingValues[name] = arg;
+            updated = true;
         } break;
         case "int":
         {
@@ -199,16 +201,25 @@ onSetting(name, args)
             }
 
             self.settingValues[name] = arg;
+            updated = true;
         } break;
         case "bool":
         {
-            if(!isValidBool(arg))
+            if(isDefined(arg))
             {
-                self sendLocalChatMessage("Argument " + arg + " is not a valid bool", true);
-                return;
-            }
+                if(!isValidBool(arg))
+                {
+                    self sendLocalChatMessage("Argument " + arg + " is not a valid bool", true);
+                    return;
+                }
 
-            self.settingValues[name] = strToBool(arg);
+                self.settingValues[name] = strToBool(arg);
+            }
+            else
+            {
+                self.settingValues[name] = !self.settingValues[name];
+            }
+            updated = true;
         } break;
         case "float":
         {
@@ -231,6 +242,7 @@ onSetting(name, args)
             }
 
             self.settingValues[name] = arg;
+            updated = true;
         } break;
         default:
         {
@@ -245,6 +257,11 @@ onSetting(name, args)
         self [[setting.updateFunc]](self.settingValues[name]);
     }
 
+    if(updated)
+    {
+        self sendLocalChatMessage("Changed setting " + name + " to " + self.settingValues[name], false);
+    }
+
     // Update setting in database
     self thread writePlayerSettingToDb(name, self.settingValues[name]);
     return;
@@ -252,10 +269,9 @@ onSetting(name, args)
 
 addSettingString(name, minLen, maxLen, defaultVal, help, updateFunc)
 {
-    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc, "string");
     if (isDefined(underlyingCmd))
     {
-        level.settings[name].type = "string";
         level.settings[name].minLen = minLen;
         level.settings[name].maxLen = maxLen;
         return underlyingCmd;
@@ -266,10 +282,9 @@ addSettingString(name, minLen, maxLen, defaultVal, help, updateFunc)
 
 addSettingInt(name, minVal, maxVal, defaultVal, help, updateFunc)
 {
-    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc, "int");
     if (isDefined(underlyingCmd))
     {
-        level.settings[name].type = "int";
         level.settings[name].minVal = minVal;
         level.settings[name].maxVal = maxVal;
         return underlyingCmd;
@@ -280,10 +295,9 @@ addSettingInt(name, minVal, maxVal, defaultVal, help, updateFunc)
 
 addSettingBool(name, defaultVal, help, updateFunc)
 {
-    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc, "bool");
     if (isDefined(underlyingCmd))
     {
-        level.settings[name].type = "bool";
         return underlyingCmd;
     }
 
@@ -292,10 +306,9 @@ addSettingBool(name, defaultVal, help, updateFunc)
 
 addSettingFloat(name, minVal, maxVal, defaultVal, help, updateFunc)
 {
-    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc);
+    underlyingCmd = _createSetting(name, defaultVal, help, updateFunc, "float");
     if (isDefined(underlyingCmd))
     {
-        level.settings[name].type = "float";
         level.settings[name].minVal = minVal;
         level.settings[name].maxVal = maxVal;
         return underlyingCmd;
@@ -304,7 +317,7 @@ addSettingFloat(name, minVal, maxVal, defaultVal, help, updateFunc)
     return undefined;
 }
 
-_createSetting(name, defaultVal, help, updateFunc)
+_createSetting(name, defaultVal, help, updateFunc, typeStr)
 {
     if(isDefined(level.settings[name]))
     {
@@ -313,15 +326,22 @@ _createSetting(name, defaultVal, help, updateFunc)
     }
 
     level.settings[name] = spawnStruct();
+    level.settings[name].type = typeStr;
     level.settings[name].defaultVal = defaultVal;
     if(isDefined(updateFunc))
     {
         level.settings[name].updateFunc = updateFunc;
     }
-    // For now always minArgs=maxArgs=1
-    // For now always minAdminLevel=0
+    // For now these values are hardcoded
     // If we want to change this, just change the addSettingXXXX functions to accept the new parameters
-    cmd = openCJ\commands_base::registerCommand(name, help, undefined, 1, 1, 0, name);
+    minAdminLevel = 0;
+    maxArgs = 1;
+    minArgs = 1;
+    if(level.settings[name].type == "bool")
+    {
+        minArgs = 0;
+    }
+    cmd = openCJ\commands_base::registerCommand(name, help, undefined, minArgs, maxArgs, minAdminLevel, name);
     if(!isDefined(cmd))
     {
 		level.settings[name] = undefined;
