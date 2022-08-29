@@ -2,149 +2,122 @@
 
 onInit()
 {
-	underlyingCmd = openCJ\settings::addSettingBool("ignorehax", false, "Enable/disable loading on hax fps\nUsage: !ignorehax [on/off]");
-	underlyingCmd = openCJ\settings::addSettingBool("ignoremix", true, "Enable/disable loading on mix fps\nUsage: !ignoremix [on/off]");
+	underlyingCmd = openCJ\settings::addSettingBool("allowhax", false, "Set whether hax fps is allowed in current run\nUsage: !hax [on/off]");
+	openCJ\commands_base::addAlias(underlyingCmd, "hax");
+	underlyingCmd = openCJ\settings::addSettingBool("allowmix", true, "Set whether mix fps is allowed in current run\nUsage: !mix [on/off]");
+	openCJ\commands_base::addAlias(underlyingCmd, "mix");
 }
 
-fpsNotInUserinfo()
+onFPSNotInUserInfo()
 {
 	if(self openCJ\playerRuns::hasRunStarted())
 	{
-		if(!self hasHaxFPS())
+		if(!self hasUsedHaxFPS())
 		{
-			self iprintlnbold("Error: your com_maxfps is not in your userinfo. Please reconnect. If this error persists, contact an admin");
-			self haxFPSDetection();
+			self iprintlnbold("Error: your com_maxfps is not in your userinfo, please reconnect");
+			self onHaxFPSDetected();
 		}
 	}
 }
 
-onLoadPosition()
+setSafeFPS()
 {
-	if(isHaxFPS(self getCurrentFPS()))
-	{
-		if(!self openCJ\savePosition::canLoadError(0))
-		{
-			printf("trying to load\n");
-			self iPrintLnBold("Loaded because hax detected");
-			self setClientCvar("com_maxfps", 125);
-			//self set_userinfo("com_maxfps", "125");
-			self clearfpsfilter();
-			self.fps = 125;
-			self _fpsChange(125);
-			self openCJ\statistics::setLoadCount(self openCJ\statistics::getLoadCount() - 1);
-			self thread openCJ\savePosition::loadNormal();
-		}
-		else
-		{
-			self openCJ\settings::setSetting("ignorehax", true);
-			self setHaxFPS(true);
-			self iprintlnbold("Hax fps detected, cannot load back. Ignoring hax fps for this run. Reset your run to undo this");
-		}
-	}
+	// Attempt to force user's FPS to 125 (safe value)
+	self setClientCvar("com_maxfps", 125);
+	self clearfpsfilter();
+	self.lastFPS = 125;
+	self _fpsChange(125);
 }
 
-haxFPSDetection()
+onHaxFPSDetected()
 {
-	if(!self openCJ\settings::getSetting("ignorehax"))
-	{
-		//load back upon hax fps detection
-		if(!self openCJ\savePosition::canLoadError(0))
-		{
-			printf("trying to load\n");
-			self iPrintLnBold("Loaded because hax detected");
-			self setClientCvar("com_maxfps", 125);
-			//self set_userinfo("com_maxfps", "125");
-			self clearfpsfilter();
-			self.fps = 125;
-			self _fpsChange(125);
-			self thread openCJ\savePosition::loadNormal();
-		}
-		else
-		{
-			self openCJ\settings::setSetting("ignorehax", true);
-			self setHaxFPS(true);
-			self iprintlnbold("Hax fps detected, cannot load back. Ignoring hax fps for this run. Reset your run to undo this");
-		}
-	}
-	else
-	{
-		printf("ignorehax is off???\n");
-		setHaxFPS(true);
-	}
-}
-
-mixFPSDetection()
-{
-	if(!self openCJ\settings::getSetting("ignoremix"))
-	{
-		//load back upon mix fps detection
-		if(!self openCJ\savePosition::canLoadError())
-		{
-			printf("trying to load\n");
-			self iPrintLnBold("Loaded because mix detected");
-			self thread openCJ\savePosition::loadNormal();
-		}
-		else
-		{
-			self openCJ\settings::setSetting("ignoremix", true);
-			self setMixFPS(true);
-			self iprintlnbold("Mix fps detected, cannot load back. Ignoring mix fps for this run. Reset your run to undo this");
-		}
-	}
-	else
-		setMixFPS(true);
-}
-
-setHaxFPS(value)
-{
-	if(value && !self openCJ\settings::getSetting("ignorehax"))
-	{
-		self iprintlnbold("Hax fps was enabled on this save. Ignoring hax fps for the rest of this run. Load back to a save without hax fps and disable hax ignoring with !ignorehax");
-		self openCJ\settings::setSetting("ignorehax", true);
-	}
-	self.haxFPS = value;
-}
-
-hasHaxFPS()
-{
-	return self.haxFPS;
-}
-
-hasMixFPS()
-{
-	return self.mixFPS;
-}
-
-setMixFPS(value)
-{
-	if(value && !self openCJ\settings::getSetting("ignoremix"))
-	{
-		self iprintlnbold("Mix fps was enabled on this save. Ignoring mix fps for the rest of this run. Load back to a save without mix fps and disable mix ignoring with !ignoremix");
-		self openCJ\settings::setSetting("ignoremix", true);
-	}
-	self.mixFPS = value;
-}
-
-onFPSChangedUserinfo(newFPS)
-{
-	if(!isPlayerReady())
+	if(self hasUsedHaxFPS())
 	{
 		return;
 	}
 
-	if(isHaxFPS(newFPS))
+	if(!self openCJ\settings::getSetting("allowhax"))
 	{
-		//user is haxxing
-		//iprintln("hax from userinfo" + newFPS);
-		self haxFPSDetection();
+		//load back upon hax fps detection
+		if(!self openCJ\savePosition::canLoadError(0))
+		{
+			self iprintln("^5Hax FPS detected");
+			self setSafeFPS();
+
+			// Force the player back to their load
+			self thread openCJ\savePosition::loadNormal();
+		}
+		else
+		{
+			self openCJ\settings::setSetting("allowhax", true);
+			self setUsedHaxFPS(true);
+			self iprintlnbold("Hax fps detected, but cannot load back. Reset your run to clear hax");
+		}
 	}
-	else if(newFPS != self getCurrentFPS())
+	else
 	{
-		//user is mixing
-		self mixFPSDetection();
+		setUsedHaxFPS(true);
 	}
-	self.fps = newFPS;
-	self _fpsChange(newFPS);
+}
+
+onMixFPSDetected()
+{
+	if(self hasUsedMixFPS())
+	{
+		return;
+	}
+
+	if(!self openCJ\settings::getSetting("allowmix"))
+	{
+		//load back upon mix fps detection
+		if(!self openCJ\savePosition::canLoadError())
+		{
+			self iprintln("^3Mix FPS detected");
+			self thread openCJ\savePosition::loadNormal();
+		}
+		else
+		{
+			self openCJ\settings::setSetting("allowmix", true);
+			self setUsedMixFPS(true);
+			self iprintlnbold("Mix fps detected, but cannot load back. Reset your run to clear mix");
+		}
+	}
+	else
+	{
+		setUsedMixFPS(true);
+	}
+}
+
+setUsedHaxFPS(hasUsed)
+{
+	if(hasUsed && !self openCJ\settings::getSetting("allowhax"))
+	{
+		self iprintlnbold("Hax fps was enabled on this save");
+		self iprintlnbold("To reset, load back to a save without hax and !hax off");
+		self openCJ\settings::setSetting("allowhax", true);
+	}
+	self.hasUsedHaxFPS = hasUsed;
+}
+
+setUsedMixFPS(hasUsed)
+{
+	if(hasUsed && !self openCJ\settings::getSetting("allowmix"))
+	{
+		self iprintlnbold("Mix fps was enabled on this save");
+		self iprintlnbold("To reset, load back to a save without mix and !mix off");
+		self openCJ\settings::setSetting("allowmix", true);
+	}
+	self.hasUsedMixFPS = hasUsed;
+}
+
+hasUsedHaxFPS()
+{
+	return self.hasUsedHaxFPS;
+}
+
+hasUsedMixFPS()
+{
+	return self.hasUsedMixFPS;
 }
 
 _fpsChange(newFPS)
@@ -152,23 +125,29 @@ _fpsChange(newFPS)
 	self openCJ\fpsHistory::onFPSChanged(newFPS);
 }
 
-onFPSChangedDetection(newFPS)
+onDetectedFPSChange(newFPS)
 {
-	if(!isPlayerReady())
+	if(!isPlayerReady() || (newFPS == self getCurrentFPS()))
 	{
 		return;
 	}
-	if(isHaxFPS(newFPS) || ((newFPS > self getCurrentFPS()) && !self hasMixFPS()))
+
+	if(isHaxFPS(newFPS))
 	{
-		//user is haxxing
-		iprintln("Hax detected: " + newFPS); // TODO: seems we get false positive (76) sometimes
-		self haxFPSDetection();
+		self onHaxFPSDetected();
 	}
-	else if(newFPS != self getCurrentFPS())
+	else if(newFPS > 125)
 	{
-		//user is mixing
-		self mixFPSDetection();
+		self onMixFPSDetected();
 	}
+
+	self.lastFPS = newFPS;
+	self _fpsChange(newFPS);
+}
+
+onUserInfoFPSChange(newFPS)
+{
+	onDetectedFPSChange(newFPS);
 }
 
 getFPSFromUserInfo()
@@ -178,36 +157,37 @@ getFPSFromUserInfo()
 
 onRunIDCreated()
 {
-	self.haxFPS = false;
-	self.mixFPS = false;
-	self openCJ\settings::setSetting("ignorehax", false);
-	self openCJ\settings::setSetting("ignoremix", true);
-	self.FPS = getFPSFromUserInfo();
-	if(!isDefined(self getUserInfo("com_maxfps")))
-		self fpsNotInUserinfo();
+	self.hasUsedHaxFPS = false;
+	self.hasUsedMixFPS = false;
+	self openCJ\settings::setSetting("allowhax", false);
+	self openCJ\settings::setSetting("allowmix", true);
+	self.lastFPS = getFPSFromUserInfo();
+	if(!isDefined(self.lastFPS))
+	{
+		self onFPSNotInUserInfo();
+	}
 	if(isHaxFPS(self getCurrentFPS()))
 	{
-		iprintln("hax from onrunid" + self getCurrentFPS());
-		self haxFPSDetection();
+		self onHaxFPSDetected();
 	}
-
 }
 
 getCurrentFPS()
 {
-	if(!isDefined(self.FPS))
+	if(!isDefined(self.lastFPS))
+	{
 		return 0;
-	return self.FPS;
+	}
+	return self.lastFPS;
 }
 
 isHaxFPS(fps)
 {
-	//self iprintln("checking fps " + fps + " for hax");
 	switch(fps)
 	{
 		case 43:
+			return (getCvarInt("codversion") == 4);
 		case 76:
-			return getCvarInt("codversion") == 4;
 		case 125:
 		case 250:
 		case 333:

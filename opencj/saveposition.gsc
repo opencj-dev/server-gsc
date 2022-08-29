@@ -80,11 +80,11 @@ createFlags()
 	{
 		flags |= level.saveFlags["eleOverrideEver"];
 	}
-	if(openCJ\fps::hasHaxFPS())
+	if(openCJ\fps::hasUsedHaxFPS())
 	{
 		flags |= level.saveFlags["haxfps"];
 	}
-	if(openCJ\fps::hasMixFPS())
+	if(openCJ\fps::hasUsedMixFPS())
 	{
 		flags |= level.saveFlags["mixfps"];
 	}
