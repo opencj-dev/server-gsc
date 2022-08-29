@@ -97,12 +97,12 @@ _createRunID()
 	}
 	else
 	{
-		self.playerRuns_runID = rows[0][0];
+		self.playerRuns_runID = int(rows[0][0]);
 		//printf("Adding run instance number++\n");
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
 		if(rows.size && isDefined(rows[0][0]))
 		{
-			self.runInstanceNumber = rows[0][0];
+			self.runInstanceNumber = int(rows[0][0]);
 			self openCJ\events\runIDCreated::main();
 		}
 		else
