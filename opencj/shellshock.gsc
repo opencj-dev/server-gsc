@@ -32,6 +32,6 @@ onPlayerDamage(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint,
 resetShellShock()
 {
 	self stopShellShock();
-	self openCJ\statistics::addTimeUntil(self.shellShock_completedTime);
+	self openCJ\playtime::addTimeUntil(self.shellShock_completedTime);
 	self.shellShock_completedTime = undefined;
 }

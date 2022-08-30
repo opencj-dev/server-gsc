@@ -144,7 +144,7 @@ onPlayPauseDemo()
 
 whileAlive()
 {
-	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && !self openCJ\statistics::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating() && !self isPlayingDemo())
+	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && !self openCJ\playtime::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating() && !self isPlayingDemo())
 	{
 		if(!self _storeFrameToDB())
 		{
@@ -280,7 +280,7 @@ _storeFrameToDB()
 	}
 
 	query = baseQuery + "storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", "
-					+ openCJ\statistics::getFrameNumber() + ", " + origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
+					+ openCJ\playTime::getFrameNumber() + ", " + origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
 					+ angles[0] + ", " + angles[1] + ", " + angles[2]
 					+ ", 1)";
 	

@@ -22,7 +22,7 @@ onRunFinished(cp)
 {
 	cps = [];
 	cps[0] = cp;
-	timems = self openCJ\statistics::getTimePlayed();
+	timems = self openCJ\playTime::getTimePlayed();
 	self thread _getRecords(cps, 2, timems);
 }
 
@@ -54,7 +54,7 @@ onSpectatorClientChanged(newClient)
 	{
 		if(newClient openCJ\playerRuns::isRunFinished())
 		{
-			timems = newClient openCJ\statistics::getTimePlayed();
+			timems = newClient openCJ\playTime::getTimePlayed();
 			self _updateRecords(newClient, newClient.showRecords_rows, timems, true);
 		}
 		else
@@ -153,7 +153,7 @@ _updateRecords(client, rows, overrideTime, force)
 	timeString = "";
 
 	if(!isDefined(overrideTime))
-		timePlayed = client openCJ\statistics::getTimePlayed();
+		timePlayed = client openCJ\playTime::getTimePlayed();
 	else
 		timePlayed = overrideTime;
 

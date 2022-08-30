@@ -131,13 +131,13 @@ onSpawnPlayer()
 		self openCJ\events\WASDPressed::enableWASDCallback();
 	}
 	else
-		self openCJ\statistics::startTimer();
+		self openCJ\playTime::startTimer();
 }
 
 onSpawnSpectator()
 {
 	self openCJ\events\WASDPressed::disableWASDCallback();
-	self openCJ\statistics::pauseTimer();
+	self openCJ\playTime::pauseTimer();
 }
 
 startRun()
@@ -148,6 +148,6 @@ startRun()
 		printf("unlinking from spawn\n");
 		self.playerRuns_runStarted = true;
 		self unLink();
-		self openCJ\statistics::startTimer();
+		self openCJ\playTime::startTimer();
 	}
 }

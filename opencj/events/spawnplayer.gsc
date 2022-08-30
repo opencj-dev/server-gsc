@@ -48,7 +48,7 @@ setSharedSpawnVars(giveRPG)
 	
 	self openCJ\playerModels::setPlayerModel();
 	
-	self openCJ\statistics::resetAFKOrigin();
+	self openCJ\playtime::setAFK(false);
 	self openCJ\checkpointPointers::showCheckpointPointers();
 
 	if(getCvarInt("codversion") == 2)

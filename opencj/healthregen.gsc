@@ -4,7 +4,7 @@ resetHealthRegen()
 {
 	self notify("stopHealthRegen");
 
-	self openCJ\statistics::addTimeUntil(self.healthRegen_completedTime);
+	self openCJ\playtime::addTimeUntil(self.healthRegen_completedTime);
 	self.healthRegen_completedTime = undefined;
 
 	self.maxHealth = 100;
@@ -20,7 +20,7 @@ onSpawnSpectator()
 {
 	self notify("stopHealthRegen");
 
-	self openCJ\statistics::addTimeUntil(self.healthRegen_completedTime);
+	self openCJ\playtime::addTimeUntil(self.healthRegen_completedTime);
 	self.healthRegen_completedTime = undefined;
 }
 
