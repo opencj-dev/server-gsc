@@ -22,6 +22,8 @@ main()
 				self openCJ\onscreenKeyboard::whileAlive();
 				self openCJ\huds::whileAlive();
 				self openCJ\playerNames::whileAlive();
+				self openCJ\playTime::whileAlive();
+	
 				self openCJ\platformDetect::whileAlive(); //debug file
 			}
 		}

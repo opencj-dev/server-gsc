@@ -139,27 +139,28 @@ onRunIDCreated()
 {
 	self.playerRuns_runStarted = false;
 	self.playerRuns_runFinished = false;
+	self iprintln("Run ID: " + self getRunID());
 }
 
 onSpawnPlayer()
 {
 	if(!self.playerRuns_runStarted)
 	{
-		printf("linking to spawn\n");
+		self iprintln("linking to spawn");
 		self.playerRuns_spawnLinker.origin = self.origin;
 		self linkTo(self.playerRuns_spawnLinker);
 		self openCJ\events\WASDPressed::enableWASDCallback();
 	}
 	else
 	{
-		self openCJ\statistics::startTimer();
+		self openCJ\playTime::startTimer();
 	}
 }
 
 onSpawnSpectator()
 {
 	self openCJ\events\WASDPressed::disableWASDCallback();
-	self openCJ\statistics::pauseTimer();
+	self openCJ\playTime::pauseTimer();
 }
 
 startRun()
@@ -168,9 +169,9 @@ startRun()
 	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self.sessionState == "playing" && !self.playerRuns_runStarted)
 	{
 		self openCJ\FPS::onRunStarted();
-		printf("unlinking from spawn\n");
+		self iprintln("unlinking from spawn");
 		self.playerRuns_runStarted = true;
 		self unLink();
-		self openCJ\statistics::startTimer();
+		self openCJ\playTime::startTimer();
 	}
 }

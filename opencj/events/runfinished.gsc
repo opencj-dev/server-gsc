@@ -7,17 +7,17 @@ main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 	{
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
-		self openCJ\statistics::setTimePlayed(self openCJ\statistics::getTimePlayed() + tOffset);
-		timePlayed = self openCJ\statistics::getTimePlayed();
+		self openCJ\playTime::setTimePlayed(self openCJ\playTime::getTimePlayed() + tOffset);
+		timePlayed = self openCJ\playTime::getTimePlayed();
 		self thread openCJ\checkpoints::storeCheckpointPassed(runID, cpID, timePlayed);
 		self thread _notifyFinishedMap(runID, cpID, timePlayed);
 	}
 	self thread openCJ\playerRuns::onRunFinished(cp);
-	self openCJ\statistics::onRunFinished(cp);
 	self openCJ\checkpointPointers::onRunFinished(cp);
 	self openCJ\showRecords::onRunFinished(cp);
 	self openCJ\progressBar::onRunFinished(cp);
 	self openCJ\elevate::onRunFinished(cp);
+	self openCJ\playTime::onRunFinished(cp);
 }
 
 _notifyFinishedMap(runID, cpID, timePlayed)

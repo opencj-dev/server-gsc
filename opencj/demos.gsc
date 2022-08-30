@@ -40,6 +40,7 @@ _doLoadRecordingQuery(query, demoId)
 	rowcount = mysql_num_rows(result);
 	if(rowcount == 0)
 	{
+		printf("demoId " + demoId + " query: \n" + query + "\n");
 		self iprintln("Demo was not found!");
 		return;
 	}
@@ -140,7 +141,7 @@ onPlayPauseDemo()
 
 whileAlive()
 {
-	if(self isPlayerReady() && !self openCJ\statistics::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating())
+	if(self isPlayerReady() && !self openCJ\playtime::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating())
 	{
 		if(!self _storeFrameToDB())
 		{
@@ -221,8 +222,6 @@ whilePlayingDemo()
 	self.demoLinker.origin = newOrigin;
 	self setPlayerAngles(newAngles);
 	// Check if demo ended.
-	printf("newframe: " + newframe + "\n");
-	printf("compare: " + (numberOfDemoFrames(self.demoID) - 1) + "\n");
 	if(newFrame == numberOfDemoFrames(self.demoID) - 1)
 	{
 		self _endOfDemo();
@@ -291,7 +290,7 @@ _storeFrameToDB()
 
 	query = baseQuery + "storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", "
 					+ self openCJ\playerRuns::getRunInstanceNumber() + ", "
-					+ openCJ\statistics::getFrameNumber() + ", "
+					+ openCJ\playTime::getFrameNumber() + ", "
 					+ origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
 					+ angles[0] + ", " + angles[1] + ", " + angles[2] + ", "
 					+ "1)";

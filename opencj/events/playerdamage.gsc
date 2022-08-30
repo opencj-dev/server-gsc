@@ -33,7 +33,7 @@ main(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hit
 		{
 			if (getCvarInt("codversion") == 2)
 			{
-				self openCJ\statistics::addTimeUntil(getTime() + 5000);
+				self openCJ\playTime::addTimeUntil(getTime() + 5000);
 			}
 			return;
 		}

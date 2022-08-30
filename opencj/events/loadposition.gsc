@@ -19,7 +19,7 @@ main(backwardsCount)
 		else
 		{
 			giveRPG = false;
-			self openCJ\statistics::addTimeUntil(getTime() + (int(self getJumpSlowdownTimer() / 50) * 50)); //todo: make this flag-specific since disabling jump_slowdown should not give this delay, might already work baked-in to the function though
+			self openCJ\playtime::addTimeUntil(getTime() + (int(self getJumpSlowdownTimer() / 50) * 50)); //todo: make this flag-specific since disabling jump_slowdown should not give this delay, might already work baked-in to the function though
 		}
 
 		if(self openCJ\cheating::isCheating() && !openCJ\savePosition::isCheating(save))

@@ -6,7 +6,7 @@ _checkpointPassed(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually
 	{
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
-		timePlayed = self openCJ\statistics::getTimePlayed() + tOffset;
+		timePlayed = self openCJ\playTime::getTimePlayed() + tOffset;
 		self thread storeCheckpointPassed(runID, cpID, timePlayed);
 		self thread _notifyCheckpointPassed(runID, cpID, timePlayed);
 	}
@@ -519,12 +519,12 @@ whileAlive()
 					if(isDefined(cp.bigBrother))
 					{
 						self _checkpointPassed(cp.bigBrother, tOffset);
-						self openCJ\showRecords::onCheckpointPassed(cp.bigBrother, self openCJ\statistics::getTimePlayed() + tOffset);
+						self openCJ\showRecords::onCheckpointPassed(cp.bigBrother, self openCJ\playTime::getTimePlayed() + tOffset);
 					}
 					else
 					{
 						self _checkpointPassed(cp, tOffset);
-						self openCJ\showRecords::onCheckpointPassed(cp, self openCJ\statistics::getTimePlayed() + tOffset);
+						self openCJ\showRecords::onCheckpointPassed(cp, self openCJ\playTime::getTimePlayed() + tOffset);
 					}
 					self openCJ\events\checkpointsChanged::main();
 				}
