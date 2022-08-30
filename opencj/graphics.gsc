@@ -3,7 +3,7 @@
 _configureMinimap()
 {
 	level.minimapMaxRange = 2500;
-	if(!isDefined(getConfigStringByIndex(823))) // 823 is minimap string
+	if(!isDefined(getConfigStringByIndex(823))) // 823 is minimap config string number
 	{
 		minimapTileCount = 2.5; // TODO: dynamically per map
 		minimapTileSize = level.minimapMaxRange / minimapTileCount / 2;

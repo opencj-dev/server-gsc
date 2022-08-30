@@ -3,11 +3,11 @@
 onInit()
 {
 	thread _getMessages();
-	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::sendPM, 2, undefined, 0);
+	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::_onCommandPM, 2, undefined, 0);
 	openCJ\commands_base::addAlias(cmd, "whisper");
 	openCJ\commands_base::addAlias(cmd, "message");
-	openCJ\commands_base::registerCommand("mute", "Mute a player\nUsage: !mute [player] [time]\nTime is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::mute, 1, 2, 0);
-	openCJ\commands_base::registerCommand("unmute", "Unmute a player\nUsage: !unmute [player]", ::unmute, 1, 1, 0);
+	openCJ\commands_base::registerCommand("mute", "Mute a player\nUsage: !mute [player] [time]\nTime is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::_onCommandmute, 1, 2, 0);
+	openCJ\commands_base::registerCommand("unmute", "Unmute a player\nUsage: !unmute [player]", ::_onCommandUnmute, 1, 1, 0);
 	cmd = openCJ\commands_base::registerCommand("ignore", "Temporarily ignore a specific player until map change. Usage: !ignore <playerName|playerId>", ::_onCommandIgnore, 1, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "tignore");
 	cmd = openCJ\commands_base::registerCommand("pignore", "Permanently ignore a specific player. Usage: !pignore <playerName|playerId>", ::_onCommandPermIgnore, 1, 1, 0);
@@ -90,7 +90,7 @@ _onCommandUnIgnore(args)
 	}
 }
 
-mute(args)
+_onCommandmute(args)
 {
 	// !mute <playerName> [time]
 	player = findPlayerByArg(args[0]);
@@ -137,7 +137,7 @@ mute(args)
 	player unmuteAfterTime(time);
 }
 
-unmute(args)
+_onCommandUnmute(args)
 {
 	// !mute <playerName> [time]
 	player = findPlayerByArg(args[0]);
@@ -331,11 +331,6 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 onChatMessage(args)
 {
 	//say and say_team have identical behavior
-	if(!self openCJ\login::isLoggedIn())
-	{
-		// No chatting until logged in (automatic process)
-		return;
-	}
 	if(self isMuted())
 	{
 		self sendLocalChatMessage("You are currently muted", true);
@@ -383,14 +378,7 @@ onChatMessage(args)
 isIgnoring(player)
 {
 	playerID = player openCJ\login::getPlayerID();
-	for(i = 0; i < self.ignoreList.size; i++)
-	{
-		if(self.ignoreList[i] == playerID)
-		{
-			return true;
-		}
-	}
-	return false;
+	return isInArray(playerID, self.ignoreList);
 }
 
 getServerName()
@@ -398,11 +386,11 @@ getServerName()
 	return "cod" + getCvarInt("codversion") + " " + getCvarInt("net_port"); //placeholder
 }
 
-sendPM(args)
+_onCommandPM(args)
 {
 	// !pm <playerName> <message> [message] [message] ..
 	player = findPlayerByArg(args[0]);
-	if(!isDefined(player) || player isIgnoring(self))
+	if(!isDefined(player) || !player openCJ\login::isLoggedIn() || player isIgnoring(self))
 	{
 		self sendLocalChatMessage("Player " + args[0] + " not found or they are ignoring you", true);
 		return;

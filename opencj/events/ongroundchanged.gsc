@@ -36,5 +36,5 @@ main(isOnGround, time, origin)
     self.isOnGround = isOnGround;
 
     // Callbacks for events start here
-    self thread openCJ\FPSHistory::onOnGround(isOnGround);
+    self openCJ\FPSHistory::onOnGround(isOnGround);
 }

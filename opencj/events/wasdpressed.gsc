@@ -2,7 +2,7 @@
 
 main()
 {
-	if(self.WASDCallback)
+	if(self.WASDCallback && !self openCJ\demos::isPlayingDemo())
 		self openCJ\playerRuns::startRun();
 }
 

@@ -9,7 +9,9 @@ requestUID()
 	self waittill("UIDReceived", uidstring);
 
 	if(!isDefined(uidstring))
+	{
 		return undefined;
+	}
 
 	uidparts = strTok(uidstring, "-");
 

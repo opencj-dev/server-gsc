@@ -29,7 +29,15 @@ onMeleeButton()
 onUseButton()
 {
 	if(self.sessionState != "playing")
+	{
 		return;
+	}
+
+	if (self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
+
 	if(isDefined(self.buttons_lastUse) && getTime() - self.buttons_lastUse < 500)
 	{
 		//load
@@ -38,13 +46,22 @@ onUseButton()
 		self openCJ\saveposition::loadNormal();
 	}
 	else
+	{
 		self.buttons_lastUse = getTime();
+	}
 }
 
 onAttackButton()
 {
 	if(self.sessionState != "playing")
+	{
 		return;
+	}
+
+	if (self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 
 	if(self useButtonPressed())
 	{
@@ -61,6 +78,10 @@ resetButtons()
 
 onJump(time)
 {
-	//printf("time: " + time + "\n");
+	if (self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
+
 	self openCJ\statistics::onJump();
 }

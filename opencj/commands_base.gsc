@@ -30,10 +30,6 @@ addAlias(cmd, alias) // If we want specific help functions per alias, just chang
 	level.commands[alias] = aliasCmd;
 }
 
-onPlayerConnect()
-{
-    self.adminLevel = 0; // Will be updated after login
-}
 setAdminLevel(value)
 {
 	self.adminLevel = value;
@@ -41,6 +37,10 @@ setAdminLevel(value)
 
 onPlayerCommand(fullArgs)
 {
+	if(!self isPlayerReady())
+	{
+		return;
+	}
 	// fullArgs will contain the player command, such as say or say_team as well
 	// "say !command" is the minimum
 	if(fullArgs.size < 2)

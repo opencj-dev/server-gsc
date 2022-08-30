@@ -2,6 +2,14 @@
 
 main(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hitLoc, psOffsetTime)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
+	if(!self isPlayerReady())
+	{
+		return;
+	}
 	if(self.sessionState != "playing")
 		return;
 	if(self openCJ\noclip::hasNoclip())
@@ -19,15 +27,15 @@ main(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hit
 	if(self openCJ\weapons::isRPG(weapon))
 		return;
 
-	if (getCvarInt("codversion") == 2)
+	if(damage >= self.health)
 	{
-		if(damage >= self.health)
+		if(self openCJ\events\loadPosition::main(0))
 		{
-			if(self openCJ\events\loadPosition::main(0))
+			if (getCvarInt("codversion") == 2)
 			{
 				self openCJ\statistics::addTimeUntil(getTime() + 5000);
-				return;
 			}
+			return;
 		}
 	}
 

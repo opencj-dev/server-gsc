@@ -5,6 +5,11 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+isPlayerReady()
+{
+	return self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self openCJ\settings::areSettingsLoaded();
+}
+
 getEyePos()
 {
 	if(self getstance() == "stand")
@@ -34,13 +39,10 @@ getPlayerByPlayerID(playerID) //gets a player that's logged in AND has a certain
 abs(value)
 {
 	if(value < 0)
+	{
 		return value * -1;
+	}
 	return value;
-}
-
-isPlayerReady()
-{
-	return self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self openCJ\settings::areSettingsLoaded();
 }
 
 hasResult(rows)
@@ -56,9 +58,13 @@ sendChatMessage(msg)
 arrayConcat(array, separator)
 {
 	if(!isDefined(separator))
+	{
 		separator = " ";
+	}
 	if(!array.size)
+	{
 		return "";
+	}
 	string = array[0];
 	for(i = 1; i < array.size; i++)
 	{
@@ -128,7 +134,10 @@ isValidBool(str)
 		return false;
 	}
 
-	if (isStrBoolTrue(str) || isStrBoolFalse(str)) return true;
+	if (isStrBoolTrue(str) || isStrBoolFalse(str))
+	{
+		return true;
+	}
 
 	return false;
 }
@@ -147,8 +156,14 @@ isStrBoolFalse(str)
 
 strToBool(str)
 {
-	if(!isValidBool(str)) return undefined; // Sanity check
-	if(isStrBoolTrue(str)) return true;
+	if(!isValidBool(str))
+	{
+		return undefined; // Sanity check
+	}
+	if(isStrBoolTrue(str))
+	{
+		return true;
+	}
 
 	return false;
 }
@@ -159,7 +174,9 @@ doNextFrame(func)
 	waittillframeend;
 
 	if(isDefined(self))
+	{
 		self [[func]]();
+	}
 }
 
 isInArray(value, array)
@@ -176,13 +193,19 @@ getSpectatorList(includeSelf)
 	players = getEntArray("player", "classname");
 	ret = [];
 	if(includeSelf)
+	{
 		ret[ret.size] = self;
+	}
 	for(i = 0; i < players.size; i++)
 	{
 		if(!isDefined(players[i] getSpectatorClient()))
+		{
 			continue;
+		}
 		if(players[i] getSpectatorClient() == self)
+		{
 			ret[ret.size] = players[i];
+		}
 	}
 	return ret;
 }
@@ -190,7 +213,9 @@ getSpectatorList(includeSelf)
 intOrUndefined(value)
 {
 	if(!isDefined(value))
+	{
 		return undefined;
+	}
 	return int(value);
 }
 
@@ -212,20 +237,30 @@ formatTimeString(timems, roundSeconds)
 	{
 		timestring += hours + ":";
 		if(minutes < 10)
+		{
 			timestring += "0";
+		}
 	}
 	timestring += minutes + ":";
 	if(seconds < 10)
+	{
 		timestring += "0";
+	}
 	timestring += seconds;
 	if(!roundSeconds)
 	{
 		if(timems < 10)
+		{
 			timeString += ".00" + timems;
+		}
 		else if(timems < 100)
+		{
 			timeString += ".0" + timems;
+		}
 		else
+		{
 			timeString += "." + timems;
+		}
 	}
 	return timestring;
 }
@@ -234,7 +269,9 @@ deleteOnEvent(event, entity)
 {
 	entity waittill(event);
 	if(isDefined(self))
+	{
 		self delete();
+	}
 }
 
 findPlayerByArg(string)
@@ -242,32 +279,10 @@ findPlayerByArg(string)
 	//assumes you'd rather call a player by its name than by its entitynumber
 	//doesnt check for entitynumber at all atm
 	if(!isDefined(string))
+	{
 		return undefined;
+	}
 	string = stripcolors(tolower(string));
-
-	tmp = "";
-	for(i = 0; i < string.size; i++)
-	{
-		if(isValidInt(string[i]))
-			tmp += string[i];
-		else
-		{
-			if(string[i] != " ")
-			tmp = "";
-			break;
-		}
-	}
-	players = getentarray("player", "classname");
-	if(tmp != "")
-	{
-		for(i = 0; i < players.size; i++)
-		{
-			if(!isdefined(players[i].izno) || !isdefined(players[i].izno["login_completed"]))
-				continue;
-			if(players[i] getentitynumber() == int(tmp))
-				return players[i];
-		}
-	}
 
 	BONUS_FOR_CHARS_IN_ORDER = 50;
 	BONUS_CORRECT_CHAR = 25;
@@ -275,7 +290,7 @@ findPlayerByArg(string)
 	best_player = undefined;
 
 	best_score = 0;
-
+	players = getEntArray("player", "classname");
 	for(i = 0; i < players.size; i++)
 	{
 		score = 0;

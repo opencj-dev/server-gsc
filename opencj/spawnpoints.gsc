@@ -6,7 +6,9 @@ onInit()
 	level.spawnpoints_spectator = _initSpawnpoints("mp_global_intermission");
 
 	for(i = 0; i < level.spawnpoints_player.size; i++)
+	{
 		level.spawnpoints_player[i] placeSpawnpoint();
+	}
 }
 
 _initSpawnpoints(className)

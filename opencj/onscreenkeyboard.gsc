@@ -19,11 +19,18 @@ onInit()
 	}
 }
 
+onStartDemo()
+{
+	//placeholder func
+}
+
 whileAlive()
 {
 	spectators = getSpectatorList(false);
 	for(i = 0; i < spectators.size; i++)
+	{
 		spectators[i] _showKeyboard(self);
+	}
 }
 
 onSpectatorClientChanged(newClient) //can be undefined for free spec
@@ -51,42 +58,68 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 {
 	spectators = getSpectatorList(false);
 	for(i = 0; i < spectators.size; i++)
+	{
 		spectators[i] _hideKeyboard();
+	}
 }
 
 _showKeyboard(player)
 {
 	if(player forwardButtonPressed())
+	{
 		self.keyboard["forward"].alpha = 1;
+	}
 	else
+	{
 		self.keyboard["forward"].alpha = 0.3;
+	}
 
 	if(player backButtonPressed())
+	{
 		self.keyboard["back"].alpha = 1;
+	}
 	else
+	{
 		self.keyboard["back"].alpha = 0.3;
+	}
 
 	if(player rightButtonPressed())
+	{
 		self.keyboard["right"].alpha = 1;
+	}
 	else
+	{
 		self.keyboard["right"].alpha = 0.3;
+	}
 
 	if(player leftButtonPressed())
+	{
 		self.keyboard["left"].alpha = 1;
+	}
 	else
+	{
 		self.keyboard["left"].alpha = 0.3;
+	}
 
 	if(player jumpButtonPressed())
+	{
 		self.keyboard["jump"].alpha = 1;
+	}
 	else
+	{
 		self.keyboard["jump"].alpha = 0.3;
+	}
 
 	if(isDefined(self.keyboard["sprint"]))
 	{
 		if(player sprintButtonPressed())
+		{
 			self.keyboard["sprint"].alpha = 1;
+		}
 		else
+		{
 			self.keyboard["sprint"].alpha = 0.3;
+		}
 	}
 }
 
@@ -173,5 +206,7 @@ _hideKeyboard()
 	self.keyboard["left"].alpha = 0;
 	self.keyboard["jump"].alpha = 0;
 	if(isDefined(self.keyboard["sprint"]))
+	{
 		self.keyboard["sprint"].alpha = 0;
+	}
 }

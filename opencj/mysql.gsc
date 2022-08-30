@@ -8,7 +8,6 @@ onInit()
 	level.database["pass"] = getCvar("db_pass");
 	level.database["port"] = int(getCvar("db_port"));
 	level.database["name"] = getCvar("db_base") + getCvar("codversion");
-	//printf("Got db info: " + level.database["host"] + "," + level.database["user"] + "," + "<censored>" + "," + level.database["port"] + "," + level.database["name"] + "\n");
 
 	level.mySQL = mysql_reuse_connection();
 	if(!isDefined(level.mySQL))
@@ -59,13 +58,10 @@ _asyncMySQL()
 
 mysqlSyncQuery(query)
 {
-	//printf("mysql: " + level.mySQL + "\n");
-	//printf("Doing query: "  + query + "\n");
 	ret = mysql_query(level.mySQL, query);
 	if(!ret)
 	{
 		result = mysql_store_result(level.mySQL);
-		//printf("got result: " + result + "\n");
 		rows = _getRowsAndFree(result);
 		return rows;
 	}
@@ -74,22 +70,16 @@ mysqlSyncQuery(query)
 
 _getRowsAndFree(result)
 {
-	//printf("starting getrowsandfree\n");
 	rows = [];
 	if(!isDefined(result) || result == 0)
 		return rows;
-	//printf("getting rowcount for result " + result + " \n");
 	rowcount = mysql_num_rows(result);
-	//printf("rowcount: " + rowcount + "\n");
 	for(i = 0; i < rowcount; i++)
 	{
-		//printf("getting a row\n");
 		row = mysql_fetch_row(result);
 		rows[rows.size] = row;
 	}
-	//printf("done getting rows, freeing now\n");
 	mysql_free_result(result);
-	//printf("freeing done\n");
 	return rows;
 }
 
@@ -111,8 +101,9 @@ mysqlAsyncLongQueryAppend(queryID, queryPart)
 mysqlAsyncLongQueryExecuteSave(queryID)
 {
 	if(isPlayer(self))
+	{
 		self endon("disconnect");
-	//printf("Adding async query: " + query + "\n");
+	}
 	id = mysql_async_execute_longquery(queryID, true);
 	level waittill("mysqlQueryDone" + id, rows);
 	return rows;
@@ -121,8 +112,9 @@ mysqlAsyncLongQueryExecuteSave(queryID)
 mysqlAsyncQueryNoRows(query)
 {
 	if(isPlayer(self))
+	{
 		self endon("disconnect");
-	//printf("Adding async query: " + query + "\n");
+	}
 	id = mysql_async_create_query(query);
 	level.asyncMySQLDontStoreRows[level.asyncMySQLDontStoreRows.size] = id;
 	level waittill("mysqlQueryDoneNoRows" + id, result);
@@ -131,8 +123,9 @@ mysqlAsyncQueryNoRows(query)
 mysqlAsyncLongQueryExecuteNosave(queryID)
 {
 	if(isPlayer(self))
+	{
 		self endon("disconnect");
-	//printf("Adding async query: " + query + "\n");
+	}
 	id = mysql_async_execute_longquery(queryID, false);
 	level waittill("mysqlQueryDone" + id, rows);
 	return rows;
@@ -141,8 +134,9 @@ mysqlAsyncLongQueryExecuteNosave(queryID)
 mysqlAsyncQuery(query)
 {
 	if(isPlayer(self))
+	{
 		self endon("disconnect");
-	//printf("Adding async query: " + query + "\n");
+	}
 	id = mysql_async_create_query(query);
 	level waittill("mysqlQueryDone" + id, rows);
 	return rows;
@@ -151,8 +145,9 @@ mysqlAsyncQuery(query)
 mysqlAsyncQueryNosave(query)
 {
 	if(isPlayer(self))
+	{
 		self endon("disconnect");
-	//printf("Adding async query nosave: " + query + "\n");
+	}
 	id = mysql_async_create_query_nosave(query);
 	level waittill("mysqlQueryDone" + id);
 }

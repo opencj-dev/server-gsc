@@ -4,18 +4,14 @@ main()
 {
 	if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
 		return;
-
 	self notify("spawned");
-
 	resetTimeout();
-
 	self.sessionTeam = "allies";
 	self.sessionState = "playing";
 	self.spectatorClient = -1;
 	self.archiveTime = 0;
 	self.psOffsetTime = 0;
 	self.pers["team"] = "allies";
-
 	spawnpoint = self openCJ\spawnpoints::getPlayerSpawnpoint();
 	self spawn(spawnpoint.origin, spawnpoint.angles);
 
@@ -30,9 +26,7 @@ main()
 	self openCJ\FPSHistory::onSpawnPlayer();
 
 	self setSharedSpawnVars();
-
 	self thread openCJ\events\whileAlive::main();
-
 	self thread _dummy();
 }
 

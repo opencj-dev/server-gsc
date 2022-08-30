@@ -40,6 +40,11 @@ onPlayerConnect()
 		self objective_player_delete(i);
 }
 
+onStartDemo()
+{
+	self _hideCheckpointPointers();
+}
+
 onRunIDCreated()
 {
 	self _hideCheckpointPointers();
@@ -75,7 +80,9 @@ showCheckpointPointers()
 	for(i = 0; i < checkpoints.size; i++)
 	{
 		if(i >= self.checkpointPointers_huds.size)
+		{
 			self.checkpointPointers_huds[self.checkpointPointers_huds.size] = self _createNewCheckpointPointerHud();
+		}
 
 		shaderColor = openCJ\checkpoints::getCheckpointShaderColor(checkpoints[i]);
 		shader_hud = _getShaderHud(shaderColor);
@@ -93,9 +100,13 @@ showCheckpointPointers()
 		{
 			self.checkpointPointers_objectives[i] = true;
 			if(getCvarInt("codversion") == 2)
+			{
 				self objective_player_add(i, "current", checkpoints[i].origin, shader_objective); 
+			}
 			else
+			{
 				self objective_player_add(i, "active", checkpoints[i].origin, shader_objective); 
+			}
 		}
 
 	}
@@ -115,14 +126,18 @@ showCheckpointPointers()
 _getShaderHud(color)
 {
 	if(isDefined(color) && isDefined(level.checkpointShaders[color]))
+	{
 		return level.checkpointShaders[color];
+	}
 	return level.checkpointShaders["default"];
 }
 
 _getShaderObjective(color)
 {
 	if(isDefined(color) && isDefined(level.checkpointShadersObjective[color]))
+	{
 		return level.checkpointShadersObjective[color];
+	}
 	return level.checkpointShadersObjective["default"];
 }
 

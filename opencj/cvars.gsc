@@ -20,5 +20,4 @@ onInit()
 		setCvar("g_enemyPlayerCanBlock", 0);
 		setCvar("g_FFAPlayerCanBlock", 0);
 	}
-	setCvar("g_deadChat", 1);
 }

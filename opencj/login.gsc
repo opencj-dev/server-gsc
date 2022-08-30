@@ -47,7 +47,9 @@ _getPlayerInformation(uid)
 {
 	self endon("disconnect");
 	if(!isDefined(uid))
+	{
 		return false;
+	}
 
 	query = "SELECT playerID, adminLevel, IF(mutedUntil < NOW(), NULL, TIMESTAMPDIFF(SECOND, NOW(), mutedUntil)) FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))";
 	printf(query + "\n");
@@ -64,7 +66,9 @@ _getPlayerInformation(uid)
 		return true;
 	}
 	else
+	{
 		return false;
+	}
 }
 
 createNewAccount()
@@ -75,7 +79,9 @@ createNewAccount()
 	{
 		uid = [];
 		for(j = 0; j < 4; j++)
+		{
 			uid[j] = createRandomInt();
+		}
 
 		query = "SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ", '" + openCJ\mySQL::escapeString(self.name) + "')";
 		printf(query + "\n");

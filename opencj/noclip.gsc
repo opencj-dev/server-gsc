@@ -65,7 +65,10 @@ hasNoclip()
 
 disableNoclip()
 {
-	if(!self hasNoclip()) return;
+	if(!self hasNoclip())
+	{
+		return;
+	}
 
 	if(isDefined(self.noclip_linkto))
 	{
@@ -82,7 +85,10 @@ enableNoclip()
 	{
 		self.noclip_linkto delete();
 	}
-	if(self hasNoclip()) return;
+	if(self hasNoclip())
+	{
+		return;
+	}
 
 	self.noclip = true;
 	self openCJ\cheating::cheat();
@@ -95,20 +101,34 @@ enableNoclip()
 whileAlive()
 {
 	if(!self hasNoclip())
+	{
 		return;
+	}
 	dir = (0, 0, 0);
 	if(self rightButtonPressed())
+	{
 		dir += anglesToRight(self getPlayerAngles());
+	}
 	if(self leftButtonPressed())
+	{
 		dir -= anglesToRight(self getPlayerAngles());
+	}
 	if(self forwardButtonPressed())
+	{
 		dir += anglesToForward(self getPlayerAngles());
+	}
 	if(self backButtonPressed())
+	{
 		dir -= anglesToForward(self getPlayerAngles());
+	}
 	if(self leanRightButtonPressed())
+	{
 		dir += anglesToUp(self getPlayerAngles());
+	}
 	if(self leanLeftButtonPressed())
+	{
 		dir -= anglesToUp(self getPlayerAngles());
+	}
 	scale = self.noclip_speed;
 	if(self issprinting())
 	{
