@@ -48,7 +48,7 @@ _loadSavesFromDatabase(runID, instanceNumber)
 	self openCJ\playerRuns::setRunIDAndInstanceNumber(runID, instanceNumber);
 	self openCJ\events\runIDCreated::main();
 	self openCJ\playerRuns::startRun();
-	self openCJ\statistics::setTimePlayed(int(rowsRun[0][0]));
+	self openCJ\playtime::setTimePlayed(int(rowsRun[0][0]));
 	self openCJ\statistics::setSaveCount(int(rowsRun[0][1]));
 	self openCJ\statistics::setLoadCount(int(rowsRun[0][2]));
 	self openCJ\statistics::setRPGShots(int(rowsRun[0][3]));
@@ -100,7 +100,7 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, dou
 	}
 
 	runID = self openCJ\playerRuns::getRunID();
-	timePlayed = self openCJ\statistics::getTimePlayed();
+	timePlayed = self openCJ\playTime::getTimePlayed();
 	saveCount = self openCJ\statistics::getSaveCount();
 	loadCount = self openCJ\statistics::getLoadCount();
 	RPGShots = self openCJ\statistics::getRPGShots();
