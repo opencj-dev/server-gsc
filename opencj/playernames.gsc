@@ -3,12 +3,39 @@
 onInit()
 {
 	setClientNameMode("auto_change"); //allow renaming during round
+	openCJ\commands_base::registerCommand("frename", "Force a name on a player. Usage: !frename [player] [newname]", ::_onFrenameCommand, 1, undefined, 0);
+}
+
+_onFrenameCommand(args)
+{
+	player = findPlayerByArg(args[0]);
+	if(!isDefined(player) || !player openCJ\login::isLoggedIn())
+	{
+		self iprintln("Cannot find player");
+		return;
+	}
+	if(!isDefined(args[1]))
+	{
+		player setForcedname();
+		return;
+	}
+	newName = args[1];
+	for(i = 2; i < args.size; i++)
+	{
+		newName += " " + args[i];
+	}
+	player setForcedName(newName);
 }
 
 onPlayerConnect()
 {
 	self.oldName = self.name;
 	self _createPlayerNameHud();
+	self _hidePlayerNameHud();
+}
+
+onStartDemo()
+{
 	self _hidePlayerNameHud();
 }
 
@@ -20,16 +47,33 @@ onPlayerLogin()
 onUserInfoChanged()
 {
 	if(!self openCJ\login::isLoggedIn())
-		return;
-	newName = self getuserinfo("name");
-	if(newName == self.oldName)
-		return;
-	if(isDefined(self getForcedName()) && newName != self getForcedName())
 	{
-		self renameClient(self getForcedName());
-		self setClientCvar("name", self getForcedName());
 		return;
 	}
+	newName = self getuserinfo("name");
+	if(newName == self.oldName)
+	{
+		return;
+	}
+	if(isDefined(self getForcedName()))
+	{
+		return;
+	}
+	self _rename(newName);
+
+}
+
+_rename(newName)
+{
+	if(newName == self.name)
+	{
+		return;
+	}
+	iprintln(self.name + "^7 renamed to " + newName);
+	self renameClient(newName);
+	self setClientCvar("name", newName);
+
+	self.oldName = newName;
 	self thread _storeNewName(newName);
 }
 
@@ -50,12 +94,16 @@ getForcedName()
 setForcedName(forcedName)
 {
 	if(!self openCJ\login::isLoggedIn())
+	{
 		return;
+	}
 	if(isDefined(forcedName))
 	{
-		self thread openCJ\mySQL::mysqlAsyncQueryNosave("CALL setName(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(forcedName) + "')");
-		self renameClient(forcedName);
-		self setClientCvar("name", forcedName);
+		self _rename(forcedName);
+	}
+	else
+	{
+		self setClientCvar("name", self.name);
 	}
 	self.forcedName = forcedName;
 }

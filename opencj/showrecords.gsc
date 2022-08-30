@@ -18,6 +18,15 @@ onCheckpointPassed(cp, timems)
 	self thread _getRecords(cps, 1, timems);
 }
 
+onStartDemo()
+{
+	specs = self getSpectatorList(true);
+	for(i = 0; i < specs.size; i++)
+	{
+		specs[i] _hideRecords(true);
+	}
+}
+
 onRunFinished(cp)
 {
 	cps = [];
@@ -30,7 +39,6 @@ onPlayerConnect()
 {
 	self.showRecords_nameString = "";
 	self.showRecords_timeString = "";
-
 
 	self.showRecordsHighlight = newClientHudElem(self);
 	self.showRecordsHighlight.horzAlign = "right";
@@ -49,16 +57,24 @@ onPlayerConnect()
 onSpectatorClientChanged(newClient)
 {
 	if(!isDefined(newClient))
+	{
 		self _hideRecords(false);
+	}
 	else
 	{
-		if(newClient openCJ\playerRuns::isRunFinished())
+		if(newClient openCJ\demos::isPlayingDemo())
+		{
+			self _hideRecords(true);
+		}
+		else if(newClient openCJ\playerRuns::isRunFinished())
 		{
 			timems = newClient openCJ\statistics::getTimePlayed();
 			self _updateRecords(newClient, newClient.showRecords_rows, timems, true);
 		}
 		else
+		{
 			self _updateRecords(newClient, newClient.showRecords_rows, undefined, true);
+		}
 	}
 }
 
@@ -88,9 +104,13 @@ onSpawnPlayer()
 _hideRecords(force)
 {
 	if(force || self.showRecords_nameString != "")
+	{
 		self setClientCvar("openCJ_records_names", "");
+	}
 	if(force || self.showRecords_timeString != "")
+	{
 		self setClientCvar("openCJ_records_times", "");
+	}
 	self.showRecords_nameString = "";
 	self.showRecords_timeString = "";
 	self.showRecordsHighlight.alpha = 0;
@@ -123,11 +143,17 @@ _getRecords(checkpoints, persist, timems)
 	if(!self openCJ\playerRuns::isRunFinished())
 	{
 		if(persist == 0)
+		{
 			self.showRecords_rows = rows;
+		}
 		else if(persist == 1)
+		{
 			self.showRecords_persistTime = getTime() + 2000;
+		}
 		else
+		{
 			return;
+		}
 	}
 	else if(persist == 2)
 		self.showRecords_rows = rows;
@@ -138,31 +164,43 @@ _getRecords(checkpoints, persist, timems)
 	{
 		specs = self getSpectatorList(true);
 		for(i = 0; i < specs.size; i++)
+		{
 			specs[i] _updateRecords(self, rows, timems, false);
+		}
 	}
 }
 
 _updateRecords(client, rows, overrideTime, force)
 {
 	if(!force && (!isDefined(overrideTime) && isDefined(client.showRecords_persistTime) && client.showRecords_persistTime > getTime()))
+	{
 		return;
+	}
 	if(client.sessionState != "playing")
+	{
 		return;
+	}
 
 	nameString = "";
 	timeString = "";
 
 	if(!isDefined(overrideTime))
+	{
 		timePlayed = client openCJ\statistics::getTimePlayed();
+	}
 	else
+	{
 		timePlayed = overrideTime;
+	}
 
 	for(i = 0; i < rows.size; i++)
 	{
 		if(int(rows[i][1]) > timePlayed)
 		{
 			for(j = rows.size; j > i; j--)
+			{
 				rows[j] = rows[j - 1];
+			}
 			break;
 		}
 	}
@@ -177,9 +215,13 @@ _updateRecords(client, rows, overrideTime, force)
 	{
 		nameString += rows[i][0] + "\n";
 		if(ownNum == i && !isDefined(overrideTime))
+		{
 			timeString += formatTimeString(int(rows[i][1]), true) + "\n";
+		}
 		else
+		{
 			timeString += formatTimeString(int(rows[i][1]), false) + "\n";
+		}
 	}
 	if(self.showRecords_nameString != nameString)
 	{
@@ -195,10 +237,12 @@ _updateRecords(client, rows, overrideTime, force)
 
 whileAlive()
 {
-	if(!self openCJ\playerRuns::isRunFinished())
+	if(!self openCJ\playerRuns::isRunFinished() && !self openCJ\demos::isPlayingDemo())
 	{
 		specs = self getSpectatorList(true);
 		for(i = 0; i < specs.size; i++)
+		{
 			specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
+		}
 	}
 }

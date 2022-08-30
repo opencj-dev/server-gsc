@@ -42,9 +42,13 @@ _showNadeTimer()
 	for(t = 0; t < 70; t++)
 	{
 		if(t < 35)
+		{
 			nadeTimer.color = (t / 35, 1, 0);
+		}
 		else
+		{
 			nadeTimer.color = (1, 1 - ((t - 35) / 35), 0);
+		}
 		wait 0.05;
 	}
 
@@ -54,10 +58,14 @@ _showNadeTimer()
 		if(self.grenadeTimers_timers[i] != nadeTimer)
 		{
 			if(self.grenadeTimers_timers[i].y > nadeTimer.y)
+			{
 				self.grenadeTimers_timers[i].y -= 10;
+			}
 		}
 		else
+		{
 			ownNum = i;
+		}
 	}
 	self.grenadeTimers_timers[ownNum] = self.grenadeTimers_timers[self.grenadeTimers_timers.size - 1];
 	self.grenadeTimers_timers[self.grenadeTimers_timers.size - 1] = undefined;
@@ -69,7 +77,11 @@ removeNadeTimers()
 {
 	self notify("stopNadeTimer");
 	for(i = 0; i < self.grenadeTimers_timers.size; i++)
+	{
 		self.grenadeTimers_timers[i] destroy();
+	}
 	for(i = i - 1; i >= 0; i--)
+	{
 		self.grenadeTimers_timers[i] = undefined;
+	}
 }

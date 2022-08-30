@@ -19,7 +19,6 @@ main()
 	self openCJ\stockPatch::onPlayerConnect();
 	self openCJ\speedoMeter::onPlayerConnect();
 	self openCJ\demos::onPlayerConnect();
-	self openCJ\commands_base::onPlayerConnect();
 	self openCJ\playerNames::onPlayerConnect();
 	self openCJ\chat::onPlayerConnect();
 	self openCJ\playerCollision::onPlayerConnect();

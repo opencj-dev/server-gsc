@@ -8,6 +8,7 @@ onInit()
 	clearAllDemos();
 	cmd = openCJ\commands_base::registerCommand("playback", "Play back an existing recording", ::_onCommandPlayback, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "demo");
+	openCJ\settings::addSettingBool("loopdemo", false, "Loop demos");
 }
 
 _onCommandPlayback(args)
@@ -20,12 +21,7 @@ _onCommandPlayback(args)
 	else
 	{
 		self iprintln("^1Stopped ^7playback");
-		self.playingDemo = false;
-		if(isDefined(self.linker))
-		{
-			self.linker delete();
-		}
-		self unlink();
+		self thread doNextFrame(::_stopDemo);
 	}
 }
 
@@ -57,64 +53,63 @@ _doLoadRecordingQuery(query, demoId)
 	createDemoResult = createDemo(demoId);
 	// -1 -> already loaded
 	// -2 -> no free spots (if this happens we should just increase it, for now it's 512)
-	if(createDemoResult == -1)
-	{
-		// Already loaded, great. Don't have to let the player wait!
-	}
-	else if(createDemoResult == -2)
+	if(createDemoResult == -2)
 	{
 		// Oh no, we ran out of free space.
 		printf("Ran out of free demo space... oops\n");
 		return;
 	}
+	else if(createDemoResult == -1)
+	{
+		// Already loaded, great. Don't have to let the player wait!
+	}
 	else // createDemoResult will be demoId
 	{
 		self iprintln("Loading demo..");
-		thread _loadDemo(demoId, result, rowcount); // TODO: load all demos at map start, or perhaps the map before?
-		while (!isDefined(level.readyDemos[demoId]))
+		if(rowcount > 300)
 		{
-			wait .05;
+			self _loadDemo(demoID, result, 300, false);
+			self thread _loadDemo(demoID, result, rowcount - 300, true);
+		}
+		else
+		{
+			self _loadDemo(demoID, result, rowcount, false);
+			mysql_free_result(result);
 		}
 	}
-
 	self iprintln("^2Demo ready to play!");
-
-	self selectPlaybackDemo(demoId);
-	self.playingDemo = true;
+	self startDemo(demoID);
 }
 
-_loadDemo(demoId, result, rowcount)
+startDemo(demoID)
+{
+	self openCJ\events\startDemo::main();
+	self.demoID = demoID;
+	self.playingDemo = true;
+	self unlink();
+	self linkto(self.demoLinker, "", (0, 0, 0), (0, 0, 0));
+	self selectPlaybackDemo(demoId);
+	self skipPlaybackFrames(-1 * numberOfDemoFrames(demoID));
+
+}
+
+_loadDemo(demoId, result, framecount, lazyLoad)
 {
 	level endon("map_ended");
-	if(isDefined(level.demosBeingLoaded[demoId]) || isDefined(level.readyDemos[demoId]))
-	{
-		// Already (being) loaded
-		return;
-	}
-
-	level.demosBeingLoaded[demoId] = 1;
-
-	nrDemoFramesToLoad = 300;
-	for(i = 0; i < rowcount; i++)
+	for(i = 0; i < framecount; i++)
 	{
 		row = mysql_fetch_row(result);
 		addFrameToDemo(demoId, (int(row[0]), int(row[1]), int(row[2])), (int(row[3]), int(row[4]), int(row[5])), int(row[6]));
-		if(i == nrDemoFramesToLoad)
-		{
-			// Allow player's demo playback to start when we have sufficient frames preloaded, but keep loading
-			level.readyDemos[demoId] = 1;
-		}
-		else if((i > nrDemoFramesToLoad) && ((i % nrDemoFramesToLoad) == 0))
+		if((i > 300) && ((i % 300) == 0) && lazyLoad)
 		{
 			// Every time we load another batch of frames, chill for a bit.
 			wait 0.05;
 		}
 	}
-
-	// At this point we've loaded all frames
-	level.demosBeingLoaded[demoId] = undefined;
-    
-    mysql_free_result(result);
+	if(lazyLoad)
+	{
+		mysql_free_result(result);
+	}
 }
 
 isPlayingDemo()
@@ -127,6 +122,7 @@ onPlayerConnect()
 	self.playingDemo = false;
 	self.playbackFrame = 0;
 	self.playbackPaused = false;
+	self.demoLinker = spawn("script_origin", (0, 0, 0));
 }
 
 onPlayPauseDemo()
@@ -144,106 +140,120 @@ onPlayPauseDemo()
 
 whileAlive()
 {
-	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && !self openCJ\statistics::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating() && !self isPlayingDemo())
+	if(self isPlayerReady() && !self openCJ\statistics::isAFK() && !self openCJ\playerRuns::isRunFinished() && !self openCJ\cheating::isCheating())
 	{
 		if(!self _storeFrameToDB())
 		{
 			self iprintlnbold("Demo recording errror? Stopping..");
 		}
 	}
-	else if(self.playingDemo)
+}
+
+whilePlayingDemo()
+{
+	self linkTo(self.demoLinker, "", (0, 0, 0), (0, 0, 0));
+	if (self.playbackPaused)
 	{
-		// If the linker wasn't created yet or is somehow gone, then restore the link
-		if(!isDefined(self.linker))
-		{
-			self.linker = spawn("script_origin", (0, 0, 0));
-			self linkto(self.linker, "", (0, 0, 0), (0, 0, 0));
-		}
+		return;
+	}
 
-		if (self.playbackPaused)
-		{
-			return;
-		}
+	if(self leftButtonPressed()) // Reverse
+	{
+		newFrame = self skipPlaybackFrames(-2);
+		newOrigin = self readPlaybackFrame_origin();
+		newAngles = self readPlaybackFrame_angles();
+	}
+	else if(self rightButtonPressed()) // Forward
+	{
+		newFrame = self skipPlaybackFrames(2);
+		newOrigin = self readPlaybackFrame_origin();
+		newAngles = self readPlaybackFrame_angles();
+	}
+	else if(self leanLeftButtonPressed()) // TODO: key frame instead of 10 frames
+	{
+		newFrame = self skipPlaybackFrames(-10);
+		newOrigin = self readPlaybackFrame_origin();
+		newAngles = self readPlaybackFrame_angles();
+	}
+	else if(self leanRightButtonPressed()) // TODO: key frame instead of 10 frames
+	{
+		newFrame = self skipPlaybackFrames(50);
+		newOrigin = self readPlaybackFrame_origin();
+		newAngles = self readPlaybackFrame_angles();
+	}
+	else if(!self jumpButtonPressed()) // Nothing interesting pressed
+	{
+		newFrame = self nextPlaybackFrame();
+		newOrigin = self readPlaybackFrame_origin();
+		newAngles = self readPlaybackFrame_angles();
+	}
+	else // Jump button: slow motion
+	{
+		// Grab info of previous frame
+		oldOrigin = self readPlaybackFrame_origin();
+		oldAngles = self readPlaybackFrame_angles();
 
-		newFrame = self.playbackFrame;
-		appliedSlowMo = false;
-		if(self leftButtonPressed()) // Reverse
-		{
-			newFrame = self skipPlaybackFrames(-2);
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
-		}
-		else if(self rightButtonPressed()) // Forward
-		{
-			newFrame = self skipPlaybackFrames(2);
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
-		}
-		else if(self leanLeftButtonPressed()) // TODO: key frame instead of 10 frames
-		{
-			newFrame = self skipPlaybackFrames(-10);
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
-		}
-		else if(self leanRightButtonPressed()) // TODO: key frame instead of 10 frames
-		{
-			newFrame = self skipPlaybackFrames(10);
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
-		}
-		else if(!self jumpButtonPressed()) // Nothing interesting pressed
-		{
-			newFrame = self nextPlaybackFrame();
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
-		}
-		else // Jump button: slow motion
-		{
-			// Grab info of previous frame
-			oldOrigin = self readPlaybackFrame_origin();
-			oldAngles = self readPlaybackFrame_angles();
+		// Grab info of next frame
+		newFrame = self nextPlaybackFrame();
+		newOrigin = self readPlaybackFrame_origin();
+		newAngles = self readPlaybackFrame_angles();
 
-			// Grab info of next frame
-			nextFrame = self nextPlaybackFrame();
-			newOrigin = self readPlaybackFrame_origin();
-			newAngles = self readPlaybackFrame_angles();
+		// Interpolate. Every 4 
+		slowMoCount = 4; // 1 / 4 -> 0.25.
+		newOrigin = vectorScale(newOrigin, self.slowmoCount / slowMoCount) + vectorScale(oldOrigin, 1 - (self.slowmoCount / slowMoCount));
+		newAngles = vectorScale(newAngles, self.slowmoCount / slowMoCount) + vectorScale(oldAngles, 1 - (self.slowmoCount / slowMoCount));
 
-			// Interpolate. Every 4 
-			slowMoCount = 4; // 1 / 4 -> 0.25.
-			newOrigin = vectorScale(newOrigin, self.slowmoCount / slowMoCount) + vectorScale(oldOrigin, 1 - (self.slowmoCount / slowMoCount));
-			newAngles = vectorScale(newAngles, self.slowmoCount / slowMoCount) + vectorScale(oldAngles, 1 - (self.slowmoCount / slowMoCount));
-
-			// If we reached slowMoCount, it means we are finished with the current frame.
-			self.slowmoCount++;
-			if(self.slowmoCount == slowMoCount)
-			{
-				// We actually went to new frame
-				newFrame = nextFrame;
-				self.slowmoCount = 0;
-			}
-			else
-			{
-				appliedSlowMo = true;
-				self prevPlaybackFrame();
-			}
-		}
-
-		// Player is linked, so update linker origin and player angles for this frame
-		self.linker.origin = newOrigin;
-		self setPlayerAngles(newAngles);
-
-		// Check if demo ended. TODO: loop if player enabled it
-		if ((newFrame != 0) && (newFrame == self.playbackFrame) && !appliedSlowMo)
+		// If we reached slowMoCount, it means we are finished with the current frame.
+		self.slowmoCount++;
+		if(self.slowmoCount == slowMoCount)
 		{
-			self.playingDemo = false;
-			self.linker delete();
-			self unlink();
-			self iprintln("Demo ended");
-			return;
+			// We actually went to new frame
+			self.slowmoCount = 0;
 		}
+		else
+		{
+			newFrame = self prevPlaybackFrame();
+		}
+	}
+	self.playbackFrame = newFrame;
 
-		// Remember where we left off so we know if the demo is ended
-		self.playbackFrame = newFrame;
+	// Player is linked, so update linker origin and player angles for this frame
+	self.demoLinker.origin = newOrigin;
+	self setPlayerAngles(newAngles);
+	// Check if demo ended.
+	printf("newframe: " + newframe + "\n");
+	printf("compare: " + (numberOfDemoFrames(self.demoID) - 1) + "\n");
+	if(newFrame == numberOfDemoFrames(self.demoID) - 1)
+	{
+		self _endOfDemo();
+	}
+}
+
+_endOfDemo()
+{
+	if(self openCJ\settings::getSetting("loopdemo"))
+	{
+		self skipPlaybackFrames(-1 * (numberOfDemoFrames(self.demoID) - 1));
+		return;
+	}
+	self _stopDemo();
+}
+
+_stopDemo()
+{
+	self.playingDemo = false;
+	self.demoID = undefined;
+	self unlink();
+	self iprintln("Demo ended");
+	if(self openCJ\savePosition::canLoadError(0) == 0)
+	{
+		printf("loading\n");
+		self thread openCJ\events\loadPosition::main(0);
+	}
+	else
+	{
+		printf("spawning\n");
+		self thread openCJ\events\spawnPlayer::main();
 	}
 }
 
@@ -279,10 +289,12 @@ _storeFrameToDB()
 		self.recordLongQueryFrameCount++;
 	}
 
-	query = baseQuery + "storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ", "
-					+ openCJ\statistics::getFrameNumber() + ", " + origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
-					+ angles[0] + ", " + angles[1] + ", " + angles[2]
-					+ ", 1)";
+	query = baseQuery + "storeDemoFrame(" + self openCJ\playerRuns::getRunID() + ", "
+					+ self openCJ\playerRuns::getRunInstanceNumber() + ", "
+					+ openCJ\statistics::getFrameNumber() + ", "
+					+ origin[0] + ", " + origin[1] + ", " + origin[2] + ", "
+					+ angles[0] + ", " + angles[1] + ", " + angles[2] + ", "
+					+ "1)";
 	
 	// Let's append these frames to the query
 	self openCJ\mySQL::mySQLAsyncLongQueryAppend(self.recordLongQueryID, query);

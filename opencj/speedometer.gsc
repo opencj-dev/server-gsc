@@ -10,6 +10,12 @@ onPlayerConnect()
     }
 }
 
+onStartDemo()
+{
+    self.hudSpeed["curr"].alpha = 0;
+    self.hudSpeed["max"].alpha = 0;
+}
+
 onSpawnPlayer()
 {
     self thread _speedoMeter();

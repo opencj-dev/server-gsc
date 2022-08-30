@@ -7,6 +7,11 @@ onInit()
 	openCJ\settings::addSettingInt("hideradius", -1, 500, 60, "Sets your radius for hiding colliding players. Usage !hideradius [value]. Default 60", ::_onSettingHideRadius);
 }
 
+onStartDemo()
+{
+	//placeholder until demo mode is added in vis settings
+}
+
 _onSettingHideAll(newVal)
 {
 	if(newVal)

@@ -28,13 +28,16 @@ openLoginmenu()
 
 onPlayerLogin()
 {
-	//printf("opening menu...\n\n");
 	self setClientCvar("g_scriptMainMenu", level.menu["ingame"]);
-	//self openMenu(level.menu["ingame"]);
 }
 
 openFPSUserinfoMenu()
 {
 	self openMenu(level.menu["fpsuserinfo"]);
 	self closeMenu();
+}
+
+onStartDemo()
+{
+	//placeholder, open demo menu here
 }

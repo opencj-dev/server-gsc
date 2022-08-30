@@ -24,7 +24,7 @@ setSafeFPS()
 {
 	// Attempt to force user's FPS to 125 (safe value)
 	self setClientCvar("com_maxfps", 125);
-	self clearfpsfilter();
+	self clearFPSFilter();
 	self.lastFPS = 125;
 	self _fpsChange(125);
 }
@@ -70,7 +70,7 @@ onMixFPSDetected()
 	if(!self openCJ\settings::getSetting("allowmix"))
 	{
 		//load back upon mix fps detection
-		if(!self openCJ\savePosition::canLoadError())
+		if(!self openCJ\savePosition::canLoadError(0))
 		{
 			self iprintln("^3Mix FPS detected");
 			self thread openCJ\savePosition::loadNormal();
@@ -125,24 +125,38 @@ _fpsChange(newFPS)
 	self openCJ\fpsHistory::onFPSChanged(newFPS);
 }
 
-onDetectedFPSChange(newFPS)
+onRunStarted()
 {
-	if(!isPlayerReady() || (newFPS == self getCurrentFPS()))
+	self.lastFPS = getFPSFromUserInfo();
+	if(!isDefined(self.lastFPS))
 	{
-		return;
+		self onFPSNotInUserInfo();
 	}
-
-	if(isHaxFPS(newFPS))
+	if(isHaxFPS(self getCurrentFPS()))
 	{
 		self onHaxFPSDetected();
 	}
-	else if(newFPS > 125)
-	{
-		self onMixFPSDetected();
-	}
+}
 
+onDetectedFPSChange(newFPS)
+{
+	if(isDefined(self.lastFPS) && self.lastFPS == newFPS)
+	{
+		return;
+	}
+	if(isPlayerReady() && self openCJ\playerRuns::hasRunStarted())
+	{
+		if(isHaxFPS(newFPS))
+		{
+			self onHaxFPSDetected();
+		}
+		else if(newFPS > 125)
+		{
+			self onMixFPSDetected();
+		}
+		self _fpsChange(newFPS);
+	}
 	self.lastFPS = newFPS;
-	self _fpsChange(newFPS);
 }
 
 onUserInfoFPSChange(newFPS)
@@ -159,17 +173,9 @@ onRunIDCreated()
 {
 	self.hasUsedHaxFPS = false;
 	self.hasUsedMixFPS = false;
-	self openCJ\settings::setSetting("allowhax", false);
+	self openCJ\settings::setSetting("allowhax", false); //todo: get these from database
 	self openCJ\settings::setSetting("allowmix", true);
 	self.lastFPS = getFPSFromUserInfo();
-	if(!isDefined(self.lastFPS))
-	{
-		self onFPSNotInUserInfo();
-	}
-	if(isHaxFPS(self getCurrentFPS()))
-	{
-		self onHaxFPSDetected();
-	}
 }
 
 getCurrentFPS()

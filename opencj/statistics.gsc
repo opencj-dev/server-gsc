@@ -22,6 +22,15 @@ onInit()
 	}
 }
 
+onStartDemo()
+{
+	specs = self getSpectatorList(true);
+	for(i = 0; i < specs.size; i++)
+	{
+		specs[i] _hideStatisticsHud(false);
+	}
+}
+
 onPlayerConnect()
 {
 	self _hideStatisticsHud(true);
@@ -30,7 +39,7 @@ onPlayerConnect()
 
 onSpectatorClientChanged(newClient)
 {
-	if(!isDefined(newClient))
+	if(!isDefined(newClient) || newClient openCJ\demos::isPlayingDemo())
 	{
 		self _hideStatisticsHud(false);
 	}

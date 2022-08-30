@@ -2,8 +2,6 @@
 
 onPlayerConnect()
 {
-	self.country = undefined;
-	self.countryLong = undefined;
 	self.country_connectMessageShown = false;
 }
 
@@ -28,7 +26,9 @@ _countryQuery()
 		self.longCountry = "Unknown";
 	}
 	if(self openCJ\login::isLoggedIn())
+	{
 		self _doConnectMessage();
+	}
 }
 
 onPlayerLogin()
@@ -39,7 +39,9 @@ onPlayerLogin()
 _doConnectMessage()
 {
 	if(self.country_connectMessageShown)
+	{
 		return;
+	}
 
 	iprintln(self.name + "^7 connected from " + self getLongCountry());
 }
@@ -47,15 +49,23 @@ _doConnectMessage()
 getCountry()
 {
 	if(!isDefined(self.country))
+	{
 		return "??";
+	}
 	else
+	{
 		return self.country;
+	}
 }
 
 getLongCountry()
 {
 	if(!isDefined(self.longCountry))
+	{
 		return "Unknown";
+	}
 	else
+	{
 		return self.longCountry;
+	}
 }

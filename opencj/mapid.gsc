@@ -4,7 +4,9 @@ onInit()
 {
 	rows = openCJ\mySQL::mysqlSyncQuery("SELECT getMapID('" + openCJ\mySQL::escapeString(getCvar("mapname")) + "')");
 	if(rows.size && isDefined(rows[0][0]))
-		level.mapid_mapID = rows[0][0];
+	{
+		level.mapid_mapID = int(rows[0][0]);
+	}
 }
 
 hasMapID()

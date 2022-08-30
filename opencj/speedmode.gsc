@@ -19,6 +19,10 @@ onRunIDCreated()
 
 speedMode(args)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	wasEverEnabled = self getSpeedModeEver();
 	wasEnabled = self getSpeedModeNow();
 	shouldEnable = false;

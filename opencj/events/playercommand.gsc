@@ -15,40 +15,45 @@ main(args)
 			return;
 		}
 
-		// save, load ..
-		if(self openCJ\savePosition::onPlayerCommand(args))
-		{
-			return;
-		}
-
 		// UID related things
 		if(self openCJ\login::onPlayerCommand(args))
 		{
 			return;
 		}
 
-		// Chat command: commands (kick, ignore, mute ..), settings (fov, rpgputaway, timestring ..)
-		if(self openCJ\commands_base::onPlayerCommand(args))
-		{
-			return;
-		}
-
 		// Non-chat commands
-		if(args[0] == "spawn")
+		if(self isPlayerReady())
 		{
-			self thread doNextFrame(openCJ\events\spawnPlayer::main);
-		}
-		else if(args[0] == "spectate")
-		{
-			self thread doNextFrame(openCJ\events\spawnSpectator::main);
-		}
-		else if(args[0] == "kill")
-		{
-			self thread _killNextFrame();
-		}
-		else if((args[0] == "say") || (args[0] == "say_team")) // Wrap the chat commands for ignore, mute functionality
-		{
-			self openCJ\chat::onChatMessage(args);
+			// save, load ..
+			if(self openCJ\savePosition::onPlayerCommand(args))
+			{
+				return;
+			}
+			// Chat command: commands (kick, ignore, mute ..), settings (fov, rpgputaway, timestring ..)
+			if(self openCJ\commands_base::onPlayerCommand(args))
+			{
+				return;
+			}
+			if(args[0] == "spawn")
+			{
+				self thread doNextFrame(openCJ\events\spawnPlayer::main);
+			}
+			else if(args[0] == "spectate")
+			{
+				self thread doNextFrame(openCJ\events\spawnSpectator::main);
+			}
+			else if(args[0] == "kill")
+			{
+				self thread _killNextFrame();
+			}
+			else if((args[0] == "say") || (args[0] == "say_team")) // Wrap the chat commands for ignore, mute functionality
+			{
+				self openCJ\chat::onChatMessage(args);
+			}
+			else
+			{
+				self clientCommand();
+			}
 		}
 		else
 		{

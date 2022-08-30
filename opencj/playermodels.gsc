@@ -34,7 +34,9 @@ _registerModel(name, model, viewModel)
 _registerAttach(name, model, point)
 {
 	if(!isDefined(level.playerModels_models[name]))
+	{
 		return;
+	}
 
 	attachStruct = spawnStruct();
 	attachStruct.model = model;
@@ -57,12 +59,16 @@ setPlayerModel()
 _setModel(name)
 {
 	if(!isDefined(level.playerModels_models[name]))
+	{
 		return;
+	}
 
 	self setModel(level.playerModels_models[name].model);
 
 	for(i = 0; i < level.playerModels_models[name].attach.size; i++)
+	{
 		self attach(level.playerModels_models[name].attach[i].model, level.playerModels_models[name].attach[i].point);
+	}
 }
 
 onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration)

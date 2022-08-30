@@ -100,15 +100,21 @@ onRunIDCreated()
 canSaveError()
 {
 	if(self.sessionState != "playing")
+	{
 		return 1;
+	}
 
 	if(!self isOnGround())
+	{
 		return 2;
+	}
 
 	groundEntity = self getGroundEntity();
 
 	if(isDefined(groundEntity) && !isDefined(groundEntity.canSaveOn) && false)
+	{
 		return 3;
+	}
 
 	return 0;
 }
@@ -151,6 +157,10 @@ canLoadError(backwardsCount)
 	{
 		return 999;
 	}
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return 998;
+	}
 	if(self openCJ\noclip::hasNoclip())
 	{
 		return 4;
@@ -187,7 +197,9 @@ _findNumOfEnt(ent)
 	for(i = 0; i < ents.size; i++)
 	{
 		if(ents[i] == ent)
+		{
 			return i;
+		}
 	}
 	return undefined;
 }
@@ -215,14 +227,7 @@ setSavedPosition()
 		entTargetName = undefined;
 		numOfEnt = undefined;
 	}
-	/*
-	if(isDefined(self openCJ\checkpoints::getCurrentCheckpointID()))
-		printf("saving with defined id, " + self openCJ\checkpoints::getCurrentCheckpointID() + "\n");
-	else
-		printf("saving with undef id\n");
-	*/
 	flags = self createFlags();
-	//printf("flags: "  + flags + "\n");
 	fps = self openCJ\fps::getCurrentFPS();
 	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
 	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
@@ -242,14 +247,6 @@ getSavedPosition(backwardsCount)
 	save.checkpointID = self savePosition_getCheckpointID();
 	save.flags = self savePosition_getFlags();
 	save.fps = self savePosition_getFPS();
-	//printf("flags: " + save.flags + "\n");
-
-	/*
-	if(isdefined(save.checkpointID))
-		printf("cp id defined, " + save.checkpointID + "\n");
-	else
-		printf("cp id undef\n");
-	*/
 
 	groundEntity = self savePosition_getGroundEntity();
 
@@ -268,7 +265,7 @@ getSavedPosition(backwardsCount)
 onLoadBind()
 {
 	// If player is spectating (regardless of free spec or not), allow them to spawn
-	if (self.pers["team"] == "spectator")
+	if (self.pers["team"] == "spectator" && !self openCJ\demos::isPlayingDemo())
 	{
 		self openCJ\events\spawnPlayer::main();
 		waittillframeend;
@@ -339,24 +336,40 @@ onPlayerCommand(args)
 
 saveNormal()
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self.savePosition_backwardsCount = 0;
 	self thread _saveNextFrame();
 }
 
 loadNormal()
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self.savePosition_backwardsCount = 0;
 	self thread _loadNextFrame(0);
 }
 
 loadSecondary()
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self.savePosition_backwardsCount++;
 	self loadBackwards(self.savePosition_backwardsCount);
 }
 
 loadBackwards(backwardsCount)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self thread _loadNextFrame(backwardsCount);
 }
 
@@ -380,5 +393,7 @@ _saveNextFrame()
 	waittillframeend;
 
 	if(isDefined(self))
+	{
 		self openCJ\events\savePosition::main();
+	}
 }

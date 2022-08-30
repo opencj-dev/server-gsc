@@ -2,6 +2,11 @@
 
 main(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
+	
 	if(self.sessionTeam == "spectator")
 		return;
 	if(self openCJ\noclip::hasNoclip())

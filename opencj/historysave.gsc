@@ -72,10 +72,14 @@ _loadSavesFromDatabase(runID, instanceNumber)
 _getEntNum(targetName, numOfEnt)
 {
 	if(!isDefined(targetName))
+	{
 		return undefined;
+	}
 	ents = getEntArray(targetName, "targetname");
 	if(isDefined(ents) && isDefined(ents[numOfEnt]))
+	{
 		return ents[numOfEnt] getEntityNumber();
+	}
 	return undefined;
 }
 
@@ -83,11 +87,17 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, dou
 {
 	self endon("disconnect");
 	if(self openCJ\playerRuns::isRunFinished())
+	{
 		return;
+	}
 	if(!self openCJ\playerRuns::hasRunID())
+	{
 		return;
+	}
 	if(self openCJ\cheating::isCheating())
+	{
 		return;
+	}
 
 	runID = self openCJ\playerRuns::getRunID();
 	timePlayed = self openCJ\statistics::getTimePlayed();
@@ -98,13 +108,21 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, dou
 
 	runInstance = self openCJ\playerRuns::getRunInstanceNumber();
 	if(!isDefined(entTargetName))
+	{
 		entTargetName = "NULL";
+	}
 	else
+	{
 		entTargetName = "'" + openCJ\mySQL::escapeString(entTargetName) + "'";
+	}
 	if(!isDefined(numOfEnt))
+	{
 		numOfEnt = "NULL";
+	}
 	if(!isDefined(checkpointID))
+	{
 		checkpointID = "NULL";
+	}
 	x = int(origin[0]);
 	y = int(origin[1]);
 	z = int(origin[2]) + 1;

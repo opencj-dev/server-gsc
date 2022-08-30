@@ -2,7 +2,6 @@
 
 onInit()
 {
-	//printf("preparing inf huds\n");
 	level.infiniteHudStrings = [];
 }
 
@@ -14,7 +13,6 @@ initInfiniteHud(name)
 	level.infiniteHudStrings[name].string = findString(level.infiniteHudStrings[name].num);
 	precacheString(level.infiniteHudStrings[name].localizedString);
 	level.infiniteHudStrings[name].configstringIndex = G_FindConfigstringIndex(level.infiniteHudStrings[name].string, 1310, 256);
-	//printf("config string index is: " + level.infiniteHudStrings[name].configstringIndex + "\n");
 }
 
 onPlayerConnected()
@@ -23,7 +21,6 @@ onPlayerConnected()
 	for(i = 0; i < keys.size; i++)
 	{
 		self SV_GameSendServerCommand("d " + level.infiniteHudStrings[keys[i]].configstringIndex + " ", true);
-		//printf("sending command " + "d " + level.infiniteHudStrings[keys[i]].configstringIndex + " \n");
 	}
 }
 
@@ -41,16 +38,23 @@ createInfiniteStringHud(name)
 setInfiniteHudText(text, player, reliable)
 {
 	if(!isDefined(reliable))
+	{
 		reliable = false;
+	}
 	if(text == self.lastText)
+	{
 		return;
+	}
 	self.lastText = text;
 	player SV_GameSendServerCommand("d " + self.configstringIndex + " " + text, reliable);
 }
 
 findString(num)
 {
-	if (!isDefined(findLocalizedString(num))) return undefined;
+	if (!isDefined(findLocalizedString(num)))
+	{
+		return undefined;
+	}
 	return "openCJPlaceHolderString" + num;
 }
 

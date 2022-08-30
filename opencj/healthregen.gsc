@@ -11,6 +11,14 @@ resetHealthRegen()
 	self.health = self.maxHealth;
 }
 
+onStartDemo()
+{
+	self notify("stopHealthRegen");
+
+	self openCJ\statistics::addTimeUntil(self.healthRegen_completedTime);
+	self.healthRegen_completedTime = undefined;
+}
+
 onRunIDCreated()
 {
 	self.healthRegen_completedTime = undefined;
@@ -40,9 +48,13 @@ _startHealthRegen()
 	self endon("stopHealthRegen");
 
 	if(self.health < self.maxHealth * 0.35)
+	{
 		self.healthRegen_completedTime = getTime() + 5000 + int((self.maxHealth - self.health) / 10)*50;
+	}
 	else
+	{
 		self.healthRegen_completedTime = getTime() + 5000;
+	}
 
 	wait 5;
 
@@ -53,7 +65,9 @@ _startHealthRegen()
 		{
 			self.health += int(0.1 * self.maxHealth);
 			if(self.health > self.maxHealth)
+			{
 				self.health = self.maxHealth;
+			}
 			self setNormalHealth(self.health / self.maxHealth);
 			wait 0.05;
 		}

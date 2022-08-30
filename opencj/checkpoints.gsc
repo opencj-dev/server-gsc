@@ -14,12 +14,10 @@ _checkpointPassed(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually
 
 storeCheckpointPassed(runID, cpID, timePlayed)
 {
-	if(self openCJ\playerRuns::isRunFinished())
+	if(self openCJ\playerRuns::isRunFinished() || !self openCJ\playerRuns::hasRunID() || self openCJ\cheating::isCheating())
+	{
 		return;
-	if(!self openCJ\playerRuns::hasRunID())
-		return;
-	if(self openCJ\cheating::isCheating())
-		return;
+	}
 
 	saveCount = self openCJ\statistics::getSaveCount();
 	loadCount = self openCJ\statistics::getLoadCount();
@@ -47,14 +45,27 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 	{
 		diff = timePlayed - int(rows[0][0]);
 		if(diff > 0)
+		{
 			self iprintln("You passed a checkpoint ^1+" + formatTimeString(diff, false));
+		}
 		else if( diff < 0)
+		{
 			self iprintln("You passed a checkpoint ^2-" + formatTimeString(-1 * diff, false));
+		}
 		else
+		{
 			self iprintln("You passed a checkpoint, no difference");
+		}
 	}
 	else
+	{
 		self iprintln("You passed a checkpoint");
+	}
+}
+
+onStartDemo()
+{
+	self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
 }
 
 onInit()
@@ -78,15 +89,17 @@ onInit()
 			checkpoint.radius = intOrUndefined(rows[i][4]);
 			checkpoint.onGround = (int(rows[i][5]) != 0);
 			if(!isDefined(rows[i][6]))
+			{
 				checkpoint.childIDs = [];
+			}
 			else
+			{
 				checkpoint.childIDs = strTok(rows[i][6], ",");
+			}
 			checkpoint.ender = rows[i][7];
 			checkpoint.isEleAllowed = int(rows[i][8]);
 			checkpoint.endShaderColor = rows[i][9];
 			checkpoint.bigBrother = intOrUndefined(rows[i][10]);
-			//if(isDefined(checkpoint.endShaderColor))
-			//	printf("endshadercolor: " + checkpoint.endShaderColor + "\n");
 			checkpoint.hasParent = false;
 			checkpoints[checkpoints.size] = checkpoint;
 		}
@@ -100,19 +113,22 @@ onInit()
 				for(k = 0; k < checkpoints.size; k++)
 				{
 					if(k == i)
+					{
 						continue;
+					}
 					if(checkpoints[k].id == int(checkpoints[i].childIDs[j]))
 					{
 						checkpoints[i].childs[checkpoints[i].childs.size] = checkpoints[k];
 						checkpoints[i].ender = undefined; //cannot have enders on mid-route checkpoints
 						checkpoints[k].hasParent = true;
-						//printf("connecting checkpoint " + checkpoints[i].id + " to child cp " + checkpoints[k].id + "\n");
 						found = true;
 						break;
 					}
 				}
 				if(!found)
+				{
 					printf("WARNING: Could not find child " + checkpoints[i].childIDS[j] + " for checkpoint " + checkpoints[i].id + "\n");
+				}
 			}
 			checkpoints[i].childIDs = undefined;
 			checkpoints[i].endCheckpoints = [];
@@ -134,7 +150,9 @@ onInit()
 		for(i = 0; i < checkpoints.size; i++)
 		{
 			if(!checkpoints[i].hasParent)
+			{
 				level.checkpoints_startCheckpoint.childs[level.checkpoints_startCheckpoint.childs.size] = checkpoints[i];
+			}
 		}
 		level.checkpoints_startCheckpoint.checkpointsFromStart = 0;
 
@@ -143,7 +161,9 @@ onInit()
 		level.checkpoints_startCheckpoint.endCheckpoints = enders;
 		level.checkpoints_startCheckpoint.enderName = _calculateEnderName(enders);
 		if(!enders.size)
+		{
 			level.checkpoints_startCheckpoint.checkpointsTillEnd = 0;
+		}
 
 		for(i = 0; i < enders.size; i++)
 		{
@@ -159,21 +179,31 @@ onInit()
 				for(j = 0; j < openList.size; j++)
 				{
 					if(!isDefined(openList[j].checkpointsTillEnd))
+					{
 						openList[j].checkpointsTillEnd = iterationNum;
+					}
 					parents = getCheckpointParents(openList[j]);
 					if(!parents.size)
 					{
 						if(!isDefined(level.checkpoints_startCheckpoint.checkpointsTillEnd))
+						{
 							level.checkpoints_startCheckpoint.checkpointsTillEnd = iterationNum + 1;
+						}
 					}
 					for(k = 0; k < parents.size; k++)
 					{
 						if(isInArray(parents[k], closedList))
+						{
 							continue;
+						}
 						if(isInArray(parents[k], openList))
+						{
 							continue;
+						}
 						if(isInArray(parents[k], newOpenList))
+						{
 							continue;
+						}
 						newOpenList[newOpenList.size] = parents[k];
 						parents[k].endCheckpoints[parents[k].endCheckpoints.size] = enders[i];
 					}
@@ -192,15 +222,23 @@ onInit()
 			for(j = 0; j < openList.size; j++)
 			{
 				if(!isDefined(openList[j].checkpointsFromStart))
+				{
 					openList[j].checkpointsFromStart = iterationNum;
+				}
 				for(k = 0; k < openList[j].childs.size; k++)
 				{
 					if(isInArray(openList[j].childs[k], closedList))
+					{
 						continue;
+					}
 					if(isInArray(openList[j].childs[k], openList))
+					{
 						continue;
+					}
 					if(isInArray(openList[j].childs[k], newOpenList))
+					{
 						continue;
+					}
 					newOpenList[newOpenList.size] = openList[j].childs[k];
 				}
 				closedList[closedList.size] = openList[j];
@@ -263,20 +301,27 @@ _calculateEnderName(endCheckpoints)
 getCheckpointShaderColor(checkpoint)
 {
 	if(!isDefined(checkpoint))
+	{
 		return undefined;
+	}
 	ends = getEndCheckpoints(checkpoint);
 	endShaderColors = [];
 	undefined_endShaderColor = false;
 	for(i = 0; i < ends.size; i++)
 	{
 		if(!isDefined(ends[i].endShaderColor))
+		{
 			undefined_endShaderColor = true;
+		}
 		else if(!isInArray(ends[i].endShaderColor, endShaderColors))
+		{
 			endShaderColors[endShaderColors.size] = ends[i].endShaderColor;
-			
+		}
 	}
 	if(endShaderColors.size != 1 || undefined_endShaderColor)
+	{
 		return undefined;
+	}
 	return endShaderColors[0];
 }
 
@@ -306,7 +351,9 @@ getAllEndCheckpoints()
 	for(i = 0; i < level.checkpoints_checkpoints.size; i++)
 	{
 		if(level.checkpoints_checkpoints[i].childs.size == 0)
+		{
 			enders[enders.size] = level.checkpoints_checkpoints[i];
+		}
 	}
 	return enders;
 }
@@ -319,7 +366,9 @@ getCheckpointParents(checkpoint)
 		for(j = 0; j < level.checkpoints_checkpoints[i].childs.size; j++)
 		{
 			if(level.checkpoints_checkpoints[i].childs[j] == checkpoint)
+			{
 				parents[parents.size] = level.checkpoints_checkpoints[i];
+			}
 		}
 	}
 	return parents;
@@ -342,12 +391,16 @@ getCurrentCheckpointID()
 
 setCurrentCheckpointID(id)
 {
-	if(self openCJ\playerRuns::isRunFinished())
+	if(!self isPlayerReady() || self openCJ\playerRuns::isRunFinished())
+	{
 		return;
+	}
 
 	oldcheckpoint = self.checkpoints_checkpoint;
 	if(!isDefined(id))
+	{
 		self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
+	}
 	else
 	{
 		for(i = 0; i < level.checkpoints_checkpoints.size; i++)
@@ -360,7 +413,9 @@ setCurrentCheckpointID(id)
 		}
 	}
 	if(self.checkpoints_checkpoint != oldcheckpoint)
+	{
 		self openCJ\events\checkpointsChanged::main();
+	}
 }
 
 getCheckpoints()
@@ -397,14 +452,20 @@ filterOutBrothers(checkpoints)
 	for(i = 0; i < checkpoints.size; i++)
 	{
 		if(isDefined(checkpoints[i].bigBrother))
+		{
 			brothers[brothers.size] = checkpoints[i];
+		}
 		else
+		{
 			newcheckpoints[newcheckpoints.size] = checkpoints[i];
+		}
 	}
 	for(i = 0; i < brothers.size; i++)
 	{
 		if(!isInArray(brothers[i].bigBrother, newcheckpoints))
+		{
 			newcheckpoints[newcheckpoints.size] = brothers[i].bigBrother;
+		}
 	}
 	return newcheckpoints;
 }
@@ -414,7 +475,9 @@ whileAlive()
 	for(i = 0; i < self.checkpoints_checkpoint.childs.size; i++)
 	{
 		if(!isDefined(self.checkpoints_checkpoint.childs[i].radius))
+		{
 			continue;
+		}
 		if(distanceSquared(self.origin, self.checkpoints_checkpoint.childs[i].origin) < self.checkpoints_checkpoint.childs[i].radius * self.checkpoints_checkpoint.childs[i].radius)
 		{
 			if(!self.checkpoints_checkpoint.childs[i].onGround || self isOnGround())
@@ -428,15 +491,16 @@ whileAlive()
 					if(checkpointDist < previousCheckpointDist)
 					{
 						tOffset = int(((radius - checkpointDist)/(previousCheckpointDist - checkpointDist)) * -50);
-						//printf("\n prevdist: " + previousCheckpointDist + " dist: " + checkpointDist + " radius: " + radius + " tOffset: " + tOffset + "\n\n");
 						if(tOffset > 0)
+						{
 							tOffset = 0;
+						}
 						else if(tOffset < -50)
+						{
 							tOffset = -50;
+						}
 					}
 				}
-				//printf("\ntOffset: " + tOffset + "\n\n");
-				//self iprintlnbold("You passed checkpoint with ID " + self.checkpoints_checkpoint.childs[i].id);
 				cp = self.checkpoints_checkpoint.childs[i];
 				self.checkpoints_checkpoint = self.checkpoints_checkpoint.childs[i];
 				if(cp.childs.size == 0)

@@ -16,6 +16,14 @@ onPlayerLogin()
 	self thread _createRunID();
 }
 
+onStartDemo()
+{
+	if(!self.playerRuns_runStarted)
+	{
+		self unlink();
+	}
+}
+
 hasRunID()
 {
 	return isDefined(self.playerRuns_runID) && isDefined(self.runInstanceNumber);
@@ -55,19 +63,27 @@ printRunIDandInstanceNumber()
 onRunFinished(cp)
 {
 	if(self openCJ\playerRuns::isRunFinished())
+	{
 		return;
+	}
 	self.playerRuns_runFinished = true;
 	if(!self openCJ\playerRuns::hasRunID())
+	{
 		return;
+	}
 	if(self openCJ\cheating::isCheating())
+	{
 		return;
+	}
 	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
 	{
 		runID = self openCJ\playerRuns::getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT runFinished(" + runID + ", " + cpID + ", " + self getRunInstanceNumber() + ")");
 		if(!isDefined(rows[0][0]))
+		{
 			self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
+		}
 	}
 }
 
@@ -85,7 +101,9 @@ setRunIDAndInstanceNumber(runID, instanceNumber)
 _createRunID()
 {
 	if(!self openCJ\login::IsLoggedIn())
+	{
 		return;
+	}
 
 	self endon("disconnect");
 
@@ -106,7 +124,9 @@ _createRunID()
 			self openCJ\events\runIDCreated::main();
 		}
 		else
+		{
 			self iprintlnbold("Could not set run instance number. Please reconnect");
+		}
 	}
 }
 
@@ -131,7 +151,9 @@ onSpawnPlayer()
 		self openCJ\events\WASDPressed::enableWASDCallback();
 	}
 	else
+	{
 		self openCJ\statistics::startTimer();
+	}
 }
 
 onSpawnSpectator()
@@ -145,6 +167,7 @@ startRun()
 	self openCJ\events\WASDPressed::disableWASDCallback();
 	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self.sessionState == "playing" && !self.playerRuns_runStarted)
 	{
+		self openCJ\FPS::onRunStarted();
 		printf("unlinking from spawn\n");
 		self.playerRuns_runStarted = true;
 		self unLink();

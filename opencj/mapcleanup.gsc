@@ -22,7 +22,9 @@ _removePickups()
 	for(i = 0; i < pickups.size; i++)
 	{
 		if(isdefined(pickups[i].target))
+		{
 			getent(pickups[i].target, "targetname") delete();
+		}
 
 		pickups[i] delete();
 	}
@@ -48,6 +50,8 @@ _showClassnames()
 	for(i = 0; i < ents.size; i++)
 	{
 		if(isDefined(ents[i].className))
+		{
 			printf(ents[i].className + "\n");
+		}
 	}
 }

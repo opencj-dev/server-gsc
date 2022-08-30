@@ -16,7 +16,9 @@ whileAlive()
 		}
 	}
 	else
+	{
 		self.jumpSlowdownTimerHud.alpha = 0;
+	}
 }
 
 onPlayerConnect()
@@ -45,6 +47,11 @@ onSpawnPlayer()
 }
 
 onSpawnSpectator()
+{
+	self.jumpSlowdownTimerHud.alpha = 0;
+}
+
+onStartDemo()
 {
 	self.jumpSlowdownTimerHud.alpha = 0;
 }
