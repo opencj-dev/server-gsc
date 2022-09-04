@@ -94,7 +94,7 @@ createFlags()
 onRunIDCreated()
 {
 	self savePosition_initClient();
-	self.savePosition_backwardsCount = 0;
+	self resetBackwardsCount();
 }
 
 canSaveError()
@@ -148,7 +148,7 @@ printLoadSuccess()
 
 onSpawnPlayer()
 {
-	self.savePosition_backwardsCount = 0;
+	self resetBackwardsCount();
 }
 
 canLoadError(backwardsCount)
@@ -229,8 +229,10 @@ setSavedPosition()
 	}
 	flags = self createFlags();
 	fps = self openCJ\fps::getCurrentFPS();
+	saveNum = self openCJ\statistics::increaseAndGetSaveCount();
 	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
-	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
+	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags, saveNum);
+	return saveNum;
 }
 
 getSavedPosition(backwardsCount)
@@ -247,6 +249,7 @@ getSavedPosition(backwardsCount)
 	save.checkpointID = self savePosition_getCheckpointID();
 	save.flags = self savePosition_getFlags();
 	save.fps = self savePosition_getFPS();
+	save.saveNum = self savePosition_getSaveNum();
 
 	groundEntity = self savePosition_getGroundEntity();
 
@@ -262,32 +265,28 @@ getSavedPosition(backwardsCount)
 	return save;
 }
 
-onLoadBind()
+incrementBackwardsCount(amount)
 {
-	// If player is spectating (regardless of free spec or not), allow them to spawn
-	if (self.pers["team"] == "spectator" && !self openCJ\demos::isPlayingDemo())
+	if(amount == 0)
 	{
-		self openCJ\events\spawnPlayer::main();
-		waittillframeend;
-	}
-
-	self loadNormal();
-}
-
-onSaveBind()
-{
-	if (self.pers["team"] == "spectator")
-	{
-		spectating = self getSpectatorClient();
-		if (isDefined(spectating) && (spectating != self))
-		{
-			self followPlayer(-1); // TODO: implement for CoD2
-		}
+		return self resetBackwardsCount();
 	}
 	else
 	{
-		self saveNormal();
+		self.savePosition_backwardsCount += amount;
 	}
+	return self.savePosition_backwardsCount;
+}
+
+resetBackwardsCount()
+{
+	self.savePosition_backwardsCount = 0;
+	return 0;
+}
+
+getBackwardsCount()
+{
+	return self.savePosition_backwardsCount;
 }
 
 onPlayerCommand(args)
@@ -296,17 +295,17 @@ onPlayerCommand(args)
 	{
 		case "save":
 		{
-			self thread doNextFrame(::onSaveBind);
+			self openCJ\events\eventHandler::onSavePositionRequest();
 			return true;
 		}
 		case "load":
 		{
-			self thread doNextFrame(::onLoadBind);
+			self openCJ\events\eventHandler::onLoadPositionRequest(0);
 			return true;
 		}
 		case "loadsecondary":
 		{
-			self loadSecondary();
+			self openCJ\events\eventHandler::onLoadPositionRequest(1);
 			return true;
 		}
 		case "mr":
@@ -315,85 +314,21 @@ onPlayerCommand(args)
 			{
 				if(args[3] == "load")
 				{
-					self thread doNextFrame(::onLoadBind);
+					self openCJ\events\eventHandler::onLoadPositionRequest(0);
 					return true;
 				}
 				else if(args[3] == "save")
 				{
-					self thread doNextFrame(::onSaveBind);
+					self openCJ\events\eventHandler::onSavePositionRequest();
 					return true;
 				}
 				else if(args[3] == "loadsecondary")
 				{
-					self loadSecondary();
+					self openCJ\events\eventHandler::onLoadPositionRequest(1);
 					return true;
 				}
 			}
 		}
 	}
 	return false;
-}
-
-saveNormal()
-{
-	if(self openCJ\demos::isPlayingDemo())
-	{
-		return;
-	}
-	self.savePosition_backwardsCount = 0;
-	self thread _saveNextFrame();
-}
-
-loadNormal()
-{
-	if(self openCJ\demos::isPlayingDemo())
-	{
-		return;
-	}
-	self.savePosition_backwardsCount = 0;
-	self thread _loadNextFrame(0);
-}
-
-loadSecondary()
-{
-	if(self openCJ\demos::isPlayingDemo())
-	{
-		return;
-	}
-	self.savePosition_backwardsCount++;
-	self loadBackwards(self.savePosition_backwardsCount);
-}
-
-loadBackwards(backwardsCount)
-{
-	if(self openCJ\demos::isPlayingDemo())
-	{
-		return;
-	}
-	self thread _loadNextFrame(backwardsCount);
-}
-
-_loadNextFrame(backwardsCount)
-{
-	self notify("saveLoadPositionCommand");
-	self endon("saveLoadPositionCommand");
-
-	waittillframeend;
-	if(isDefined(self))
-	{
-		self openCJ\events\loadPosition::main(backwardsCount);
-	}
-}
-
-_saveNextFrame()
-{
-	self notify("saveLoadPositionCommand");
-	self endon("saveLoadPositionCommand");
-
-	waittillframeend;
-
-	if(isDefined(self))
-	{
-		self openCJ\events\savePosition::main();
-	}
 }

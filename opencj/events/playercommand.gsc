@@ -44,7 +44,7 @@ main(args)
 			}
 			else if(args[0] == "kill")
 			{
-				self thread _killNextFrame();
+				self openCJ\events\eventHandler::onSuicideRequest();
 			}
 			else if((args[0] == "say") || (args[0] == "say_team")) // Wrap the chat commands for ignore, mute functionality
 			{
@@ -59,17 +59,5 @@ main(args)
 		{
 			self clientCommand();
 		}
-	}
-}
-
-_killNextFrame()
-{
-	self endon("disconnect");
-
-	waittillframeend;
-
-	if(isDefined(self))
-	{
-		self suicide();
 	}
 }

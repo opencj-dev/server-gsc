@@ -10,7 +10,7 @@ onInit()
 
 onFPSNotInUserInfo()
 {
-	if(self openCJ\playerRuns::hasRunStarted())
+	if(self openCJ\playerRuns::hasRunStarted() && !self openCJ\demos::isPlayingDemo())
 	{
 		if(!self hasUsedHaxFPS())
 		{
@@ -45,7 +45,7 @@ onHaxFPSDetected()
 			self setSafeFPS();
 
 			// Force the player back to their load
-			self thread openCJ\savePosition::loadNormal();
+			self openCJ\events\eventHandler::onLoadPositionRequest(0);
 		}
 		else
 		{
@@ -73,7 +73,7 @@ onMixFPSDetected()
 		if(!self openCJ\savePosition::canLoadError(0))
 		{
 			self iprintln("^3Mix FPS detected");
-			self thread openCJ\savePosition::loadNormal();
+			self openCJ\events\eventHandler::onLoadPositionRequest(0);
 		}
 		else
 		{
@@ -144,7 +144,7 @@ onDetectedFPSChange(newFPS)
 	{
 		return;
 	}
-	if(isPlayerReady() && self openCJ\playerRuns::hasRunStarted())
+	if(isPlayerReady() && self openCJ\playerRuns::hasRunStarted() && !self openCJ\demos::isPlayingDemo())
 	{
 		if(isHaxFPS(newFPS))
 		{

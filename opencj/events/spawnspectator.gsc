@@ -27,7 +27,8 @@ main()
 	self openCJ\progressBar::onSpawnSpectator();
 	self openCJ\speedoMeter::onSpawnSpectator();
 	self openCJ\FPSHistory::onSpawnSpectator();
-	
+	self openCJ\events\eventHandler::onSpawnSpectator();
+
 	self stopFollowingMe();
 
 	self thread openCJ\events\whileSpectating::main();

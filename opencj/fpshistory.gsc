@@ -56,7 +56,7 @@ hideAndClearFPSHistory()
 	self _clearFPSHistory();
 }
 
-_getShortFPS(fps)
+getShortFPS(fps)
 {
 	switch (fps)
 	{
@@ -85,8 +85,12 @@ _getShortFPS(fps)
 
 onFPSChanged(newFPS)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self notify("fpshistory_fpschanged");
-	shortFPS = _getShortFPS(newFPS);
+	shortFPS = getShortFPS(newFPS);
 
 	if (!self isOnGround())
 	{
@@ -96,30 +100,49 @@ onFPSChanged(newFPS)
 	self.fpshistory["shortfps"] = shortFPS;
 }
 
-onBounced() // threaded
+onBounced()
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
+	self thread _onBouncedThread();
+}
+
+_onBouncedThread()
+{
+	self endon("disconnect");
 	if (self.fpsHistoryText != "")
 	{
 		self _addFPSHistory("-");
 		self endon("fpshistory_fpschanged");
 		self endon("fpshistory_clear");
 		wait 0.15;
-		self _addFPSHistory(_getShortFPS(self openCJ\fps::getCurrentFPS()));
+		self _addFPSHistory(getShortFPS(self openCJ\fps::getCurrentFPS()));
 	}
 }
 
 onStartDemo()
 {
+
 	self _clearFPSHistory();
 }
 
 onLoaded()
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self _clearFPSHistory();
 }
 
 onOnGround(isOnGround)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		return;
+	}
 	self thread _onOnGroundThread(isOnGround);
 }
 
@@ -136,7 +159,7 @@ _onOnGroundThread(isOnGround)
 	else
 	{
 		// No longer onGround, so show the initial FPS
-		self _setFPSHistory(_getShortFPS(self openCJ\fps::getCurrentFPS()));
+		self _setFPSHistory(getShortFPS(self openCJ\fps::getCurrentFPS()));
 	}
 }
 
@@ -155,7 +178,7 @@ _clearFPSHistory()
 
 _addFPSHistory(text)
 {
-	_setFPSHistory(self.fpsHistoryText + text);
+	self _setFPSHistory(self.fpsHistoryText + text);
 }
 
 _setFPSHistory(text)
@@ -183,4 +206,81 @@ _setFPSHistory(text)
 	}
 
 	//self iprintln("Setting fps history to: " + text + " for " + self getEntityNumber());
+}
+
+_setDemoFPSHistory(text)
+{
+	if (self.fpsHistoryText == text)
+	{
+		return; // Already set
+	}
+
+	self.fpsHistoryText = text;
+	if(text.size <= 1)
+	{
+		return;
+	}
+	self.fpsHistoryHud openCJ\infiniteHuds::setInfiniteHudText(text, self, false);
+	self.fpsHistoryHud.alpha = 1;
+}
+
+_clearDemoFPSHistory()
+{
+	self notify("fpshistory_clear");
+	self.fpsHistoryText = "";
+	self.fpsHistoryText = "";
+	self.fpsHistoryHud.alpha = 0;
+}
+
+onDemoBounce(text)
+{
+	self thread _onDemoBounceThread(text);
+}
+
+_onDemoBounceThread(text)
+{
+	self endon("disconnect");
+	if (self.fpsHistoryText != "")
+	{
+		self addDemoFPSHistory("-");
+		self endon("fpshistory_fpschanged");
+		self endon("fpshistory_clear");
+		wait 0.15;
+		self addDemoFPSHistory(text);
+	}
+}
+
+onDemoLand()
+{
+	self thread _onDemoLandThread();
+}
+
+_onDemoLandThread()
+{
+	self endon("disconnect");
+	self notify("fpshistory_ongroundchange");
+	self endon("fpshistory_ongroundchange");
+	wait 2; // Keep specFPS HUD for 2 seconds after landing
+	self _clearDemoFPSHistory();
+}
+
+onDemoLeaveGround(text)
+{
+	self notify("fpshistory_ongroundchange");
+	clearAndSetDemoFPS(text);
+}
+
+clearAndSetDemoFPS(text)
+{
+	self _clearDemoFPSHistory();
+	self _setDemoFPSHistory(text);
+}
+
+addDemoFPSHistory(text)
+{
+	if(self.fpsHistoryText.size > 0 && self.fpsHistoryText[self.fpsHistoryText.size - 1] == text)
+	{
+		return;
+	}
+	self _setDemoFPSHistory(self.fpsHistoryText + text);
 }

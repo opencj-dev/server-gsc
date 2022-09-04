@@ -3,15 +3,9 @@
 main()
 {
 	if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
-		return;
+		return undefined;
 
-	error = self openCJ\savePosition::canSaveError();
-	if(!error)
-	{
-		self openCJ\savePosition::setSavedPosition();
-		self openCJ\savePosition::printSaveSuccess();
-		self openCJ\statistics::onSavePosition();
-	}
-	else
-		self openCJ\savePosition::printCanSaveError(error);
+	saveNum = self openCJ\savePosition::setSavedPosition();
+	self openCJ\savePosition::printSaveSuccess();
+	return saveNum;
 }

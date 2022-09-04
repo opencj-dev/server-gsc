@@ -23,9 +23,9 @@ main()
 				self openCJ\huds::whileAlive();
 				self openCJ\playerNames::whileAlive();
 				self openCJ\playTime::whileAlive();
-				self openCJ\demos::whileAlive();
 	
 				self openCJ\platformDetect::whileAlive(); //debug file
+				self openCJ\events\eventHandler::whileAlive();
 			}
 		}
 		wait 0.05;

@@ -2,6 +2,7 @@
 
 main(time)
 {
-    self thread openCJ\FPSHistory::onBounced();
+    self openCJ\FPSHistory::onBounced();
+    self openCJ\events\eventHandler::onBounced();
 	self iprintln("You bounced!");
 }

@@ -28,6 +28,24 @@ giveWeapons(giveRPG)
 	self _deleteGrenades();
 }
 
+switchToDemoWeapon(isRPG)
+{
+	if(isRPG)
+	{
+		if(self hasWeapon(level.weapons_rpgs["default"]) && self getCurrentWeapon() != level.weapons_rpgs["default"])
+		{
+			self switchToWeapon(level.weapons_rpgs["default"]);
+		}
+	}
+	else
+	{
+		if(self hasWeapon(level.weapons_loadouts["default"]) && self getCurrentWeapon() != level.weapons_loadouts["default"])
+		{
+			self switchToWeapon(level.weapons_loadouts["default"]);
+		}
+	}
+}
+
 onRunIDCreated()
 {
 	self _deleteGrenades();

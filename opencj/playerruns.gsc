@@ -2,7 +2,6 @@
 
 onPlayerConnect()
 {
-	self openCJ\events\WASDPressed::disableWASDCallback();
 	self.playerRuns_spawnLinker = spawn("script_origin", (0, 0, 0));
 }
 
@@ -41,6 +40,11 @@ getRunInstanceNumber()
 
 resetRunID()
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		self iprintlnbold("Cannot reset run during demo playback");
+		return;
+	}
 	if(!self hasRunID())
 	{
 		self iprintlnbold("Cannot reset run right now");
@@ -62,12 +66,12 @@ printRunIDandInstanceNumber()
 
 onRunFinished(cp)
 {
-	if(self openCJ\playerRuns::isRunFinished())
+	if(self isRunFinished())
 	{
 		return;
 	}
 	self.playerRuns_runFinished = true;
-	if(!self openCJ\playerRuns::hasRunID())
+	if(!self hasRunID())
 	{
 		return;
 	}
@@ -75,9 +79,9 @@ onRunFinished(cp)
 	{
 		return;
 	}
-	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
+	if(self hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
 	{
-		runID = self openCJ\playerRuns::getRunID();
+		runID = self getRunID();
 		cpID = self openCJ\checkpoints::getCheckpointID(cp);
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT runFinished(" + runID + ", " + cpID + ", " + self getRunInstanceNumber() + ")");
 		if(!isDefined(rows[0][0]))
@@ -116,6 +120,8 @@ _createRunID()
 	else
 	{
 		self.playerRuns_runID = int(rows[0][0]);
+		printf("run id: " + self.playerRuns_runID + "\n");
+		self iprintln("run id: " + self.playerRuns_runID);
 		//printf("Adding run instance number++\n");
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
 		if(rows.size && isDefined(rows[0][0]))
@@ -146,10 +152,8 @@ onSpawnPlayer()
 {
 	if(!self.playerRuns_runStarted)
 	{
-		self iprintln("linking to spawn");
 		self.playerRuns_spawnLinker.origin = self.origin;
 		self linkTo(self.playerRuns_spawnLinker);
-		self openCJ\events\WASDPressed::enableWASDCallback();
 	}
 	else
 	{
@@ -159,17 +163,14 @@ onSpawnPlayer()
 
 onSpawnSpectator()
 {
-	self openCJ\events\WASDPressed::disableWASDCallback();
 	self openCJ\playTime::pauseTimer();
 }
 
 startRun()
 {
-	self openCJ\events\WASDPressed::disableWASDCallback();
-	if(self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self.sessionState == "playing" && !self.playerRuns_runStarted)
+	if(self openCJ\login::isLoggedIn() && self hasRunID() && self.sessionState == "playing" && !self.playerRuns_runStarted)
 	{
 		self openCJ\FPS::onRunStarted();
-		self iprintln("unlinking from spawn");
 		self.playerRuns_runStarted = true;
 		self unLink();
 		self openCJ\playTime::startTimer();

@@ -37,6 +37,7 @@ main()
 	openCJ\statistics::onInit();
 	openCJ\playerNames::onInit();
 	openCJ\playerCollision::onInit();
+	openCJ\events\eventHandler::onInit();
 	
 	openCJ\platformDetect::onInit(); //debug file
 

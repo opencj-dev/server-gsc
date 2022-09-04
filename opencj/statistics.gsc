@@ -190,14 +190,15 @@ _drawStatisticsHud(client)
 	client _updateStatistics();
 }
 
-onSavePosition()
+increaseAndGetSaveCount()
 {
 	if(self openCJ\playerRuns::isRunFinished())
 	{
-		return;
+		return -1;
 	}
 
 	self.statistics["curr"]["saveCount"]++;
+	return self.statistics["curr"]["saveCount"];
 }
 
 onLoadPosition()
