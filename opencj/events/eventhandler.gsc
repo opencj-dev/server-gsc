@@ -1,16 +1,5 @@
 #include openCJ\util;
 
-onInit()
-{
-	thread _prepareAllDemos();
-	
-}
-
-_prepareAllDemos()
-{
-	openCJ\mySQL::mysqlAsyncQuery("SELECT prepareAllDemos()");
-}
-
 onBounced()
 {
 	self.eventQueue["bounced"] = true;
