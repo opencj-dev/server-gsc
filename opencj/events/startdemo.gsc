@@ -17,5 +17,6 @@ main()
 	self openCJ\shellShock::onStartDemo();
 	self openCJ\speedOMeter::onStartDemo();
 	self openCJ\playerRuns::onStartDemo();
+	self openCJ\events\eventHandler::onStartDemo();
 	//todo: kill nextframe threads
 }

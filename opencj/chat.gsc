@@ -169,7 +169,7 @@ onPlayerLogin()
 	players = getEntArray("player", "classname");
 	for(i = 0; i < players.size; i++)
 	{
-		if(players[i] openCJ\login::isLoggedIn())
+		if(players[i] openCJ\login::isLoggedIn() && players[i] openCJ\settings::areSettingsLoaded())
 		{
 			if(players[i] isIgnoring(self))
 			{
@@ -330,6 +330,10 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 
 onChatMessage(args)
 {
+	if(!self isPlayerReady())
+	{
+		return;
+	}
 	//say and say_team have identical behavior
 	if(self isMuted())
 	{
@@ -348,7 +352,7 @@ onChatMessage(args)
 	players = getEntArray("player", "classname");
 	for(i = 0; i < players.size; i++)
 	{
-		if(!players[i] openCJ\login::isLoggedIn())
+		if(!players[i] openCJ\login::isLoggedIn() || !players[i] openCJ\settings::areSettingsLoaded())
 		{
 			// Don't direct messages to any non-logged in players
 			continue;
@@ -390,7 +394,7 @@ _onCommandPM(args)
 {
 	// !pm <playerName> <message> [message] [message] ..
 	player = findPlayerByArg(args[0]);
-	if(!isDefined(player) || !player openCJ\login::isLoggedIn() || player isIgnoring(self))
+	if(!isDefined(player) || !player openCJ\login::isLoggedIn() || !player openCJ\settings::areSettingsLoaded() || player isIgnoring(self))
 	{
 		self sendLocalChatMessage("Player " + args[0] + " not found or they are ignoring you", true);
 		return;

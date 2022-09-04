@@ -122,7 +122,7 @@ updateServerEleOverride() // Send allowElevate status to server code
 
 onElevate()
 {
-	if(self.eleOverrideNow || self openCJ\playerRuns::isRunFinished() || self _isEleAllowedThisCheckpoint() || self openCJ\cheating::isCheating())
+	if(self.eleOverrideNow || self openCJ\playerRuns::isRunFinished() || self _isEleAllowedThisCheckpoint() || self openCJ\cheating::isCheating() || self openCJ\demos::isPlayingDemo())
 	{
 		// This elevator is allowed
 		return;

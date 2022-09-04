@@ -2,6 +2,10 @@
 
 onMeleeButton()
 {
+	if(!self isPlayerReady())
+	{
+		return;
+	}
 	if(self.sessionState != "playing")
 	{
 		return;
@@ -18,7 +22,7 @@ onMeleeButton()
 		//save
 		self.buttons_lastUse = undefined;
 		self.buttons_lastMelee = undefined;
-		self openCJ\saveposition::saveNormal();
+		self openCJ\events\eventHandler::onSavePositionRequest();
 	}
 	else
 	{
@@ -28,6 +32,10 @@ onMeleeButton()
 
 onUseButton()
 {
+	if(!self isPlayerReady())
+	{
+		return;
+	}
 	if(self.sessionState != "playing")
 	{
 		return;
@@ -43,7 +51,7 @@ onUseButton()
 		//load
 		self.buttons_lastUse = undefined;
 		self.buttons_lastMelee = undefined;
-		self openCJ\saveposition::loadNormal();
+		self openCJ\events\eventHandler::onLoadPositionRequest(0);
 	}
 	else
 	{
@@ -53,6 +61,10 @@ onUseButton()
 
 onAttackButton()
 {
+	if(!self isPlayerReady())
+	{
+		return;
+	}
 	if(self.sessionState != "playing")
 	{
 		return;
@@ -66,7 +78,7 @@ onAttackButton()
 	if(self useButtonPressed())
 	{
 		//load secondary
-		self openCJ\saveposition::loadSecondary();
+		self openCJ\events\eventHandler::onLoadPositionRequest(1);
 	}
 }
 
@@ -78,6 +90,15 @@ resetButtons()
 
 onJump(time)
 {
+	if(!self isPlayerReady())
+	{
+		return;
+	}
+	if(self.sessionState != "playing")
+	{
+		return;
+	}
+
 	if (self openCJ\demos::isPlayingDemo())
 	{
 		return;

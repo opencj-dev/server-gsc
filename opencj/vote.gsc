@@ -247,6 +247,7 @@ _changeMap(map)
 {
 	iprintlnbold("Switching map to " + map + " in 5 seconds..");
 	wait 5;
+	openCJ\events\eventHandler::onMapChanging();
 	setCvar("sv_maprotation", "map " + map);
 	exitLevel(false);
 }

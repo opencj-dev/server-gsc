@@ -5,6 +5,16 @@ execClientCmd(cmd)
 	self closeMenu();
 }
 
+short2angle(vec)
+{
+	return ((vec[0] * 360 / 65536), (vec[1] * 360 / 65536), (vec[2] * 360 / 65536));
+}
+
+angle2short(vec)
+{
+	return (int((vec[0] * 65536 / 360)) & 65535, int((vec[1] * 65536 / 360)) & 65535, int((vec[2] * 65536 / 360)) & 65535);
+}
+
 isPlayerReady()
 {
 	return self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self openCJ\settings::areSettingsLoaded();

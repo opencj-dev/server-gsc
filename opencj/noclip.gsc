@@ -19,6 +19,11 @@ onRunIDCreated()
 
 noclip(args)
 {
+	if(self openCJ\demos::isPlayingDemo())
+	{
+		self sendLocalChatMessage("Cannot enable noclip during demo playback");
+		return;
+	}
 	wasEverEnabled = self hasNoclip();
 	wasEnabled = self hasNoclip();
 	shouldEnable = false;

@@ -63,6 +63,66 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 	}
 }
 
+showKeyboardDemo(forward, back, left, right, jump, sprint)
+{
+	if(forward)
+	{
+		self.keyboard["forward"].alpha = 1;
+	}
+	else
+	{
+		self.keyboard["forward"].alpha = 0.3;
+	}
+
+	if(back)
+	{
+		self.keyboard["back"].alpha = 1;
+	}
+	else
+	{
+		self.keyboard["back"].alpha = 0.3;
+	}
+
+	if(right)
+	{
+		self.keyboard["right"].alpha = 1;
+	}
+	else
+	{
+		self.keyboard["right"].alpha = 0.3;
+	}
+
+	if(left)
+	{
+		self.keyboard["left"].alpha = 1;
+	}
+	else
+	{
+		self.keyboard["left"].alpha = 0.3;
+	}
+
+	if(jump)
+	{
+		self.keyboard["jump"].alpha = 1;
+	}
+	else
+	{
+		self.keyboard["jump"].alpha = 0.3;
+	}
+
+	if(isDefined(self.keyboard["sprint"]))
+	{
+		if(sprint)
+		{
+			self.keyboard["sprint"].alpha = 1;
+		}
+		else
+		{
+			self.keyboard["sprint"].alpha = 0.3;
+		}
+	}
+}
+
 _showKeyboard(player)
 {
 	if(player forwardButtonPressed())

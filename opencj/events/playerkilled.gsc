@@ -24,6 +24,7 @@ main(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTi
 	self openCJ\onscreenKeyboard::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 	self openCJ\huds::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 	self openCJ\progressBar::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
+	self openCJ\events\eventHandler::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 
 	if(getCvarInt("codversion") != 4)
 	{

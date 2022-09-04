@@ -24,6 +24,7 @@ main()
 	self openCJ\progressBar::onSpawnPlayer();
 	self openCJ\speedoMeter::onSpawnPlayer();
 	self openCJ\FPSHistory::onSpawnPlayer();
+	self openCJ\events\eventHandler::onSpawnPlayer();
 
 	self setSharedSpawnVars();
 	self thread openCJ\events\whileAlive::main();
@@ -64,4 +65,21 @@ _dummy()
 	waittillframeend;
 	if(isDefined(self))
 		self notify("spawned_player");
+}
+
+setDemoSpawnVars(giveRPG)
+{
+	self openCJ\weapons::giveWeapons(giveRPG);
+	self openCJ\shellShock::resetShellShock();
+	
+	self openCJ\playerModels::setPlayerModel();
+
+	if(getCvarInt("codversion") == 2)
+		self setContents(256);
+	else
+	{
+		self setperk("specialty_fastreload");
+		self setPerk("specialty_longersprint");
+	}
+	self jumpClearStateExtended();
 }

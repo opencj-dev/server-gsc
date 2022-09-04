@@ -72,7 +72,9 @@ _getRowsAndFree(result)
 {
 	rows = [];
 	if(!isDefined(result) || result == 0)
+	{
 		return rows;
+	}
 	rowcount = mysql_num_rows(result);
 	for(i = 0; i < rowcount; i++)
 	{

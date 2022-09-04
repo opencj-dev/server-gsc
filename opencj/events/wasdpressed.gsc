@@ -1,17 +1,9 @@
 #include openCJ\util;
 
-main()
+main(key)
 {
-	if(self.WASDCallback && !self openCJ\demos::isPlayingDemo())
+	if(!self openCJ\playerRuns::hasRunStarted() && !self openCJ\demos::isPlayingDemo())
+	{
 		self openCJ\playerRuns::startRun();
-}
-
-enableWASDCallback()
-{
-	self.WASDCallback = true;
-}
-
-disableWASDCallback()
-{
-	self.WASDCallback = false;
+	}
 }

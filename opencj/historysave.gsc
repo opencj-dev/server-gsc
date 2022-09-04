@@ -32,7 +32,7 @@ _historyLoad(runID)
 	if(isDefined(rows[0][0]))
 	{
 		instanceNumber = int(rows[0][0]);
-		saves = self _loadSavesFromDatabase(runID, instanceNumber);
+		self _loadSavesFromDatabase(runID, instanceNumber);
 	}
 	else
 	{
@@ -44,7 +44,7 @@ _loadSavesFromDatabase(runID, instanceNumber)
 {
 	self endon("disconnect");
 	rowsRun = self openCJ\mySQL::mysqlAsyncQuery("SELECT timePlayed, saveCount, loadCount, RPGShots, nadeThrows FROM playerRuns WHERE runID = " + runID);
-	rowsSaves = self openCJ\mySQL::mysqlAsyncQuery("SELECT x, y, z, alpha, beta, gamma, RPGJumps, nadeJumps, doubleRPGs, checkpointID, fps, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 5");
+	rowsSaves = self openCJ\mySQL::mysqlAsyncQuery("SELECT x, y, z, alpha, beta, gamma, RPGJumps, nadeJumps, doubleRPGs, checkpointID, fps, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 50");
 	self openCJ\playerRuns::setRunIDAndInstanceNumber(runID, instanceNumber);
 	self openCJ\events\runIDCreated::main();
 	self openCJ\playerRuns::startRun();
@@ -64,7 +64,7 @@ _loadSavesFromDatabase(runID, instanceNumber)
 		entNum = _getEntNum(rowsSaves[i][12], intOrUndefined(rowsSaves[i][13]));
 		checkpointID = intOrUndefined(rowsSaves[i][9]);
 		fps = self openCJ\fps::getCurrentFPS(); //TODO: properly store and retrieve from db.
-		self savePosition_save((int(rowsSaves[i][0]), int(rowsSaves[i][1]), int(rowsSaves[i][2])), (int(rowsSaves[i][3]), int(rowsSaves[i][4]), int(rowsSaves[i][5])), entNum, int(rowsSaves[i][6]), int(rowsSaves[i][7]), int(rowsSaves[i][8]), checkpointID, int(rowsSaves[i][10]), int(rowsSaves[i][11]));
+		self savePosition_save((int(rowsSaves[i][0]), int(rowsSaves[i][1]), int(rowsSaves[i][2])), (int(rowsSaves[i][3]), int(rowsSaves[i][4]), int(rowsSaves[i][5])), entNum, int(rowsSaves[i][6]), int(rowsSaves[i][7]), int(rowsSaves[i][8]), checkpointID, int(rowsSaves[i][10]), int(rowsSaves[i][11]), int(rowsRun[0][1]) - i);
 	}
 	self openCJ\playerRuns::printRunIDandInstanceNumber();
 }

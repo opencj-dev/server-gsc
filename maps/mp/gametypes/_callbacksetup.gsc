@@ -90,22 +90,22 @@ CodeCallback_SpectatorClientChanged(newClient)
 
 CodeCallback_MoveForward()
 {
-	self openCJ\events\WASDPressed::main();
+	self openCJ\events\WASDPressed::main("w");
 }
 
 CodeCallback_MoveRight()
 {
-	self openCJ\events\WASDPressed::main();
+	self openCJ\events\WASDPressed::main("d");
 }
 
 CodeCallback_MoveBackward()
 {
-	self openCJ\events\WASDPressed::main();
+	self openCJ\events\WASDPressed::main("s");
 }
 
 CodeCallback_MoveLeft()
 {
-	self openCJ\events\WASDPressed::main();
+	self openCJ\events\WASDPressed::main("a");
 }
 
 CodeCallback_FPSChange(newFrameTime)

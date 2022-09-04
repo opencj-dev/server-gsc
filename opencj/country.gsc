@@ -14,7 +14,10 @@ _countryQuery()
 {
 	self endon("disconnect");
 	printf(self.name + " getting country\n");
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT getCountry(INET_ATON('" + openCJ\mySQL::escapeString(self getIP()) + "'))");
+	query = "SELECT getCountry(INET_ATON('" + openCJ\mySQL::escapeString(self getIP()) + "'))";
+	//printf("query: " + query + "\n");
+	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+	//printf("rows size: " + rows.size + "\n");
 	if(rows.size && isDefined(rows[0][0]))
 	{
 		self.country = getSubStr(rows[0][0], 0, 2);

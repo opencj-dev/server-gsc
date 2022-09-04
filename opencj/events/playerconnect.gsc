@@ -9,7 +9,6 @@ main()
 	self openCJ\checkpointPointers::onPlayerConnect();
 	self openCJ\showRecords::onPlayerConnect();
 	self openCJ\country::onPlayerConnect();
-	self openCJ\events\WASDPressed::disableWASDCallback();
 	self openCJ\noclip::onPlayerConnect();
 	self openCJ\onscreenKeyboard::onPlayerConnect();
 	self openCJ\huds::onPlayerConnect();
@@ -23,6 +22,7 @@ main()
 	self openCJ\chat::onPlayerConnect();
 	self openCJ\playerCollision::onPlayerConnect();
 	self openCJ\playTime::onPlayerConnect();
+	self openCJ\events\eventHandler::onConnect();
 
 	self player_onconnect();
 
