@@ -192,7 +192,7 @@ isHaxFPS(fps)
 	switch(fps)
 	{
 		case 43:
-			return (getCvarInt("codversion") == 4);
+			return (getCodVersion() == 4);
 		case 76:
 		case 125:
 		case 250:

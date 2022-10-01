@@ -2,7 +2,7 @@
 
 onInit()
 {
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		_removePickups();
 		_removeTurrets();

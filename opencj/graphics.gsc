@@ -19,7 +19,7 @@ _configureMinimap()
 onInit()
 {
 	// If map doesn't have a custom minimap, then we set a default
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		_configureMinimap();
 	}
@@ -33,7 +33,7 @@ onInit()
 
 onPlayerConnected()
 {
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		self setClientCvar("compassMaxRange", level.minimapMaxRange);
 	}

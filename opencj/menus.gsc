@@ -8,7 +8,7 @@ onInit()
 	precacheMenu(level.menu["ingame"]);
 	precacheMenu(level.menu["settings"]);
 	precacheMenu(level.menu["clientcmd"]);
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 	{
 		level.menu["login"] = "opencj_fps_userinfo";
 		precacheMenu(level.menu["login"]);

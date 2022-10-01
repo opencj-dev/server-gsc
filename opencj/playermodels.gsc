@@ -5,7 +5,7 @@ onInit()
 	level.playerModels_models = [];
 	level.playerModels_deadBodies = [];
 
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 	{
 		_registerModel("default", "xmodel/playerbody_american_normandy01", "xmodel/viewmodel_hands_cloth");
 		_registerAttach("default", "xmodel/head_us_ranger_braeburn", "");

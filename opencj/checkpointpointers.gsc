@@ -18,7 +18,7 @@ onInit()
 	for (i = 0; i < keys.size; i++)
 	{
 		level.checkpointShadersObjective[keys[i]] = level.checkpointShaders[keys[i]];
-		if (getCvarInt("codversion") == 4)
+		if (getCodVersion() == 4)
 		{
 			level.checkpointShadersObjective[keys[i]] += "_obj";
 		}
@@ -99,7 +99,7 @@ showCheckpointPointers()
 		if(i < 16)
 		{
 			self.checkpointPointers_objectives[i] = true;
-			if(getCvarInt("codversion") == 2)
+			if(getCodVersion() == 2)
 			{
 				self objective_player_add(i, "current", checkpoints[i].origin, shader_objective); 
 			}

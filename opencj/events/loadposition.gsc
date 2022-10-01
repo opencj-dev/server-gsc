@@ -9,7 +9,7 @@ main(backwardsCount)
 
 	save = self openCJ\savePosition::getSavedPosition(backwardsCount);
 
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		giveRPG = self openCJ\settings::getSetting("rpgonload") || openCJ\weapons::isRPG(self getCurrentWeapon());
 	}

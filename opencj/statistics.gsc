@@ -9,7 +9,7 @@ onInit()
 	underlyingCmd = openCJ\settings::addSettingString("fpshaxstring", 1, 20, "FPS[H]:", "Set the hax fps string used in the statistics hud\nUsage: !fpshaxstring [newstring]");
 	underlyingCmd = openCJ\settings::addSettingString("fpsmixstring", 1, 20, "FPS[M]:", "Set the mix fps string used in the statistics hud\nUsage: !fpsmixstring [newstring]");
 	underlyingCmd = openCJ\settings::addSettingString("fpspurestring", 1, 20, "FPS:", "Set the pure fps string used in the statistics hud\nUsage: !fpspurestring [newstring]");
-	if (getCvarInt("codversion") == 2)
+	if (getCodVersion() == 2)
 	{
 		underlyingCmd = openCJ\settings::addSettingString("nadejumpsstring", 1, 20, "Nadejumps:", "Set the nadejumps string used in the statistics hud\nUsage: !nadejumpsstring [newstring]");
 		underlyingCmd = openCJ\settings::addSettingString("nadethrowsstring", 1, 20, "Nadethrows:", "Set the nadethrows string used in the statistics hud\nUsage: !nadethrowsstring [newstring]");
@@ -153,7 +153,7 @@ _drawStatisticsHud(client)
 	newstring = self openCJ\settings::getSetting("timestring") + " " + formatTimeString(client openCJ\playTime::getTimePlayed(), true) + "\n";
 	newstring += self openCJ\settings::getSetting("savesstring") + " " + client.statistics["curr"]["saveCount"] + "\n";
 	newstring += self openCJ\settings::getSetting("loadsstring") + " " + client.statistics["curr"]["loadCount"] + "\n";
-	if (getCvarInt("codversion") == 2)
+	if (getCodVersion() == 2)
 	{
 		newstring += self openCJ\settings::getSetting("jumpsstring") + " " + client.statistics["curr"]["jumpCount"] + "\n";
 		newstring += self openCJ\settings::getSetting("nadejumpsstring") + " " + client.statistics["curr"]["nadeJumps"] + "\n";

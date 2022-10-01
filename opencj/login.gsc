@@ -3,7 +3,7 @@
 onPlayerConnected()
 {
 	self thread _tryLogin();
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		self openCJ\menus::openFPSUserinfoMenu();
 	}

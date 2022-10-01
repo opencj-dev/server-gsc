@@ -6,7 +6,7 @@ onInit()
 	level.weapons_grenades = [];
 	level.weapons_rpgs = [];
 
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 	{
 		_registerLoadout("default", "tt30_mp");
 		_registerGrenade("default", "frag_grenade_american_mp");

@@ -46,7 +46,7 @@ setSharedSpawnVars(giveRPG)
 	self openCJ\playtime::setAFK(false);
 	self openCJ\checkpointPointers::showCheckpointPointers();
 
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 		self setContents(256);
 	else
 	{
@@ -74,7 +74,7 @@ setDemoSpawnVars(giveRPG)
 	
 	self openCJ\playerModels::setPlayerModel();
 
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 		self setContents(256);
 	else
 	{

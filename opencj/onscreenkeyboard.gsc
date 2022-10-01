@@ -12,7 +12,7 @@ onInit()
 	precacheShader(level.onscreenKeyboardShader["right"]);
 	precacheShader(level.onscreenKeyboardShader["left"]);
 	precacheShader(level.onscreenKeyboardShader["jump"]);
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		level.onscreenKeyboardShader["sprint"] = "opencj_key_sprint";
 		precacheShader(level.onscreenKeyboardShader["sprint"]);
@@ -237,7 +237,7 @@ _createKeyboard()
 	self.keyboard["jump"].alpha = 0;
 	self.keyboard["jump"].archived = false;
 
-	if(getCvarInt("codversion") == 4)
+	if(getCodVersion() == 4)
 	{
 		self.keyboard["sprint"] = newClientHudElem(self);
 		self.keyboard["sprint"].horzAlign = "center_safearea";
