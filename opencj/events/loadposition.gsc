@@ -36,7 +36,7 @@ main(backwardsCount)
 	self openCJ\statistics::onLoadPosition();
 	self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID);
 	self openCJ\checkpoints::onLoadPosition();
-	self openCJ\speedoMeter::onLoadPosition();
+	self openCJ\huds\hudSpeedometer::onLoadPosition();
 
 
 	//set speed mode vars here
@@ -59,6 +59,6 @@ main(backwardsCount)
 	self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 	self openCJ\savePosition::printLoadSuccess();
 	
-	self openCJ\FPSHistory::onLoaded();
+	self openCJ\huds\hudFpsHistory::onLoaded();
 	return save.saveNum;
 }

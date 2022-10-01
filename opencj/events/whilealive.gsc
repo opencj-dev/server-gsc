@@ -15,12 +15,13 @@ main()
 			}
 			else
 			{
-				self openCJ\statistics::whileAlive();
 				self openCJ\checkpoints::whileAlive();
 				self openCJ\showRecords::whileAlive();
 				self openCJ\noclip::whileAlive();
-				self openCJ\onscreenKeyboard::whileAlive();
-				self openCJ\huds::whileAlive();
+				self openCJ\statistics::whileAlive();
+				self openCJ\huds\hudStatistics::whileAlive();
+				self openCJ\huds\hudOnScreenKeyboard::whileAlive();
+				self openCJ\huds\hudJumpSlowdown::whileAlive();
 				self openCJ\playerNames::whileAlive();
 				self openCJ\playTime::whileAlive();
 	

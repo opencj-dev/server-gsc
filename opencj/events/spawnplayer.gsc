@@ -19,11 +19,13 @@ main()
 	self openCJ\playerRuns::onSpawnPlayer();
 	self openCJ\checkpoints::onSpawnPlayer();
 	self openCJ\showRecords::onSpawnPlayer();
-	self openCJ\onscreenKeyboard::onSpawnPlayer();
-	self openCJ\huds::onSpawnPlayer();
-	self openCJ\progressBar::onSpawnPlayer();
-	self openCJ\speedoMeter::onSpawnPlayer();
-	self openCJ\FPSHistory::onSpawnPlayer();
+	self openCJ\huds\hudOnScreenKeyboard::onSpawnPlayer();
+	self openCJ\huds\hudJumpSlowdown::onSpawnPlayer();
+	self openCJ\huds\hudProgressBar::onSpawnPlayer();
+	self openCJ\huds\hudSpeedometer::onSpawnPlayer();
+	self openCJ\huds\hudGrenadeTimers::onSpawnPlayer();
+	self openCJ\huds\hudFpsHistory::onSpawnPlayer();
+	self openCJ\huds\hudFps::onSpawnPlayer();
 	self openCJ\events\eventHandler::onSpawnPlayer();
 
 	self setSharedSpawnVars();
@@ -38,7 +40,7 @@ setSharedSpawnVars(giveRPG)
 	self openCJ\healthRegen::resetHealthRegen();
 	self openCJ\weapons::giveWeapons(giveRPG);
 	self openCJ\shellShock::resetShellShock();
-	self openCJ\grenadeTimers::removeNadeTimers();
+	self openCJ\huds\hudGrenadeTimers::removeNadeTimers();
 	self openCJ\buttonPress::resetButtons();
 	
 	self openCJ\playerModels::setPlayerModel();
@@ -57,7 +59,7 @@ setSharedSpawnVars(giveRPG)
 	self openCJ\noclip::disableNoclip();
 	self openCJ\speedMode::applySpeedMode();
 	self openCJ\elevate::updateServerEleOverride();
-	self openCJ\FPSHistory::hideAndClearFPSHistory();
+	self openCJ\huds\hudFpsHistory::hideAndClearFPSHistory();
 }
 
 _dummy()

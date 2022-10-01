@@ -315,9 +315,9 @@ whilePlayingDemo()
 		self linkto(self.demoLinker, "", (0, 0, 0), (0, 0, 0));
 		self setPlayerAngles(currFrame.angles);
 		self openCJ\events\spawnPlayer::setDemoSpawnVars(currFrame.weapon == "rpg");
-		self openCJ\fpsHistory::clearAndSetDemoFPS(openCJ\fpsHistory::getShortFPS(currFrame.FPS));
+		self openCJ\huds\hudFpsHistory::clearAndSetDemoFPS(openCJ\fps::getShortFPS(currFrame.FPS));
 	}
-	self openCJ\onScreenKeyboard::showKeyboardDemo(currFrame.forward, currFrame.back, currFrame.left, currFrame.right, currFrame.jump, currFrame.sprint);
+	self openCJ\huds\hudOnScreenKeyboard::showKeyboardDemo(currFrame.forward, currFrame.back, currFrame.left, currFrame.right, currFrame.jump, currFrame.sprint);
 	if(currFrame.stance != self.demoPreviousStance)
 	{
 		//self iprintlnbold("stance changed to " + currFrame.stance);
@@ -336,29 +336,29 @@ whilePlayingDemo()
 	{
 		if(!currFrame.onGround)
 		{
-			self openCJ\fpsHistory::onDemoLeaveGround(openCJ\fpsHistory::getShortFPS(currFrame.FPS));
+			self openCJ\huds\hudFpsHistory::onDemoLeaveGround(openCJ\fps::getShortFPS(currFrame.FPS));
 		}
 		else
 		{
-			self openCJ\fpsHistory::onDemoLand();
+			self openCJ\huds\hudFpsHistory::onDemoLand();
 		}
 		self.demoPreviousOnGround = currFrame.onGround;
 	}
 
 	if(currFrame.bounce && !isInterpolatedFrame)
 	{
-		self openCJ\fpsHistory::onDemoBounce(openCJ\fpsHistory::getShortFPS(currFrame.FPS));
+		self openCJ\huds\hudFpsHistory::onDemoBounce(openCJ\fps::getShortFPS(currFrame.FPS));
 	}
 
 	if(!isDefined(self.demoPreviousFPS) || self.demoPreviousFPS != currFrame.FPS)
 	{
 		if(currFrame.onGround)
 		{
-			self openCJ\fpsHistory::clearAndSetDemoFPS(openCJ\fpsHistory::getShortFPS(currFrame.FPS));
+			self openCJ\huds\hudFpsHistory::clearAndSetDemoFPS(openCJ\fps::getShortFPS(currFrame.FPS));
 		}
 		else
 		{
-			self openCJ\fpsHistory::addDemoFPSHistory(openCJ\fpsHistory::getShortFPS(currFrame.FPS));
+			self openCJ\huds\hudFpsHistory::addDemoFPSHistory(openCJ\fps::getShortFPS(currFrame.FPS));
 		}
 		self.demoPreviousFPS = currFrame.FPS;
 	}

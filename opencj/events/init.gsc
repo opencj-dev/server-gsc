@@ -24,17 +24,18 @@ main()
 	openCJ\historySave::onInit();
 	openCJ\demos::onInit();
 	openCJ\chat::onInit();
-	openCJ\onscreenKeyboard::onInit();
-	openCJ\progressBar::onInit();
 	openCJ\elevate::onInit();
-	openCJ\infiniteHuds::onInit();
 	openCJ\showRecords::onInit();
-	openCJ\stockPatch::onInit();
-	openCJ\fpsHistory::onInit();
+	openCJ\mapPatches::onInit();
+	openCJ\huds\infiniteHuds::onInit();
+	openCJ\huds\hudFps::onInit();
+	openCJ\huds\hudFpsHistory::onInit();
+	openCJ\huds\hudStatistics::onInit();
+	openCJ\huds\hudOnScreenKeyboard::onInit();
+	openCJ\huds\hudProgressBar::onInit();
 	openCJ\fps::onInit();
 	openCJ\vote::onInit();
 	openCJ\graphics::onInit();
-	openCJ\statistics::onInit();
 	openCJ\playerNames::onInit();
 	openCJ\playerCollision::onInit();
 	
