@@ -26,7 +26,7 @@ main(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTi
 	self openCJ\progressBar::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 	self openCJ\events\eventHandler::onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration);
 
-	if(getCvarInt("codversion") != 4)
+	if(getCodVersion() != 4)
 	{
 		self openCJ\playTime::addTimeUntil(getTime() + 5000);
 	}

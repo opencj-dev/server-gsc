@@ -31,7 +31,7 @@ main(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hit
 	{
 		if(self openCJ\events\loadPosition::main(0))
 		{
-			if (getCvarInt("codversion") == 2)
+			if (getCodVersion() == 2)
 			{
 				self openCJ\playTime::addTimeUntil(getTime() + 5000);
 			}

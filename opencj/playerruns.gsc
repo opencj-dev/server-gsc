@@ -7,7 +7,7 @@ onPlayerConnect()
 
 hasJumpSlowdown()
 {
-	return getCvarInt("codversion") == 2; //placeholder
+	return getCodVersion() == 2; //placeholder
 }
 
 onPlayerLogin()

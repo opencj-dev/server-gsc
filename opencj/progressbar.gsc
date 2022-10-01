@@ -49,7 +49,7 @@ _createProgressBar()
 	self.progressBar.alignX = "left";
 	self.progressBar.alignY = "bottom";
 	self.progressBar.x = -20;
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 	{
 		self.progressBar.y = 485;
 	}

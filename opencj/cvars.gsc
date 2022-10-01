@@ -3,7 +3,7 @@
 onInit()
 {
 	setCvar("sv_floodProtect", 0);
-	if(getCvarInt("codversion") == 2)
+	if(getCodVersion() == 2)
 	{
 		setCvar("bg_falldamageminheight", 479);
 		setCvar("bg_falldamagemaxheight", 480);

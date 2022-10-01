@@ -387,7 +387,7 @@ isIgnoring(player)
 
 getServerName()
 {
-	return "cod" + getCvarInt("codversion") + " " + getCvarInt("net_port"); //placeholder
+	return "cod" + getCodVersion() + " " + getCvarInt("net_port"); //placeholder
 }
 
 _onCommandPM(args)

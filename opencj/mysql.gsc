@@ -7,7 +7,7 @@ onInit()
 	level.database["user"] = getCvar("db_user");;
 	level.database["pass"] = getCvar("db_pass");
 	level.database["port"] = int(getCvar("db_port"));
-	level.database["name"] = getCvar("db_base") + getCvar("codversion");
+	level.database["name"] = getCvar("db_base") + getCodVersion();
 
 	level.mySQL = mysql_reuse_connection();
 	if(!isDefined(level.mySQL))
