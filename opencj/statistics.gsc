@@ -1,60 +1,12 @@
 #include openCJ\util;
 
-onInit()
-{
-	underlyingCmd = openCJ\settings::addSettingString("timestring", 1, 20, "Time:", "Set the time string used in the statistics hud\nUsage: !timestring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("savesstring", 1, 20, "Saves:", "Set the saves string used in the statistics hud\nUsage: !savesstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("loadsstring", 1, 20, "Loads:", "Set the loads string used in the statistics hud\nUsage: !loadsstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("jumpsstring", 1, 20, "Jumps:", "Set the jumps string used in the statistics hud\nUsage: !jumpsstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("fpshaxstring", 1, 20, "FPS[H]:", "Set the hax fps string used in the statistics hud\nUsage: !fpshaxstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("fpsmixstring", 1, 20, "FPS[M]:", "Set the mix fps string used in the statistics hud\nUsage: !fpsmixstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("fpspurestring", 1, 20, "FPS:", "Set the pure fps string used in the statistics hud\nUsage: !fpspurestring [newstring]");
-	if (getCodVersion() == 2)
-	{
-		underlyingCmd = openCJ\settings::addSettingString("nadejumpsstring", 1, 20, "Nadejumps:", "Set the nadejumps string used in the statistics hud\nUsage: !nadejumpsstring [newstring]");
-		underlyingCmd = openCJ\settings::addSettingString("nadethrowsstring", 1, 20, "Nadethrows:", "Set the nadethrows string used in the statistics hud\nUsage: !nadethrowsstring [newstring]");
-	}
-	else
-	{
-		underlyingCmd = openCJ\settings::addSettingString("rpgjumpsstring", 1, 20, "RPG Jumps:", "Set the RPGJumps string used in the statistics hud\nUsage: !rpgjumpsstring [newstring]");
-		underlyingCmd = openCJ\settings::addSettingString("rpgshotsstring", 1, 20, "RPG Shots:", "Set the RPGShots string used in the statistics hud\nUsage: !rpgshotsstring [newstring]");
-		underlyingCmd = openCJ\settings::addSettingString("doublerpgsstring", 1, 20, "Double RPGs:", "Set the double RPGs string used in the statistics hud\nUsage: !doublerpgsstring [newstring]");
-	}
-}
-
-onStartDemo()
-{
-	specs = self getSpectatorList(true);
-	for(i = 0; i < specs.size; i++)
-	{
-		specs[i] _clearStatisticsHud(false);
-	}
-}
+// Event functions
 
 onPlayerConnect()
 {
 	self.statistics = [];
 	self.statistics["curr"] = [];
 	self.statistics["prev"] = [];
-
-	self _clearStatisticsHud(true);
-}
-
-onSpawnSpectator()
-{
-	self _clearStatisticsHud(false);
-}
-
-onSpectatorClientChanged(newClient)
-{
-	if(!isDefined(newClient) || newClient openCJ\demos::isPlayingDemo())
-	{
-		self _clearStatisticsHud(false);
-	}
-	else
-	{
-		self _drawStatisticsHUD(newClient);
-	}
 }
 
 onRunIDCreated()
@@ -71,7 +23,7 @@ onRunIDCreated()
 	self.statistics["curr"]["lastRPGFiredTime"] = undefined;
 	self.statistics["curr"]["lastJumpTime"] = undefined;
 
-	_updateStatistics();
+	self updateStatistics();
 }
 
 whileAlive()
@@ -96,98 +48,6 @@ whileAlive()
 	{
 		self.statistics["curr"]["fpsMode"] = "125";
 	}
-
-	// Draw statistics HUD for ourselves
-	self _drawStatisticsHud(self);
-	
-	// And for our spectator friends
-	specs = self getSpectatorList(false);
-	for(i = 0; i < specs.size; i++)
-	{
-		specs[i] _drawStatisticsHud(self);
-	}
-}
-
-_haveStatisticsChanged()
-{
-	keys = getArrayKeys(self.statistics["curr"]);
-	for(i = 0; i < keys.size; i++)
-	{
-		if(!isDefined(self.statistics["prev"][keys[i]]) || (self.statistics["curr"][keys[i]] != self.statistics["prev"][keys[i]]))
-		{
-			return true;
-		}
-	}
-	
-	return false;
-}
-
-_updateStatistics()
-{
-	keys = getArrayKeys(self.statistics["curr"]);
-	for(i = 0; i < keys.size; i++)
-	{
-		self.statistics["prev"][keys[i]] = self.statistics["curr"][keys[i]];
-	}
-}
-
-_clearStatisticsHud(force)
-{
-	if(force || (self.statistics["lastString"] != ""))
-	{
-		self.statistics["lastString"] = "";
-		self setClientCvar("openCJ_statistics", "");
-	}
-}
-
-_drawStatisticsHud(client)
-{
-	// client -> the owner of the statistics
-	// self -> to whom the statistics are being displayed
-
-	if(!client _haveStatisticsChanged())
-	{
-		return;
-	}
-
-	newstring = self openCJ\settings::getSetting("timestring") + " " + formatTimeString(client openCJ\playTime::getTimePlayed(), true) + "\n";
-	newstring += self openCJ\settings::getSetting("savesstring") + " " + client.statistics["curr"]["saveCount"] + "\n";
-	newstring += self openCJ\settings::getSetting("loadsstring") + " " + client.statistics["curr"]["loadCount"] + "\n";
-	if (getCodVersion() == 2)
-	{
-		newstring += self openCJ\settings::getSetting("jumpsstring") + " " + client.statistics["curr"]["jumpCount"] + "\n";
-		newstring += self openCJ\settings::getSetting("nadejumpsstring") + " " + client.statistics["curr"]["nadeJumps"] + "\n";
-		newstring += self openCJ\settings::getSetting("nadethrowsstring") + " " + client.statistics["curr"]["nadeThrows"] + "\n";
-	}
-	else
-	{
-		newstring += self openCJ\settings::getSetting("rpgjumpsstring") + " " + client.statistics["curr"]["RPGJumps"] + "\n";
-		newstring += self openCJ\settings::getSetting("rpgshotsstring") + " " + client.statistics["curr"]["RPGShots"] + "\n";
-		newstring += self openCJ\settings::getSetting("doublerpgsstring") + " " + client.statistics["curr"]["doubleRPGs"] + "\n";
-	}
-	if(client openCJ\fps::hasUsedHaxFPS())
-	{
-		newstring += self openCJ\settings::getSetting("fpshaxstring");
-	}
-	else if(client openCJ\fps::hasUsedMixFPS())
-	{
-		newstring += self openCJ\settings::getSetting("fpsmixstring");
-	}
-	else
-	{
-		newstring += self openCJ\settings::getSetting("fpspurestring");
-	}
-	newstring += client.statistics["curr"]["fps"] + "\n";
-	
-	route = openCJ\checkpoints::getEnderName(client openCJ\checkpoints::getCheckpoint());
-	if(isDefined(route))
-	{
-		newstring += "Route: " + route + "\n";
-	}
-
-	self setClientCvar("openCJ_statistics", newstring);
-	self.statistics["lastString"] = newstring;
-	client _updateStatistics();
 }
 
 increaseAndGetSaveCount()
@@ -269,6 +129,38 @@ onRPGFired(rpg, name)
 		self.statistics["curr"]["RPGJumps"]++;
 		self.statistics["curr"]["lastRPGFiredTime"] = getTime();
 	}
+}
+
+// Logic functions
+
+haveStatisticsChanged()
+{
+	keys = getArrayKeys(self.statistics["curr"]);
+	for(i = 0; i < keys.size; i++)
+	{
+		if(!isDefined(self.statistics["prev"][keys[i]]) || (self.statistics["curr"][keys[i]] != self.statistics["prev"][keys[i]]))
+		{
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+updateStatistics()
+{
+	keys = getArrayKeys(self.statistics["curr"]);
+	for(i = 0; i < keys.size; i++)
+	{
+		self.statistics["prev"][keys[i]] = self.statistics["curr"][keys[i]];
+	}
+}
+
+// Getters/setters
+
+getFPSMode()
+{
+	return self.statistics["curr"]["fpsMode"];
 }
 
 getJumpCount()

@@ -2,8 +2,9 @@
 
 main(newClient)
 {
-	self openCJ\statistics::onSpectatorClientChanged(newClient);
 	self openCJ\showRecords::onSpectatorClientChanged(newClient);
-	self openCJ\onscreenKeyboard::onSpectatorClientChanged(newClient);
-	self openCJ\FPSHistory::onSpectatorClientChanged(newClient);
+	self openCJ\huds\hudStatistics::onSpectatorClientChanged(newClient);
+	self openCJ\huds\hudOnScreenKeyboard::onSpectatorClientChanged(newClient);
+	self openCJ\huds\hudFpsHistory::onSpectatorClientChanged(newClient);
+	self openCJ\huds\hudFps::onSpectatorClientChanged(newClient);
 }

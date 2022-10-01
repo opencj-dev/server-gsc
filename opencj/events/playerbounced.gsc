@@ -2,7 +2,7 @@
 
 main(time)
 {
-    self openCJ\FPSHistory::onBounced();
+    self openCJ\huds\hudFpsHistory::onBounced();
     self openCJ\events\eventHandler::onBounced();
-	self iprintln("You bounced!");
+	self iprintln("Bounce flag was reset");
 }

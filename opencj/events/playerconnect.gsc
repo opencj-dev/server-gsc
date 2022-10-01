@@ -3,20 +3,24 @@
 main()
 {
 	self openCJ\settings::onPlayerConnect();
-	self openCJ\grenadeTimers::onPlayerConnect();
-	self openCJ\statistics::onPlayerConnect();
+	self openCJ\statistics::onPlayerConnect(); // Needs to be before hudStatistics
 	self openCJ\playerRuns::onPlayerConnect();
 	self openCJ\checkpointPointers::onPlayerConnect();
 	self openCJ\showRecords::onPlayerConnect();
 	self openCJ\country::onPlayerConnect();
 	self openCJ\noclip::onPlayerConnect();
-	self openCJ\onscreenKeyboard::onPlayerConnect();
-	self openCJ\huds::onPlayerConnect();
-	self openCJ\progressBar::onPlayerConnect();
-	self openCJ\FPSHistory::onPlayerConnect();
+	self openCJ\huds\base::onPlayerConnect();
+	self openCJ\huds\hudStatistics::onPlayerConnect(); // Needs to be after statistics
+	self openCJ\huds\hudOnScreenKeyboard::onPlayerConnect();
+	self openCJ\huds\hudGrenadeTimers::onPlayerConnect();
+	self openCJ\huds\hudFps::onPlayerConnect();
+	self openCJ\huds\hudFpsHistory::onPlayerConnect();
+	self openCJ\huds\hudJumpSlowdown::onPlayerConnect();
+	self openCJ\huds\hudSpeedometer::onPlayerConnect();
+	self openCJ\huds\hudProgressBar::onPlayerConnect();
+	self openCJ\huds\hudSpeedometer::onPlayerConnect();
 	self openCJ\events\onGroundChanged::onPlayerConnect();
-	self openCJ\stockPatch::onPlayerConnect();
-	self openCJ\speedoMeter::onPlayerConnect();
+	self openCJ\mapPatches::onPlayerConnect();
 	self openCJ\demos::onPlayerConnect();
 	self openCJ\playerNames::onPlayerConnect();
 	self openCJ\chat::onPlayerConnect();

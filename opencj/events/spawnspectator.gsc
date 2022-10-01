@@ -17,16 +17,16 @@ main()
 
 	self openCJ\shellShock::resetShellShock();
 	self openCJ\healthRegen::onSpawnSpectator();
-	self openCJ\statistics::onSpawnSpectator();
 	self openCJ\playerRuns::onSpawnSpectator();
 	self openCJ\showRecords::onSpawnSpectator();
 	self openCJ\checkpointPointers::onSpawnSpectator();
 	self openCJ\noclip::disableNoclip();
-	self openCJ\onscreenKeyboard::onSpawnSpectator();
-	self openCJ\huds::onSpawnSpectator();
-	self openCJ\progressBar::onSpawnSpectator();
-	self openCJ\speedoMeter::onSpawnSpectator();
-	self openCJ\FPSHistory::onSpawnSpectator();
+	self openCJ\huds\hudProgressBar::onSpawnSpectator();
+	self openCJ\huds\hudOnScreenKeyboard::onSpawnSpectator();
+	self openCJ\huds\hudJumpSlowdown::onSpawnSpectator();
+	self openCJ\huds\hudSpeedometer::onSpawnSpectator();
+	self openCJ\huds\hudFpsHistory::onSpawnSpectator();
+	self openCJ\huds\hudStatistics::onSpawnSpectator();
 	self openCJ\events\eventHandler::onSpawnSpectator();
 
 	self stopFollowingMe();

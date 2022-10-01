@@ -122,7 +122,8 @@ hasUsedMixFPS()
 
 _fpsChange(newFPS)
 {
-	self openCJ\fpsHistory::onFPSChanged(newFPS);
+	self openCJ\huds\hudFpsHistory::onFPSChanged(newFPS);
+	self openCJ\huds\hudFps::onFPSChanged(newFPS);
 }
 
 onRunStarted()
@@ -185,6 +186,31 @@ getCurrentFPS()
 		return 0;
 	}
 	return self.lastFPS;
+}
+
+getShortFPS(fps)
+{
+	switch (fps)
+	{
+		case 125:
+			return "1";
+		case 142: 
+			return "4";
+		case 167:
+			return "6";
+		case 200:
+			return "0";
+		case 250:
+			return"2";
+		case 333:
+			return "3";
+		case 500:
+			return "5";
+		case 1000:
+			return "K";
+		default:
+			return "?";
+	}
 }
 
 isHaxFPS(fps)

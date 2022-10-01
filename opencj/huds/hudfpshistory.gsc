@@ -5,25 +5,19 @@
 
 onInit()
 {
-	openCJ\infiniteHuds::initInfiniteHud("fpshistory");
+	openCJ\huds\infiniteHuds::initInfiniteHud("fpshistory");
 }
 
 onPlayerConnect()
 {
 	self.fpshistory = [];
 	self.fpsHistoryText = "";
+	self.fpsHistoryHudName = "fpshistory";
 
-	self.fpsHistoryHud = self openCJ\infiniteHuds::createInfiniteStringHud("fpshistory");
-	self.fpsHistoryHud.alpha = 0;
-	self.fpsHistoryHud.foreground = true;
-	self.fpsHistoryHud.alignx = "center";
-	self.fpsHistoryHud.aligny = "top";
-	self.fpsHistoryHud.x = 0;
-	self.fpsHistoryHud.y = 0;
-	self.fpsHistoryHud.horzalign = "center_safearea";
-	self.fpsHistoryHud.vertalign = "center_safearea";
-	self.fpsHistoryHud.color = (0.8, 0.8, 0.8);
-	self.fpsHistoryHud.fontscale = 1.5;
+    //										name         			x  y   alignX   alignY hAlign     vAlign
+	self openCJ\huds\base::initInfiniteHUD(self.fpsHistoryHudName,	0, 0, "center", "top", undefined, undefined,
+    //  foreground  font		hideInMenu	color				glowColor	glowAlpha	fontScale	archived	alpha
+		true,		undefined,	undefined,	(0.8, 0.8, 0.8),	undefined,	undefined,	1.5,		undefined,	0);
 }
 
 onSpectatorClientChanged(newClient)
@@ -36,7 +30,7 @@ onSpectatorClientChanged(newClient)
 	else
 	{
 		self _setFPSHistory(newClient.fpsHistoryText);
-		self.fpsHistoryHud.alpha = 1;
+		self openCJ\huds\base::enableHUD(self.fpsHistoryHudName);
 	}
 }
 
@@ -52,33 +46,8 @@ onSpawnPlayer()
 
 hideAndClearFPSHistory()
 {
-	self.fpsHistoryHud.alpha = 0;
+	self openCJ\huds\base::disableHUD(self.fpsHistoryHudName);
 	self _clearFPSHistory();
-}
-
-getShortFPS(fps)
-{
-	switch (fps)
-	{
-		case 125:
-			return "1";
-		case 142: 
-			return "4";
-		case 167:
-			return "6";
-		case 200:
-			return "0";
-		case 250:
-			return"2";
-		case 333:
-			return "3";
-		case 500:
-			return "5";
-		case 1000:
-			return "K";
-		default:
-			return "?";
-	}
 }
 
 // The following functions are for the player performing the jump
@@ -90,7 +59,7 @@ onFPSChanged(newFPS)
 		return;
 	}
 	self notify("fpshistory_fpschanged");
-	shortFPS = getShortFPS(newFPS);
+	shortFPS = openCJ\fps::getShortFPS(newFPS);
 
 	if (!self isOnGround())
 	{
@@ -118,7 +87,7 @@ _onBouncedThread()
 		self endon("fpshistory_fpschanged");
 		self endon("fpshistory_clear");
 		wait 0.15;
-		self _addFPSHistory(getShortFPS(self openCJ\fps::getCurrentFPS()));
+		self _addFPSHistory(openCJ\fps::getShortFPS(self openCJ\fps::getCurrentFPS()));
 	}
 }
 
@@ -159,7 +128,7 @@ _onOnGroundThread(isOnGround)
 	else
 	{
 		// No longer onGround, so show the initial FPS
-		self _setFPSHistory(getShortFPS(self openCJ\fps::getCurrentFPS()));
+		self _setFPSHistory(openCJ\fps::getShortFPS(self openCJ\fps::getCurrentFPS()));
 	}
 }
 
@@ -172,7 +141,7 @@ _clearFPSHistory()
 	for (i = 0; i < spectators.size; i++)
 	{
 		spectators[i].fpsHistoryText = "";
-		spectators[i].fpsHistoryHud.alpha = 0;
+		spectators[i] openCJ\huds\base::disableHUD(self.fpsHistoryHudName);
 	}
 }
 
@@ -201,8 +170,8 @@ _setFPSHistory(text)
 	spectators = self getSpectatorList(false);
 	for (i = 0; i < spectators.size; i++)
 	{
-		spectators[i].fpsHistoryHud openCJ\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
-		spectators[i].fpsHistoryHud.alpha = 1;
+		spectators[i].fpsHistoryHud openCJ\huds\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
+		spectators[i] openCJ\huds\base::enableHUD(self.fpsHistoryHudName);
 	}
 
 	//self iprintln("Setting fps history to: " + text + " for " + self getEntityNumber());
@@ -220,8 +189,8 @@ _setDemoFPSHistory(text)
 	{
 		return;
 	}
-	self.fpsHistoryHud openCJ\infiniteHuds::setInfiniteHudText(text, self, false);
-	self.fpsHistoryHud.alpha = 1;
+	self.hud[self.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(text, self, false);
+	self openCJ\huds\base::enableHUD(self.fpsHistoryHudName);
 }
 
 _clearDemoFPSHistory()
@@ -229,7 +198,7 @@ _clearDemoFPSHistory()
 	self notify("fpshistory_clear");
 	self.fpsHistoryText = "";
 	self.fpsHistoryText = "";
-	self.fpsHistoryHud.alpha = 0;
+	self openCJ\huds\base::disableHUD(self.fpsHistoryHudName);
 }
 
 onDemoBounce(text)
