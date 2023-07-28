@@ -22,6 +22,7 @@ main()
 				self openCJ\huds\hudStatistics::whileAlive();
 				self openCJ\huds\hudOnScreenKeyboard::whileAlive();
 				self openCJ\huds\hudJumpSlowdown::whileAlive();
+                self openCJ\huds\hudTimeLimit::whileAlive();
 				self openCJ\playerNames::whileAlive();
 				self openCJ\playTime::whileAlive();
 	

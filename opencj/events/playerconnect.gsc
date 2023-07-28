@@ -20,6 +20,7 @@ main()
 	self openCJ\huds\hudProgressBar::onPlayerConnect();
 	self openCJ\huds\hudSpeedometer::onPlayerConnect();
 	self openCJ\huds\hudPosition::onPlayerConnect();
+	self openCJ\huds\hudTimeLimit::onPlayerConnect();
 	self openCJ\events\onGroundChanged::onPlayerConnect();
 	self openCJ\mapPatches::onPlayerConnect();
 	self openCJ\demos::onPlayerConnect();

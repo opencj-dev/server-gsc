@@ -5,6 +5,7 @@ main()
 	openCJ\mySQL::onInit();
 	openCJ\settings::onInit();
 
+    openCJ\timeLimit::onInit();
 	openCJ\mapID::onInit();
 	openCJ\checkpoints::onInit();
 	openCJ\checkpointPointers::onInit();
