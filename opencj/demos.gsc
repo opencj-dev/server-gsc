@@ -11,7 +11,8 @@ onInit()
 	underlyingCmd = openCJ\settings::addSettingBool("loopdemo", false, "Loop demos");
     openCJ\commands_base::addAlias(underlyingCmd, "loop");
 
-    thread _prepareAllDemos();
+	// TODO: re-enable after alpha :-)
+    //thread _prepareAllDemos();
 }
 
 _prepareAllDemos()
@@ -21,6 +22,10 @@ _prepareAllDemos()
 
 _onCommandPlayback(args)
 {
+	// TODO: re-enable after alpha :-)
+	self sendLocalChatMessage("This feature is currenly disabled, sorry.");
+	return;
+
 	if(isDefined(args[0]))
 	{
         self thread _doLoadRecordingQuery(int(args[0]), int(args[0]));
