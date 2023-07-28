@@ -16,6 +16,7 @@ main()
 	self openCJ\huds\hudOnScreenKeyboard::onStartDemo();
 	self openCJ\huds\hudProgressBar::onStartDemo();
 	self openCJ\huds\hudSpeedometer::onStartDemo();
+	self openCJ\huds\hudPosition::onStartDemo();
 	self openCJ\playerRuns::onStartDemo();
 	self openCJ\events\eventHandler::onStartDemo();
 	//todo: kill nextframe threads
