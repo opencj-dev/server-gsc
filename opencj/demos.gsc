@@ -103,7 +103,7 @@ _doLoadRecordingQuery(runID, demoID)
 
 startDemo(demoID)
 {
-	self openCJ\events\startDemo::main();
+	self openCJ\events\onDemoStarted::main();
 	self.demoID = demoID;
 	self.playingDemo = true;
 	self unlink();
@@ -401,4 +401,6 @@ _stopDemo()
 		//printf("spawning\n");
 		self thread openCJ\events\spawnPlayer::main();
 	}
+
+	self openCJ\events\onDemoStopped::main();
 }

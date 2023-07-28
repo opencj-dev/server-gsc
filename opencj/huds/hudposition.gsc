@@ -40,9 +40,26 @@ _updatePos()
     }
 }
 
+_fixDecimals(org)
+{
+    fixedOrg = [];
+    scale = 10000;
+    for(i = 0; i < 3; i++)
+    {
+        // Remove the actual coordinates, for elevating just need the decimals
+        // If we don't do this, then the decimals don't always show up when calling setValue
+        fixedOrg[i] = abs(org[i] - int(org[i]));
+
+        // Round to 4 decimals
+        tmp = int(fixedOrg[i] * scale);
+        fixedOrg[i] = float(tmp) / scale;
+    }
+    return fixedOrg;
+}
+
 _updatePosHudValues()
 {
-	org = self getOrigin();
+	org = _fixDecimals(self getOrigin());
 	self.hudPos["x"] setValue(org[0]);
 	self.hudPos["y"] setValue(org[1]);
 	self.hudPos["z"] setValue(org[2]);
