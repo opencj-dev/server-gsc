@@ -26,6 +26,7 @@ main()
 	self openCJ\huds\hudGrenadeTimers::onSpawnPlayer();
 	self openCJ\huds\hudFpsHistory::onSpawnPlayer();
 	self openCJ\huds\hudFps::onSpawnPlayer();
+	self openCJ\huds\hudPosition::onSpawnPlayer();
 	self openCJ\events\eventHandler::onSpawnPlayer();
 
 	self setSharedSpawnVars();

@@ -5,8 +5,8 @@ onPlayerConnect()
     if (!isDefined(self.hudSpeed))
     {
         self.hudSpeed = [];
-        _initSpeedHud("curr", (1.0, 1.0, 1.0), -30);
-        _initSpeedHud("max", (1.0, 0.3, 0.3), -10); // Has to be above progress bar
+        self _initSpeedHud("curr", (1.0, 1.0, 1.0), -30);
+        self _initSpeedHud("max", (1.0, 0.3, 0.3), -10); // Has to be above progress bar
     }
 }
 
@@ -37,6 +37,7 @@ _speedoMeter()
 {
     level endon("map_ended");
     self endon("disconnect");
+    self endon("joined_spectators");
 
     self.currSpeed = 0;
     self.maxSpeed = 0;

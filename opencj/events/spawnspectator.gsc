@@ -27,6 +27,7 @@ main()
 	self openCJ\huds\hudSpeedometer::onSpawnSpectator();
 	self openCJ\huds\hudFpsHistory::onSpawnSpectator();
 	self openCJ\huds\hudStatistics::onSpawnSpectator();
+	self openCJ\huds\hudPosition::onSpawnSpectator();
 	self openCJ\events\eventHandler::onSpawnSpectator();
 
 	self stopFollowingMe();
