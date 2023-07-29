@@ -2,16 +2,15 @@
 
 onInit()
 {
-	// TODO: this stuff is cluttering the settings menu and it's quite unnecessary
-	underlyingCmd = openCJ\settings::addSettingString("timestring", 1, 20, "Time:", "Set the time string used in the statistics hud\nUsage: !timestring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("savesstring", 1, 20, "Saves:", "Set the saves string used in the statistics hud\nUsage: !savesstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("loadsstring", 1, 20, "Loads:", "Set the loads string used in the statistics hud\nUsage: !loadsstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("jumpsstring", 1, 20, "Jumps:", "Set the jumps string used in the statistics hud\nUsage: !jumpsstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("fpshaxstring", 1, 20, "FPS[H]:", "Set the hax fps string used in the statistics hud\nUsage: !fpshaxstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("fpsmixstring", 1, 20, "FPS[M]:", "Set the mix fps string used in the statistics hud\nUsage: !fpsmixstring [newstring]");
-	underlyingCmd = openCJ\settings::addSettingString("fpspurestring", 1, 20, "FPS:", "Set the pure fps string used in the statistics hud\nUsage: !fpspurestring [newstring]");
 	if (getCodVersion() == 2)
 	{
+        underlyingCmd = openCJ\settings::addSettingString("timestring", 1, 20, "Time:", "Set the time string used in the statistics hud\nUsage: !timestring [newstring]");
+        underlyingCmd = openCJ\settings::addSettingString("savesstring", 1, 20, "Saves:", "Set the saves string used in the statistics hud\nUsage: !savesstring [newstring]");
+        underlyingCmd = openCJ\settings::addSettingString("loadsstring", 1, 20, "Loads:", "Set the loads string used in the statistics hud\nUsage: !loadsstring [newstring]");
+        underlyingCmd = openCJ\settings::addSettingString("jumpsstring", 1, 20, "Jumps:", "Set the jumps string used in the statistics hud\nUsage: !jumpsstring [newstring]");
+        underlyingCmd = openCJ\settings::addSettingString("fpshaxstring", 1, 20, "FPS[H]:", "Set the hax fps string used in the statistics hud\nUsage: !fpshaxstring [newstring]");
+        underlyingCmd = openCJ\settings::addSettingString("fpsmixstring", 1, 20, "FPS[M]:", "Set the mix fps string used in the statistics hud\nUsage: !fpsmixstring [newstring]");
+        underlyingCmd = openCJ\settings::addSettingString("fpspurestring", 1, 20, "FPS:", "Set the pure fps string used in the statistics hud\nUsage: !fpspurestring [newstring]");
 		underlyingCmd = openCJ\settings::addSettingString("nadejumpsstring", 1, 20, "Nadejumps:", "Set the nadejumps string used in the statistics hud\nUsage: !nadejumpsstring [newstring]");
 		underlyingCmd = openCJ\settings::addSettingString("nadethrowsstring", 1, 20, "Nadethrows:", "Set the nadethrows string used in the statistics hud\nUsage: !nadethrowsstring [newstring]");
 	}
@@ -102,51 +101,99 @@ _clearStatisticsHud(force)
 	}
 }
 
+_getStringOrDefault(name)
+{
+    str = self openCJ\settings::getSetting(name);
+    if (!isDefined(str))
+    {
+        switch (name)
+        {
+            case "timestring": return "Time:";
+            case "savesstring": return "Saves:";
+            case "loadsstring": return "Loads:";
+            case "jumpsstring": return "Jumps:";
+            case "nadejumpsstring": return "Nadejumps:";
+            case "nadethrowsstring": return "Nadethrows:";
+            case "rpgjumpsstring": return "RPG Jumps:";
+            case "rpgshotsstring": return "RPG Shots:";
+            case "doublerpgsstring": return "Double RPGs:";
+            case "fpshaxstring": return "FPS[H]:";
+            case "fpsmixstring": return "FPS[M]:";
+            case "fpspurestring": return "FPS:";
+        }
+    }
+
+    return str;
+}
+
 _getHUDString(client)
 {
-	// Time
-	newstring = self openCJ\settings::getSetting("timestring") + " " + formatTimeString(client openCJ\playTime::getTimePlayed(), true) + "\n";
+    // Time
+    newstring = _getStringOrDefault("timestring") + " " + formatTimeString(client openCJ\playTime::getTimePlayed(), true) + "\n";
 
-	// Saves/loads
-	newstring += self openCJ\settings::getSetting("savesstring") + " " + client openCJ\statistics::getSaveCount() + "\n";
-	newstring += self openCJ\settings::getSetting("loadsstring") + " " + client openCJ\statistics::getLoadCount() + "\n";
+    // Loads
+    newstring += _getStringOrDefault("loadsstring") + " " + client openCJ\statistics::getLoadCount() + "\n";
 
-	// CoD specific (nade jumps / rpg)
-	if (getCodVersion() == 2)
-	{
-		// Also only show jumps on CoD2 as this is irrelevant for CoD4
-		newstring += self openCJ\settings::getSetting("jumpsstring") + " " + client openCJ\statistics::getJumpCount() + "\n";
-		newstring += self openCJ\settings::getSetting("nadejumpsstring") + " " + client openCJ\statistics::getNadeJumps() + "\n";
-		newstring += self openCJ\settings::getSetting("nadethrowsstring") + " " + client openCJ\statistics::getNadeThrows() + "\n";
-	}
-	else
-	{
-		newstring += self openCJ\settings::getSetting("rpgjumpsstring") + " " + client openCJ\statistics::getRPGJumps() + "\n";
-		newstring += self openCJ\settings::getSetting("rpgshotsstring") + " " + client openCJ\statistics::getRPGShots() + "\n";
-		newstring += self openCJ\settings::getSetting("doublerpgsstring") + " " + client openCJ\statistics::getDoubleRPGs() + "\n";
-	}
+    // CoD specific (nade jumps / rpg)
+    if (getCodVersion() == 2)
+    {
+        // Also only show jumps and saves on CoD2 as this is irrelevant for CoD4
+        newstring += _getStringOrDefault("savesstring") + " " + client openCJ\statistics::getSaveCount() + "\n";
+        newstring += _getStringOrDefault("jumpsstring") + " " + client openCJ\statistics::getJumpCount() + "\n";
+        newstring += _getStringOrDefault("nadejumpsstring") + " " + client openCJ\statistics::getNadeJumps() + "\n";
+        newstring += _getStringOrDefault("nadethrowsstring") + " " + client openCJ\statistics::getNadeThrows() + "\n";
+    }
+    else
+    {
+        newstring += _getStringOrDefault("rpgjumpsstring") + " " + client openCJ\statistics::getRPGJumps() + "\n";
+        // TMI
+        //newstring += _getStringOrDefault("rpgshotsstring") + " " + client openCJ\statistics::getRPGShots() + "\n";
+        //newstring += _getStringOrDefault("doublerpgsstring") + " " + client openCJ\statistics::getDoubleRPGs() + "\n";
+    }
 
-	// FPS
-	if(client openCJ\fps::hasUsedHaxFPS())
-	{
-		newstring += self openCJ\settings::getSetting("fpshaxstring");
-	}
-	else if(client openCJ\fps::hasUsedMixFPS())
-	{
-		newstring += self openCJ\settings::getSetting("fpsmixstring");
-	}
-	else
-	{
-		newstring += self openCJ\settings::getSetting("fpspurestring");
-	}
-	newstring += client openCJ\statistics::getFpsMode() + "\n";
-	
-	// Routes
-	route = openCJ\checkpoints::getEnderName(client openCJ\checkpoints::getCheckpoint());
-	if(isDefined(route))
-	{
-		newstring += "Route: " + route + "\n";
-	}
+    // FPS
+    // Covered by runInfo icons
+    /*
+    if(client openCJ\fps::hasUsedHaxFPS())
+    {
+        newstring += _getStringOrDefault("fpshaxstring");
+    }
+    else if(client openCJ\fps::hasUsedMixFPS())
+    {
+        newstring += _getStringOrDefault("fpsmixstring");
+    }
+    else
+    {
+        newstring += _getStringOrDefault("fpspurestring");
+    }
+    newstring += client openCJ\statistics::getFpsMode() + "\n";
+    */
 
-	return newstring;
+    // Routes
+    route = openCJ\checkpoints::getEnderName(client openCJ\checkpoints::getCheckpoint());
+    if(isDefined(route))
+    {
+        currentCp = client openCJ\checkpoints::getCheckpoint();
+        nrPassedCps = 0;
+        nrRemainingCps = undefined;
+        if (isDefined(currentCp))
+        {
+            nrPassedCps = openCJ\checkpoints::getPassedCheckpointCount(currentCp);
+            nrRemainingCps = openCJ\checkpoints::getRemainingCheckpointCount(currentCp);
+        }
+        cpString = "";
+        if (isDefined(nrRemainingCps))
+        {
+            nrTotalCps = nrPassedCps + nrRemainingCps;
+            cpString = "(" + nrPassedCps + " / " + nrTotalCps + ")";
+        }
+        else
+        {
+            cpString = "(" + nrPassedCps + " / ?)";
+        }
+        newstring += "Route: " + route + "\n";
+        newString += cpString + "\n";
+    }
+
+    return newstring;
 }

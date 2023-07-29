@@ -10,20 +10,19 @@ isCheating()
 	return self.cheating;
 }
 
-cheat()
+setCheating(isCheating)
 {
-	if(!self.cheating)
-	{
-		self.cheating = true;
-		self iPrintLnBold("You are cheating");
-	}
-}
-
-safe()
-{
-	if(self.cheating)
-	{
-		self.cheating = false;
-		self iPrintLnBold("You are safe");
+    if (self.cheating != isCheating)
+    {
+		self.cheating = isCheating;
+        if (self.cheating)
+        {
+		    self iPrintLnBold("You are cheating");
+        }
+        else
+        {
+            self iPrintLnBold("You are safe");
+        }
+        self openCJ\events\onCheatStatusChanged::main(self.cheating);
 	}
 }

@@ -5,7 +5,7 @@ onInit()
     level.timeLimit = getCvarInt("scr_cj_timelimit");
     if (!isDefined(level.timeLimit) || (level.timeLimit <= 0))
     {
-        level.timeLimit = 1;
+        level.timeLimit = 60;
     }
     level.remainingTime = level.timeLimit * 60;
     level.gameEnded = false;
@@ -43,8 +43,7 @@ addTimeMinutes(val) // Not called yet until vote extend time is implemented
 {
     if (!level.gameEnded) // Otherwise it's too late
     {
-        level.remainingTimeMs += (val * 60 * 1000);
-        level.remainingTime = int((level.remainingTimeMs / 1000) + 0.5);
+        level.remainingTime += (val * 60);
     }
 }
 
@@ -52,6 +51,6 @@ setGameEnded() // Not called yet until vote extend time is implemented
 {
     if (!level.gameEnded)
     {
-        level.remainingTimeMs = 0; // Will trigger end game next frame
+        level.remainingTime = 1; // Will trigger end game next frame
     }
 }
