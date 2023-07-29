@@ -8,7 +8,7 @@ onPlayerConnect()
         self.hudTimeLimit.alignx = "center";
         self.hudTimeLimit.aligny = "bottom";
         self.hudTimeLimit.x = 0;
-        self.hudTimeLimit.y = -5; // Above progress bar
+        self.hudTimeLimit.y = -12; // Above progress bar
         self.hudTimeLimit.horzalign = "center";
         self.hudTimeLimit.vertalign = "bottom";
         self.hudTimeLimit.color = (1.0, 1.0, 1.0);

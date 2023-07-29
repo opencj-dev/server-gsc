@@ -96,7 +96,7 @@ enableNoclip()
 	}
 
 	self.noclip = true;
-	self openCJ\cheating::cheat();
+	self openCJ\cheating::setCheating(true);
 	self openCJ\playerRuns::startRun();
 	self.noclip_linkto = spawn("script_origin", self.origin);
 	self.noclip_linkto thread deleteOnEvent("disconnect", self);

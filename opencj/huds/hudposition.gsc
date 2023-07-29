@@ -4,15 +4,18 @@ onPlayerConnect()
     {
         self.hudPos = [];
 
-        self _initPosHud("x", (0.1, 0.6, 1.0), 2);
-		self _initPosHud("y", (0.1, 0.6, 1.0), 22);
-		self _initPosHud("z", (0.1, 0.6, 1.0), 42);
+        rgb = (0.8, 0.8, 0.8);
+        spaceBetween = 20;
+        startX = 6;
+        self _initPosHud("x", rgb, startX);
+        self _initPosHud("y", rgb, startX + spaceBetween);
+        self _initPosHud("z", rgb, startX + (2 * spaceBetween));
     }
 }
 
 onStartDemo()
 {
-	self _setPosHudAlpha(0);
+    self _setPosHudAlpha(0);
 }
 
 onSpawnPlayer()
@@ -22,14 +25,14 @@ onSpawnPlayer()
 
 onSpawnSpectator()
 {
-	self _setPosHudAlpha(0);
+    self _setPosHudAlpha(0);
 }
 
 _updatePos()
 {
     level endon("map_ended");
     self endon("disconnect");
-	self endon("joined_spectators");
+    self endon("joined_spectators");
 
     self _setPosHudAlpha(1);
 
@@ -54,22 +57,23 @@ _fixDecimals(org)
         tmp = int(fixedOrg[i] * scale);
         fixedOrg[i] = float(tmp) / scale;
     }
+
     return fixedOrg;
 }
 
 _updatePosHudValues()
 {
-	org = _fixDecimals(self getOrigin());
-	self.hudPos["x"] setValue(org[0]);
-	self.hudPos["y"] setValue(org[1]);
-	self.hudPos["z"] setValue(org[2]);
+    org = _fixDecimals(self getOrigin());
+    self.hudPos["x"] setValue(org[0]);
+    self.hudPos["y"] setValue(org[1]);
+    self.hudPos["z"] setValue(org[2]);
 }
 
 _setPosHudAlpha(val)
 {
     self.hudPos["x"].alpha = val;
-	self.hudPos["y"].alpha = val;
-	self.hudPos["z"].alpha = val;
+    self.hudPos["y"].alpha = val;
+    self.hudPos["z"].alpha = val;
 }
 
 _initPosHud(name, colors, yOffset)
@@ -86,7 +90,7 @@ _initPosHud(name, colors, yOffset)
         self.hudPos[name].horzalign = "left";
         self.hudPos[name].vertalign = "top";
         self.hudPos[name].color = colors;
-        self.hudPos[name].fontscale = 1.6;
+        self.hudPos[name].fontscale = 1.4;
         self.hudPos[name].archived = false;
     }
 }

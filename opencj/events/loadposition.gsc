@@ -21,11 +21,11 @@ main(backwardsCount)
 
 	if(self openCJ\cheating::isCheating() && !openCJ\savePosition::isCheating(save))
 	{
-		self openCJ\cheating::safe();
+		self openCJ\cheating::setCheating(false);
 	}
 	else if(!self openCJ\cheating::isCheating() && openCJ\savePosition::isCheating(save))
 	{
-		self openCJ\cheating::cheat();
+		self openCJ\cheating::setCheating(true);
 	}
 
 	self spawn(save.origin, save.angles);
