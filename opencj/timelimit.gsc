@@ -2,55 +2,85 @@
 
 onInit()
 {
-    level.timeLimit = getCvarInt("scr_cj_timelimit");
-    if (!isDefined(level.timeLimit) || (level.timeLimit <= 0))
+    timeLimitMinutes = getCvarInt("scr_cj_timelimit");
+    if (isDefined(timeLimitMinutes) && (timeLimitMinutes > 0))
     {
-        level.timeLimit = 60;
+        level.timeLimitSeconds = (timeLimitMinutes * 60);
     }
-    level.remainingTime = level.timeLimit * 60;
-    level.gameEnded = false;
+    else
+    {
+        level.timeLimitSeconds = 30;
+    }
+    level.startTimeMs = getTime();
+    level.remainingTimeSeconds = level.timeLimitSeconds;
+
     level.clock = spawn("script_origin", (0, 0, 0)); // Will be used to play a sound
 
     thread loop();
 }
 
+addTimeSeconds(seconds)
+{
+    level.timeLimitSeconds += seconds;
+    thread opencj\events\onRemainingTimeChanged::main();
+}
+
+muteTimerSound(mute)
+{
+    level.muteTimerSound = mute;
+}
+
 loop()
 {
-    level endon("game_ended");
-
+    hasTimeExpired = false;
     while (1)
     {
-        wait 1.0;
-        if (level.gameEnded)
+        remainingTimeMs = getRemainingTimeMs();
+        level.remainingTimeSeconds = int(remainingTimeMs / 1000);
+        if (remainingTimeMs <= 0)
         {
-            break;
+            // If no time left, inform other scripts
+            if (!hasTimeExpired)
+            {
+                level thread opencj\events\onTimeLimitReached::main();
+                hasTimeExpired = true;
+            }
+            wait .05;
+            continue; // Refresh the variables
         }
 
-        level.remainingTime -= 1;
-        if (level.remainingTime <= 0)
+        hasTimeExpired = false;
+
+        timeLeftFloat = (remainingTimeMs / 1000);
+        timeLeftRounded = int(timeLeftFloat + 0.5);
+
+        level notify("second_passed", timeLeftRounded);
+
+        if ((timeLeftRounded <= 10) || ((timeLeftRounded <= 30) && (timeLeftRounded % 2) == 0)) // Every 2 seconds from 30 seconds, every second from 10 seconds
         {
-            level.gameEnded = true;
-            level notify("game_ended");
+            // For map vote we change time limit but don't want to spam the sound
+            if (!isDefined(level.muteTimerSound) || !level.muteTimerSound)
+            {
+                level.clock playSound("ui_mp_timer_countdown");
+            }
         }
-        else if ((level.remainingTime <= 10) || ((level.remainingTime <= 30) && (level.remainingTime % 2) == 0)) // Every 2 seconds from 30 seconds, every second from 10 seconds
+
+        // Remain synchronous with actual time
+        syncTimeDiff = timeLeftFloat - floor(timeLeftFloat);
+        if (syncTimeDiff >= 0.5)
         {
-            level.clock playSound("ui_mp_timer_countdown");
+            syncTimeDiff -= 1.0; // Don't want to wait 2 seconds, instead just wait less
         }
+        wait 1.0 + synctimeDiff;
     }
 }
 
-addTimeMinutes(val) // Not called yet until vote extend time is implemented
+getRemainingTimeMs()
 {
-    if (!level.gameEnded) // Otherwise it's too late
-    {
-        level.remainingTime += (val * 60);
-    }
+    return (level.timeLimitSeconds * 1000) - getTimePassedMs();
 }
 
-setGameEnded() // Not called yet until vote extend time is implemented
+getTimePassedMs()
 {
-    if (!level.gameEnded)
-    {
-        level.remainingTime = 1; // Will trigger end game next frame
-    }
+    return (getTime() - level.startTimeMs);
 }
