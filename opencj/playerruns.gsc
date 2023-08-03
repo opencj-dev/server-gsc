@@ -120,7 +120,7 @@ _createRunID()
 	else
 	{
 		self.playerRuns_runID = int(rows[0][0]);
-		printf("run id: " + self.playerRuns_runID + "\n");
+
 		self iprintln("run id: " + self.playerRuns_runID);
 		//printf("Adding run instance number++\n");
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
@@ -145,7 +145,6 @@ onRunIDCreated()
 {
 	self.playerRuns_runStarted = false;
 	self.playerRuns_runFinished = false;
-	self iprintln("Run ID: " + self getRunID());
 }
 
 onSpawnPlayer()

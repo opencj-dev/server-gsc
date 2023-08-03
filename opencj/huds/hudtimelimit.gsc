@@ -25,24 +25,36 @@ onPlayerConnect()
 whileAlive()
 {
     // If time gets low, make timer more red and play a sound
-    lowTimeThreshold = 60.0;
-    if (level.remainingTime <= 0)
+    lowTimeThresholdSeconds = 60.0;
+    if (level.remainingTimeSeconds <= 0)
     {
         self _updateTimer(); // Will hide the timer
     }
-    else if (level.remainingTime < lowTimeThreshold)
+    else if (level.remainingTimeSeconds < lowTimeThresholdSeconds)
     {
-        factor = float(level.remainingTime / lowTimeThreshold);
+        factor = level.remainingTimeSeconds / lowTimeThresholdSeconds;
         self.hudTimeLimit.color = (1.0, factor, factor);
     }
 }
 
+onTimeLimitReached()
+{
+    _updatePlayerTimers();
+}
+
+onRemainingTimeChanged()
+{
+    _updatePlayerTimers();
+}
+
 _updateTimer()
 {
-    // The HUD itself is just a timer counting down the level time
-    if (level.remainingTime > 0)
+    // The HUD itself is just a timer counting down the level time, but it has to be synced with the sound effect
+    level waittill("second_passed", secondsLeft);
+
+    if (secondsLeft > 0)
     {
-        self.hudTimeLimit setTimer(level.remainingTime);
+        self.hudTimeLimit setTimer(secondsLeft);
     }
     else
     {
@@ -50,9 +62,13 @@ _updateTimer()
     }
 }
 
-onRemainingTimeChanged()
+_updatePlayerTimers()
 {
-    self _updateTimer();
+    players = getEntArray("player", "classname");
+    for (i = 0; i < players.size; i++)
+    {
+        players[i] _updateTimer();
+    }
 }
 
 onStartDemo()

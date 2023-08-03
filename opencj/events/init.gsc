@@ -40,6 +40,7 @@ main()
     openCJ\graphics::onInit();
     openCJ\playerNames::onInit();
     openCJ\playerCollision::onInit();
+    openCJ\endMapVote::onInit();
 
     openCJ\platformDetect::onInit(); //debug file
 
