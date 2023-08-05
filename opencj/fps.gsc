@@ -135,7 +135,6 @@ _shouldFPSModeChange(currentFPSMode, newFPSMode)
         // FPS mode is unchanged
         if (newFPSMode == currentFPSMode)
         {
-            printf("DEBUG: FPS mode unchanged!\n");
             return false;
         }
 
@@ -187,10 +186,6 @@ userSettingsPreventFPSMode(newFPSMode)
             self openCJ\settings::setSetting("allowhax", true); // Allow for this run because we have no other option
             self iprintlnbold("^1Detected " + fpsTypeStr + " fps, but failed to load back. Reset your run to clear!");
         }
-    }
-    else
-    {
-        self iprintln("Run changed to " + fpsTypeStr + " fps");
     }
 
     return false; // No prevention
@@ -259,7 +254,6 @@ getNewFPSModeStrByFPS(currentFPSMode, newFPS)
         // Handle the mix specific logic before
         if (isDefined(currentFPSMode))
         {
-            printf("DEBUG: getting FPSModeStr by: " + currentFPSMode + ", " + newFPS + "\n");
             newFPSStr = "" + newFPS;
             if (currentFPSMode != newFPSStr)
             {
