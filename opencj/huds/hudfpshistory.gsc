@@ -5,19 +5,19 @@
 
 onInit()
 {
-	openCJ\huds\infiniteHuds::initInfiniteHud("fpshistory");
+    level.fpsHistoryHudName = "fpshistory";
+	openCJ\huds\infiniteHuds::initInfiniteHud(level.fpsHistoryHudName);
 }
 
 onPlayerConnect()
 {
 	self.fpshistory = [];
 	self.fpsHistoryText = "";
-	self.fpsHistoryHudName = "fpshistory";
 
     //										name         			x  y   alignX   alignY hAlign     vAlign
-	self openCJ\huds\base::initInfiniteHUD(self.fpsHistoryHudName,	0, 0, "center", "top", undefined, undefined,
+	self openCJ\huds\base::initInfiniteHUD(level.fpsHistoryHudName,	0, -85, "center", "middle", "center_safearea", "center_safearea",
     //  foreground  font		hideInMenu	color				glowColor	glowAlpha	fontScale	archived	alpha
-		true,		undefined,	undefined,	(0.8, 0.8, 0.8),	undefined,	undefined,	1.5,		undefined,	0);
+		true,		"default",	undefined,	(0.8, 0.8, 0.8),	undefined,	undefined,	1.5,		false,	0);
 }
 
 onSpectatorClientChanged(newClient)
@@ -30,7 +30,7 @@ onSpectatorClientChanged(newClient)
 	else
 	{
 		self _setFPSHistory(newClient.fpsHistoryText);
-		self openCJ\huds\base::enableHUD(self.fpsHistoryHudName);
+		self openCJ\huds\base::enableHUD(level.fpsHistoryHudName);
 	}
 }
 
@@ -46,7 +46,7 @@ onSpawnPlayer()
 
 hideAndClearFPSHistory()
 {
-	self openCJ\huds\base::disableHUD(self.fpsHistoryHudName);
+	self openCJ\huds\base::disableHUD(level.fpsHistoryHudName);
 	self _clearFPSHistory();
 }
 
@@ -58,6 +58,7 @@ onFPSChanged(newFPS)
 	{
 		return;
 	}
+
 	self notify("fpshistory_fpschanged");
 	shortFPS = openCJ\fps::getShortFPS(newFPS);
 
@@ -93,7 +94,6 @@ _onBouncedThread()
 
 onStartDemo()
 {
-
 	self _clearFPSHistory();
 }
 
@@ -103,6 +103,7 @@ onLoaded()
 	{
 		return;
 	}
+
 	self _clearFPSHistory();
 }
 
@@ -120,6 +121,7 @@ _onOnGroundThread(isOnGround)
 	self endon("disconnect");
 	self notify("fpshistory_ongroundchange");
 	self endon("fpshistory_ongroundchange");
+
 	if (isOnGround)
 	{
 		wait 2; // Keep specFPS HUD for 2 seconds after landing
@@ -141,7 +143,7 @@ _clearFPSHistory()
 	for (i = 0; i < spectators.size; i++)
 	{
 		spectators[i].fpsHistoryText = "";
-		spectators[i] openCJ\huds\base::disableHUD(self.fpsHistoryHudName);
+		spectators[i] openCJ\huds\base::disableHUD(level.fpsHistoryHudName);
 	}
 }
 
@@ -170,11 +172,9 @@ _setFPSHistory(text)
 	spectators = self getSpectatorList(false);
 	for (i = 0; i < spectators.size; i++)
 	{
-		spectators[i].fpsHistoryHud openCJ\huds\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
-		spectators[i] openCJ\huds\base::enableHUD(self.fpsHistoryHudName);
+		spectators[i].hud[level.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
+		spectators[i] openCJ\huds\base::enableHUD(level.fpsHistoryHudName);
 	}
-
-	//self iprintln("Setting fps history to: " + text + " for " + self getEntityNumber());
 }
 
 _setDemoFPSHistory(text)
@@ -189,8 +189,8 @@ _setDemoFPSHistory(text)
 	{
 		return;
 	}
-	self.hud[self.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(text, self, false);
-	self openCJ\huds\base::enableHUD(self.fpsHistoryHudName);
+	self.hud[level.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(text, self, false);
+	self openCJ\huds\base::enableHUD(level.fpsHistoryHudName);
 }
 
 _clearDemoFPSHistory()
@@ -198,7 +198,7 @@ _clearDemoFPSHistory()
 	self notify("fpshistory_clear");
 	self.fpsHistoryText = "";
 	self.fpsHistoryText = "";
-	self openCJ\huds\base::disableHUD(self.fpsHistoryHudName);
+	self openCJ\huds\base::disableHUD(level.fpsHistoryHudName);
 }
 
 onDemoBounce(text)

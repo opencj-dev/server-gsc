@@ -37,7 +37,6 @@ initInfiniteHUD(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hi
 	{
 		return;
 	}
-
 	self.hud[name] = self openCJ\huds\infiniteHuds::createInfiniteStringHud(name);
 	self _initHUDBase(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha);
 }
