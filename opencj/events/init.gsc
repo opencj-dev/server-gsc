@@ -41,6 +41,7 @@ main()
     openCJ\playerNames::onInit();
     openCJ\playerCollision::onInit();
     openCJ\endMapVote::onInit();
+    openCJ\leaderBoard::onInit(); // To be safe, this one should always be called later than checkpoints::onInit
 
     openCJ\platformDetect::onInit(); //debug file
 

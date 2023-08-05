@@ -79,10 +79,16 @@ onRunFinished(cp)
 	{
 		return;
 	}
-	if(self hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
+
+    cpID = openCJ\checkpoints::getCheckpointID(cp);
+    if (!isDefined(cpID))
+    {
+        return;
+    }
+
+	if (self hasRunID())
 	{
 		runID = self getRunID();
-		cpID = self openCJ\checkpoints::getCheckpointID(cp);
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT runFinished(" + runID + ", " + cpID + ", " + self getRunInstanceNumber() + ")");
 		if(!isDefined(rows[0][0]))
 		{
@@ -121,8 +127,8 @@ _createRunID()
 	{
 		self.playerRuns_runID = int(rows[0][0]);
 
-		self iprintln("run id: " + self.playerRuns_runID);
-		//printf("Adding run instance number++\n");
+		self iprintln("Created new run with ID: " + self.playerRuns_runID);
+
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
 		if(rows.size && isDefined(rows[0][0]))
 		{

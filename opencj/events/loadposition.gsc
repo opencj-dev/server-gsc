@@ -30,9 +30,9 @@ main(backwardsCount)
 
 	self spawn(save.origin, save.angles);
 
-	self openCJ\statistics::setRPGJumps(save.RPGJumps);
-	self openCJ\statistics::setNadeJumps(save.nadeJumps);
-	self openCJ\statistics::setDoubleRPGs(save.doubleRPGs);
+	self openCJ\statistics::setExplosiveJumps(save.explosiveJumps);
+	self openCJ\statistics::setExplosiveLaunches(save.explosiveLaunches);
+	self openCJ\statistics::setDoubleExplosives(save.doubleExplosives);
 	self openCJ\statistics::onLoadPosition();
 	self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID);
 	self openCJ\checkpoints::onLoadPosition();
@@ -55,6 +55,8 @@ main(backwardsCount)
 	{
 		self openCJ\fps::setUsedMixFPS(openCJ\savePosition::hasMixFPS(save));
 	}
+
+    // Any% and TAS not supported yet
 
 	self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 	self openCJ\savePosition::printLoadSuccess();

@@ -13,11 +13,11 @@ onPlayerConnected()
 _countryQuery()
 {
 	self endon("disconnect");
-	printf(self.name + " getting country\n");
+
 	query = "SELECT getCountry(INET_ATON('" + openCJ\mySQL::escapeString(self getIP()) + "'))";
-	//printf("query: " + query + "\n");
+	printf("Country query:\n" + query + "\n"); // Debug
+
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
-	//printf("rows size: " + rows.size + "\n");
 	if(rows.size && isDefined(rows[0][0]))
 	{
 		self.country = getSubStr(rows[0][0], 0, 2);

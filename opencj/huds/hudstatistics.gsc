@@ -140,34 +140,18 @@ _getHUDString(client)
         // Also only show jumps and saves on CoD2 as this is irrelevant for CoD4
         newstring += _getStringOrDefault("savesstring") + " " + client openCJ\statistics::getSaveCount() + "\n";
         newstring += _getStringOrDefault("jumpsstring") + " " + client openCJ\statistics::getJumpCount() + "\n";
-        newstring += _getStringOrDefault("nadejumpsstring") + " " + client openCJ\statistics::getNadeJumps() + "\n";
-        newstring += _getStringOrDefault("nadethrowsstring") + " " + client openCJ\statistics::getNadeThrows() + "\n";
+        newstring += _getStringOrDefault("nadejumpsstring") + " " + client openCJ\statistics::getExplosiveJumps() + "\n";
+        newstring += _getStringOrDefault("nadethrowsstring") + " " + client openCJ\statistics::getExplosiveLaunches() + "\n";
     }
     else
     {
-        newstring += _getStringOrDefault("rpgjumpsstring") + " " + client openCJ\statistics::getRPGJumps() + "\n";
+        newstring += _getStringOrDefault("rpgjumpsstring") + " " + client openCJ\statistics::getExplosiveJumps() + "\n";
         // TMI
-        //newstring += _getStringOrDefault("rpgshotsstring") + " " + client openCJ\statistics::getRPGShots() + "\n";
-        //newstring += _getStringOrDefault("doublerpgsstring") + " " + client openCJ\statistics::getDoubleRPGs() + "\n";
+        //newstring += _getStringOrDefault("rpgshotsstring") + " " + client openCJ\statistics::getExplosiveLaunches() + "\n";
+        //newstring += _getStringOrDefault("doublerpgsstring") + " " + client openCJ\statistics::getDoubleExplosives() + "\n";
     }
 
-    // FPS
-    // Covered by runInfo icons
-    /*
-    if(client openCJ\fps::hasUsedHaxFPS())
-    {
-        newstring += _getStringOrDefault("fpshaxstring");
-    }
-    else if(client openCJ\fps::hasUsedMixFPS())
-    {
-        newstring += _getStringOrDefault("fpsmixstring");
-    }
-    else
-    {
-        newstring += _getStringOrDefault("fpspurestring");
-    }
-    newstring += client openCJ\statistics::getFpsMode() + "\n";
-    */
+    // FPS is already covered by runInfo icons
 
     // Routes
     route = openCJ\checkpoints::getEnderName(client openCJ\checkpoints::getCheckpoint());

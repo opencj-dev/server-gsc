@@ -131,12 +131,41 @@ _getRecords(checkpoints, persist, timems)
 	checkpoints = openCJ\checkpoints::filterOutBrothers(checkpoints);
 	for(i = 0; i < checkpoints.size; i++)
 	{
-		if(self openCJ\checkpoints::checkpointHasID(checkpoints[i]))
-			checkpointString += ", " + self openCJ\checkpoints::getCheckpointID(checkpoints[i]);
+        cpID = openCJ\checkpoints::getCheckpointID(checkpoints[i]);
+        if (isDefined(cpID))
+        {
+            checkpointString += ", " + cpID;
+        }
 	}
 	checkpointString += ")";
-	printf("call to getrecords for checkpoint " + checkpointString + "\n");
-	query = "SELECT c.playerName, b.timePlayed FROM (SELECT timePlayed, runID, playerID FROM (SELECT  @prev := '') init JOIN (SELECT playerID != @prev AS first, @prev := playerID, timePlayed, runID, playerID FROM (SELECT cs.timePlayed, pr.runID, pr.playerID FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID IN " + checkpointString + " AND pr.finishcpID IS NOT NULL AND cs.runID != " + self openCJ\playerRuns::getRunID() + ") a ORDER BY playerID, timePlayed ASC) x WHERE first ORDER BY timePlayed ASC LIMIT 10) b INNER JOIN playerInformation c ON c.playerID = b.playerID";
+
+    // TODO after alpha: make configurable so that it's not always based on time but based on player's current run type (defaults to time, but can be low RPG, ...)
+
+    // For the checkpoint that was just passed, grab the player name and time played of up to 10 finished runs ordered by timePlayed (fastest first).
+    // The query does this by:
+    //  - finding runs by matching runID between playerRuns and checkpointStatistics to get the necessary information
+    //  - verifying that the runs are finished by checking finishcpID having a value
+    //  - verifying that it is not the current run by comparing runID
+    //  - grabbing the player name by matching playerID between playerRuns and playerInformation
+    //  - only selecting one best run per player (that's what the @prev is for, it compares it to the previous entry as it's sorted by playerID)
+
+    // TODO: Declaring user variables in expressions like this is deprecated. Should be replaced with updated query, like the one leaderboard is using.
+
+	query = "SELECT c.playerName, b.timePlayed FROM (" +
+                "SELECT timePlayed, runID, playerID FROM (SELECT  @prev := '') init JOIN (" + 
+                    "SELECT playerID != @prev AS first, @prev := playerID, timePlayed, runID, playerID FROM (" + 
+                        "SELECT cs.timePlayed, pr.runID, pr.playerID " +
+                        "FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID " + 
+                        "WHERE cs.cpID IN " + checkpointString +
+                        " AND pr.finishcpID IS NOT NULL" + 
+                        " AND cs.runID != " + self openCJ\playerRuns::getRunID() +
+                    ") a " + 
+                    "ORDER BY playerID, timePlayed ASC" +
+                ") x " +
+                "WHERE first ORDER BY timePlayed ASC LIMIT 10" +
+            ") b INNER JOIN playerInformation c ON c.playerID = b.playerID";
+    
+    printf("getRecords query:\n" + query + "\n"); // Debug
 
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 

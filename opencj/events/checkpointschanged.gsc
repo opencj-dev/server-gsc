@@ -11,12 +11,23 @@ main()
 	{
 		str = "";
 		ends = openCJ\checkpoints::getEndCheckpoints(checkpoints[i]);
+        isFirstCp = true;
 		for(j = 0; j < ends.size; j++)
 		{
-			if(j != 0)
-				str += ", ";
-			str += openCJ\checkpoints::getCheckpointID(ends[j]);
+            cpID = openCJ\checkpoints::getCheckpointID(ends[j]);
+            if (isDefined(cpID))
+            {
+                if (!isFirstCp)
+                {
+                    str += ", ";
+                }
+
+			    str += cpID;
+                isFirstCp = false;
+            }
 		}
+
+        // Debug
 		printf("Checkpoint " + openCJ\checkpoints::getCheckpointID(checkpoints[i]) + " has end checkpoints: " + str + "\n");
 		printf("Route completion: " + openCJ\checkpoints::getPassedCheckpointCount(self.checkpoints_checkpoint) + " to go: " + openCJ\checkpoints::getRemainingCheckpointCount(self.checkpoints_checkpoint) + "\n");
 	}

@@ -14,14 +14,15 @@ onRunIDCreated()
 	self.statistics["curr"]["secondsPlayed"] = 0;
 	self.statistics["curr"]["saveCount"] = 0;
 	self.statistics["curr"]["loadCount"] = 0;
-	self.statistics["curr"]["nadeJumps"] = 0;
-	self.statistics["curr"]["nadeThrows"] = 0;
+	self.statistics["curr"]["explosiveLaunches"] = 0;
+	self.statistics["curr"]["explosiveJumps"] = 0;
+    self.statistics["curr"]["doubleExplosives"] = 0;
 	self.statistics["curr"]["jumpCount"] = 0;
-	self.statistics["curr"]["RPGJumps"] = 0;
-	self.statistics["curr"]["RPGShots"] = 0;
-	self.statistics["curr"]["doubleRPGs"] = 0;
-	self.statistics["curr"]["lastRPGFiredTime"] = undefined;
+	self.statistics["curr"]["lastExplosiveFiredTime"] = undefined;
 	self.statistics["curr"]["lastJumpTime"] = undefined;
+    self.statistics["curr"]["usedEle"] = false;
+    self.statistics["curr"]["usedAnyPct"] = false;
+    self.statistics["curr"]["usedTAS"] = false;
 
 	self updateStatistics();
 }
@@ -33,8 +34,10 @@ whileAlive()
 		self.statistics["curr"]["lastJumpTime"] = undefined;
 	}
 
+    // Time
 	self.statistics["curr"]["secondsPlayed"] = self openCJ\playTime::getSecondsPlayed();
 
+    // FPS
 	self.statistics["curr"]["fps"] = openCJ\fps::getCurrentFPS();
 	if (self openCJ\fps::hasUsedHaxFPS())
 	{
@@ -48,6 +51,11 @@ whileAlive()
 	{
 		self.statistics["curr"]["fpsMode"] = "125";
 	}
+
+    // Ele, any%, TAS
+    self.statistics["curr"]["usedEle"] = self openCJ\elevate::hasEleOverrideEver();
+    self.statistics["curr"]["usedAnyPct"] = false; // Not implemented yet
+    self.statistics["curr"]["usedTAS"] = false; // Not implemented yet
 }
 
 increaseAndGetSaveCount()
@@ -80,7 +88,7 @@ onPlayerDamage(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint,
 
 	if(self openCJ\weapons::isGrenade(weapon) && !self isOnGround())
 	{
-		self.statistics["curr"]["nadeJumps"]++;
+		self.statistics["curr"]["explosiveJumps"]++;
 	}
 }
 
@@ -91,7 +99,7 @@ onGrenadeThrow(nade, name)
 		return;
 	}
 
-	self.statistics["curr"]["nadeThrows"]++;
+	self.statistics["curr"]["explosiveLaunches"]++;
 }
 
 onJump()
@@ -113,21 +121,21 @@ onRPGFired(rpg, name)
 	}
 
 	// An RPG was fired
-	self.statistics["curr"]["RPGShots"]++;
+	self.statistics["curr"]["explosiveJumps"]++;
 
 	if(!self isOnGround())
 	{
 		// Check if a second RPG was fired
-		if(isDefined(self.statistics["curr"]["lastJumpTime"]) && isDefined(self.statistics["curr"]["lastRPGFiredTime"]) &&
-			(self.statistics["curr"]["lastRPGFiredTime"] >= self.statistics["curr"]["lastJumpTime"]))
+		if(isDefined(self.statistics["curr"]["lastJumpTime"]) && isDefined(self.statistics["curr"]["lastExplosiveFiredTime"]) &&
+			(self.statistics["curr"]["lastExplosiveFiredTime"] >= self.statistics["curr"]["lastJumpTime"]))
 		{
-			self.statistics["curr"]["doubleRPGs"]++;
+			self.statistics["curr"]["doubleExplosives"]++;
 			self iprintln("^1Double rpg detected");
 		}
 
 		// We aren't on ground, so this counts as an RPG jump
-		self.statistics["curr"]["RPGJumps"]++;
-		self.statistics["curr"]["lastRPGFiredTime"] = getTime();
+		self.statistics["curr"]["explosiveJumps"]++;
+		self.statistics["curr"]["lastExplosiveFiredTime"] = getTime();
 	}
 }
 
@@ -158,9 +166,9 @@ updateStatistics()
 
 // Getters/setters
 
-getFPSMode()
+setJumpCount(val)
 {
-	return self.statistics["curr"]["fpsMode"];
+    self.statistics["curr"]["jumpCount"] = val;
 }
 
 getJumpCount()
@@ -188,67 +196,67 @@ getSaveCount()
 	return self.statistics["curr"]["saveCount"];
 }
 
-setRPGJumps(amount)
+setExplosiveJumps(amount) // RPG jumps, nade jumps
 {
 	if(self openCJ\playerRuns::isRunFinished())
 	{
 		return;
 	}
 
-	self.statistics["curr"]["RPGJumps"] = amount;
+	self.statistics["curr"]["explosiveJumps"] = amount;
 }
 
-setNadeJumps(amount)
+getExplosiveJumps()
+{
+	return self.statistics["curr"]["explosiveJumps"];
+}
+
+setExplosiveLaunches(value) // RPG shots, nade throws
+{
+	self.statistics["curr"]["explosiveLaunches"] = value;
+}
+
+getExplosiveLaunches()
+{
+	return self.statistics["curr"]["explosiveLaunches"];
+}
+
+setDoubleExplosives(amount) // Double RPGs
 {
 	if(self openCJ\playerRuns::isRunFinished())
 	{
 		return;
 	}
 
-	self.statistics["curr"]["nadeJumps"] = amount;
+	self.statistics["curr"]["doubleExplosives"] = amount;
 }
 
-setDoubleRPGs(amount)
+getDoubleExplosives()
 {
-	if(self openCJ\playerRuns::isRunFinished())
-	{
-		return;
-	}
-
-	self.statistics["curr"]["doubleRPGs"] = amount;
+	return self.statistics["curr"]["doubleExplosives"];
 }
 
-getRPGJumps()
+setFPSMode(mode)
 {
-	return self.statistics["curr"]["RPGJumps"];
+    self.statistics["curr"]["fpsMode"] = mode;
 }
 
-getRPGShots()
+getFPSMode()
 {
-	return self.statistics["curr"]["RPGShots"];
+	return self.statistics["curr"]["fpsMode"];
 }
 
-setRPGShots(value)
+getUsedEle()
 {
-	self.statistics["curr"]["RPGShots"] = value;
+    return self.statistics["curr"]["usedEle"];
 }
 
-getNadeJumps()
+getUsedAnyPct()
 {
-	return self.statistics["curr"]["nadeJumps"];
+    return self.statistics["curr"]["usedAnyPct"];
 }
 
-setNadeThrows(value)
+getUsedTAS()
 {
-	self.statistics["curr"]["nadeThrows"] = value;
-}
-
-getNadeThrows()
-{
-	return self.statistics["curr"]["nadeThrows"];
-}
-
-getDoubleRPGs()
-{
-	return self.statistics["curr"]["doubleRPGs"];
+    return self.statistics["curr"]["usedTAS"];
 }

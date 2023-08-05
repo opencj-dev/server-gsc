@@ -38,7 +38,7 @@ _tryLogin()
 	}
 	else
 	{
-		printf("Creating new account for '" + self.name + "'\n");
+		printf("Creating new account for '" + self.name + "'\n"); // Debug
 		self createNewAccount();
 	}
 }
@@ -52,7 +52,7 @@ _getPlayerInformation(uid)
 	}
 
 	query = "SELECT playerID, adminLevel, IF(mutedUntil < NOW(), NULL, TIMESTAMPDIFF(SECOND, NOW(), mutedUntil)) FROM playerInformation WHERE playerID = (SELECT getPlayerID(" + int(uid[0]) + ", " + int(uid[1])  + ", " + int(uid[2]) + ", " + int(uid[3]) + "))";
-	printf(query + "\n");
+	printf("playerInformation query:\n" + query + "\n"); // Debug
 	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 	if(hasResult(rows))
 	{
@@ -84,7 +84,7 @@ createNewAccount()
 		}
 
 		query = "SELECT createNewAccount(" + uid[0] + ", " + uid[1] + ", " + uid[2] + ", " + uid[3] + ", '" + openCJ\mySQL::escapeString(self.name) + "')";
-		printf(query + "\n");
+		printf("createNewAccount query:\n" + query + "\n"); // Debug
 		rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 		if(hasResult(rows))
 		{
@@ -104,7 +104,7 @@ createNewAccount()
 		}
 		else
 		{
-			printf("Failed to create account\n");
+			printf("ERROR: Failed to create account\n");
 		}
 	}
 	self iprintlnbold("Cannot create an account right now. Please try reconnecting");

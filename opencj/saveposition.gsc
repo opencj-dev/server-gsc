@@ -33,6 +33,26 @@ getFlagEleOverrideEver(save)
 	return (save.flags & level.saveFlags["eleOverrideEver"]) != 0;
 }
 
+getUsedAnyPctNow(save)
+{
+    return (save.flags & level.saveFlags["anyPctNow"]) != 0;
+}
+
+getUsedAnyPctEver(save)
+{
+    return (save.flags & level.saveFlags["anyPctEver"]) != 0;
+}
+
+getUsedTASNow(save)
+{
+    return (save.flags & level.saveFlags["TASNow"]) != 0;
+}
+
+getUsedTASEver(save)
+{
+    return (save.flags & level.saveFlags["TASEver"]) != 0;
+}
+
 isCheating(save)
 {
 	return (save.flags & level.saveFlags["cheating"]) != 0;
@@ -230,8 +250,8 @@ setSavedPosition()
 	flags = self createFlags();
 	fps = self openCJ\fps::getCurrentFPS();
 	saveNum = self openCJ\statistics::increaseAndGetSaveCount();
-	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
-	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getRPGJumps(), self openCJ\statistics::getNadeJumps(), self openCJ\statistics::getDoubleRPGs(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags, saveNum);
+	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveLaunches(), self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
+	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveLaunches(), self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags, saveNum);
 	return saveNum;
 }
 
@@ -243,9 +263,9 @@ getSavedPosition(backwardsCount)
 	save.origin = self savePosition_getOrigin();
 	save.angles = self savePosition_getAngles();
 
-	save.RPGJumps = self savePosition_getRPGJumps();
-	save.nadeJumps = self savePosition_getNadeJumps();
-	save.doubleRPGs = self savePosition_getDoubleRPGs();
+    save.explosiveLaunches = self savePosition_getExplosiveLaunches();
+	save.explosiveJumps = self savePosition_getExplosiveJumps();
+	save.doubleExplosives = self savePosition_getDoubleExplosives();
 	save.checkpointID = self savePosition_getCheckpointID();
 	save.flags = self savePosition_getFlags();
 	save.fps = self savePosition_getFPS();
