@@ -24,7 +24,7 @@ onInit()
 fetchRandomMaps()
 {
     // Fetch random maps from database for next vote
-    query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getDvar("mapname") + "' ORDER BY RAND() LIMIT " + level.endVote["nrMaps"];
+    query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getCvar("mapname") + "' ORDER BY RAND() LIMIT " + level.endVote["nrMaps"];
     rows = opencj\mysql::mysqlAsyncQuery(query);
     if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
     {
@@ -44,22 +44,22 @@ onPlayerConnected()
 {
     self.endVote = -1;
 
-    self setClientDvar(level.endVote["prefix"] + "status", level.endVote["status"]); // Actual end map vote status
-    self setClientDvar(level.endVote["prefix"] + "voted", ""); // Player hasn't voted
+    self setClientCvar(level.endVote["prefix"] + "status", level.endVote["status"]); // Actual end map vote status
+    self setClientCvar(level.endVote["prefix"] + "voted", ""); // Player hasn't voted
 
     winning = "";
     if (isDefined(level.endVote["winning"]))
     {
         winning = (level.endVote["winning"] + 1);
     }
-     self setClientDvar(level.endVote["prefix"] + "winning", winning); // Which map is currently winning
+     self setClientCvar(level.endVote["prefix"] + "winning", winning); // Which map is currently winning
 
     for (i = 0; i < level.endVote["nrMaps"]; i++)
     {
         nr = (i + 1); // Dvars for this start at 1
-        self setClientDvar(level.endVote["prefix"] + "votes" + nr, level.endVote["votes"][i]);
-        self setClientDvar(level.endVote["prefix"] + "mapname" + nr, level.endVote["maps"][i]);
-        self setClientDvar(level.endVote["prefix"] + "mapimage" + nr, level.endVote["mapImages"][i]);
+        self setClientCvar(level.endVote["prefix"] + "votes" + nr, level.endVote["votes"][i]);
+        self setClientCvar(level.endVote["prefix"] + "mapname" + nr, level.endVote["maps"][i]);
+        self setClientCvar(level.endVote["prefix"] + "mapimage" + nr, level.endVote["mapImages"][i]);
     }
 
     if (level.endVote["status"] > 0)
@@ -110,7 +110,7 @@ onTimeLimitReached() // Called multiple times due to map vote
         // FIXME: Idk wtf is going on, but calling map() will simply result in SV_MapExists returning false because fs_searchpaths are being weird.
         // Whatever, the following seems to work for now.
         //map(level.endVote["maps"][winnerIdx]);
-        setDvar("nextmap", "map " + level.endVote["maps"][winnerIdx]);
+        setCvar("nextmap", "map " + level.endVote["maps"][winnerIdx]);
         exitLevel();
     }
 
@@ -118,7 +118,7 @@ onTimeLimitReached() // Called multiple times due to map vote
     players = getEntArray("player", "classname");
     for (i = 0; i < players.size; i++)
     {
-        players[i] setClientDvar(level.endVote["prefix"] + "status", level.endVote["status"]);
+        players[i] setClientCvar(level.endVote["prefix"] + "status", level.endVote["status"]);
 
         if (level.endVote["status"] == 1)
         {
@@ -128,7 +128,7 @@ onTimeLimitReached() // Called multiple times due to map vote
         else if (level.endVote["status"] == 2)
         {
             // Tell players end map vote is over so that they draw "loading map" text instead
-            players[i] setClientDvar(level.endVote["prefix"] + "active", "loading");
+            players[i] setClientCvar(level.endVote["prefix"] + "active", "loading");
         }
         else
         {
@@ -173,7 +173,7 @@ onVoteChanged(val)
     // Update player's and total map votes
     self.endVote = newVoteIdx;
     level.endVote["votes"][newVoteIdx]++;
-    self setClientDvar(level.endVote["prefix"] + "voted", val);
+    self setClientCvar(level.endVote["prefix"] + "voted", val);
 
     _updateVotes(prevVoteIdx, newVoteIdx);
 }
@@ -218,19 +218,19 @@ _updateVotes(prevVoteIdx, newVoteIdx)
         // Remove the player's previous vote if there was one
         if (isDefined(prevVoteIdx) && (prevVoteIdx != -1))
         {
-            players[i] setClientDvar(level.endVote["prefix"] + "votes" + (prevVoteIdx + 1), level.endVote["votes"][prevVoteIdx]);
+            players[i] setClientCvar(level.endVote["prefix"] + "votes" + (prevVoteIdx + 1), level.endVote["votes"][prevVoteIdx]);
         }
 
         // Add the player's new vote if there is one
         if (isDefined(newVoteIdx) && (newVoteIdx != -1))
         {
-            players[i] setClientDvar(level.endVote["prefix"] + "votes" + (newVoteIdx + 1), level.endVote["votes"][newVoteIdx]);
+            players[i] setClientCvar(level.endVote["prefix"] + "votes" + (newVoteIdx + 1), level.endVote["votes"][newVoteIdx]);
         }
 
         // Report if winning map changed
         if (winningChanged)
         {
-            players[i] setClientDvar(level.endVote["prefix"] + "winning", (level.endVote["winning"] + 1));
+            players[i] setClientCvar(level.endVote["prefix"] + "winning", (level.endVote["winning"] + 1));
         }
     }
 }

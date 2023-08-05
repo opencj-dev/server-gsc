@@ -4,7 +4,7 @@ onPlayerConnect()
 {
     self.jumpSlowDownHudName = "jumpSlowDownTimer";
     //                        name                      x   y   alignX    alignY    hAlign             vAlign
-    self opencj\huds::initHUD(self.jumpSlowDownHudName, 0, -30, "center", "middle", "center_safearea", "center_safearea",
+    self opencj\huds\base::initRegularHUD(self.jumpSlowDownHudName, 0, -30, "center", "middle", "center_safearea", "center_safearea",
                         //    foreground   font     hideInMenu   color    glowColor  glowAlpha  fontScale  archived alpha
                               undefined, undefined, undefined, undefined, undefined, undefined, 1.5,       true,    0);
 	self.hud[self.jumpSlowDownHudName].endTime = getTime();

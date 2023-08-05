@@ -9,18 +9,10 @@ onInit()
 	level.saveFlags["rpg"] = 8;
 	level.saveFlags["eleOverrideNow"] = 16;
 	level.saveFlags["eleOverrideEver"] = 32;
-	level.saveFlags["haxfps"] = 64;
-	level.saveFlags["mixfps"] = 128;
-}
-
-hasHaxFPS(save)
-{
-	return (save.flags & level.saveFlags["haxfps"]) != 0;
-}
-
-hasMixFPS(save)
-{
-	return (save.flags & level.saveFlags["mixfps"]) != 0;
+    level.saveFlags["anyPctNow"] = 64;
+    level.saveFlags["anyPctEver"] = 128;
+    level.saveFlags["TASNow"] = 256;
+    level.saveFlags["TASEver"] = 512;
 }
 
 getFlagEleOverrideNow(save)
@@ -100,14 +92,9 @@ createFlags()
 	{
 		flags |= level.saveFlags["eleOverrideEver"];
 	}
-	if(openCJ\fps::hasUsedHaxFPS())
-	{
-		flags |= level.saveFlags["haxfps"];
-	}
-	if(openCJ\fps::hasUsedMixFPS())
-	{
-		flags |= level.saveFlags["mixfps"];
-	}
+
+    // TODO: implement any % and TAS
+
 	return flags;
 }
 
@@ -248,10 +235,11 @@ setSavedPosition()
 		numOfEnt = undefined;
 	}
 	flags = self createFlags();
-	fps = self openCJ\fps::getCurrentFPS();
+	FPSModeStr = self openCJ\fps::getCurrentFPSMode();
+    FPSModeNum = self openCJ\fps::FPSModeToInt(FPSModeStr);
 	saveNum = self openCJ\statistics::increaseAndGetSaveCount();
-	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveLaunches(), self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags);
-	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveLaunches(), self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), fps, flags, saveNum);
+	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeStr, flags);
+	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeNum, flags, saveNum);
 	return saveNum;
 }
 
@@ -263,12 +251,11 @@ getSavedPosition(backwardsCount)
 	save.origin = self savePosition_getOrigin();
 	save.angles = self savePosition_getAngles();
 
-    save.explosiveLaunches = self savePosition_getExplosiveLaunches();
 	save.explosiveJumps = self savePosition_getExplosiveJumps();
 	save.doubleExplosives = self savePosition_getDoubleExplosives();
 	save.checkpointID = self savePosition_getCheckpointID();
 	save.flags = self savePosition_getFlags();
-	save.fps = self savePosition_getFPS();
+	save.FPSMode = self openCJ\fps::FPSModeToString(self savePosition_getFPSMode());
 	save.saveNum = self savePosition_getSaveNum();
 
 	groundEntity = self savePosition_getGroundEntity();

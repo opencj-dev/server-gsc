@@ -38,19 +38,7 @@ whileAlive()
 	self.statistics["curr"]["secondsPlayed"] = self openCJ\playTime::getSecondsPlayed();
 
     // FPS
-	self.statistics["curr"]["fps"] = openCJ\fps::getCurrentFPS();
-	if (self openCJ\fps::hasUsedHaxFPS())
-	{
-		self.statistics["curr"]["fpsMode"] = "hax";
-	}
-	else if(self openCJ\fps::hasUsedMixFPS())
-	{
-		self.statistics["curr"]["fpsMode"] = "mix";
-	}
-	else
-	{
-		self.statistics["curr"]["fpsMode"] = "125";
-	}
+	self.statistics["curr"]["fpsMode"] = openCJ\fps::getCurrentFPSMode();
 
     // Ele, any%, TAS
     self.statistics["curr"]["usedEle"] = self openCJ\elevate::hasEleOverrideEver();

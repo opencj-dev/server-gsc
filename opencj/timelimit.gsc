@@ -66,7 +66,7 @@ loop()
         }
 
         // Remain synchronous with actual time
-        syncTimeDiff = timeLeftFloat - floor(timeLeftFloat);
+        syncTimeDiff = timeLeftFloat - int(timeLeftFloat);
         if (syncTimeDiff >= 0.5)
         {
             syncTimeDiff -= 1.0; // Don't want to wait 2 seconds, instead just wait less
