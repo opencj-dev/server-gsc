@@ -288,11 +288,6 @@ onInit()
 	}
 }
 
-getEnderName(checkpoint)
-{
-	return checkpoint.enderName;
-}
-
 _parseRoutesAndFixUnnamedRoutes()
 {
     // Goal: fill in names for unnamed routes, and store all (not only unnamed) routes into level.routeEnders for later leaderboard use
@@ -350,8 +345,35 @@ _storeRouteAndEndCheckpoint(checkpoint)
     level.routeEnders[enderName][level.routeEnders[enderName].size] = checkpoint;
 }
 
+getRouteNameForCheckpoint(checkpoint)
+{
+    if (!isDefined(checkpoint))
+    {
+        return undefined;
+    }
+
+    if (!isDefined(checkpoint.id))
+    {
+        if(isDefined(checkpoint.bigBrother))
+        {
+            checkpoint = checkpoint.bigBrother;
+        }
+        else
+        {
+            return undefined;
+        }
+    }
+
+    return _determineEnderName(getEndCheckpoints(checkpoint));
+}
+
 _determineEnderName(endCheckpoints) // Argument is the end checkpoint(s) for a specific checkpoint
 {
+    if (!isDefined(endCheckpoints))
+    {
+        return undefined;
+    }
+
     // Goal: determine what route a checkpoint is part of
     // This is used for displaying the route on screen, so if the player has not yet selected a route, we want to show nothing (undefined)
     enderName = undefined;
@@ -418,6 +440,17 @@ getRemainingCheckpointCount(checkpoint)
 
 getEndCheckpoints(checkpoint)
 {
+    if (!isDefined(checkpoint))
+    {
+        return undefined;
+    }
+
+    endCheckpoints = [];
+    if (!isDefined(checkpoint.hasChildren) || !checkpoint.hasChildren)
+    {
+        endCheckpoints[0] = checkpoint;
+        return endCheckpoints;
+    }
 	return checkpoint.endCheckpoints;
 }
 

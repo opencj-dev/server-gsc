@@ -154,29 +154,33 @@ _getHUDString(client)
     // FPS is already covered by runInfo icons
 
     // Routes
-    route = openCJ\checkpoints::getEnderName(client openCJ\checkpoints::getCheckpoint());
-    if(isDefined(route))
+    currentCheckpoint = client openCJ\checkpoints::getCheckpoint();
+    if (self openCJ\playerRuns::hasRunStarted() && isDefined(currentCheckpoint))
     {
-        currentCp = client openCJ\checkpoints::getCheckpoint();
-        nrPassedCps = 0;
-        nrRemainingCps = undefined;
-        if (isDefined(currentCp))
+        route = openCJ\checkpoints::getRouteNameForCheckpoint(currentCheckpoint);
+        if(isDefined(route))
         {
-            nrPassedCps = openCJ\checkpoints::getPassedCheckpointCount(currentCp);
-            nrRemainingCps = openCJ\checkpoints::getRemainingCheckpointCount(currentCp);
+            currentCp = client openCJ\checkpoints::getCheckpoint();
+            nrPassedCps = 0;
+            nrRemainingCps = undefined;
+            if (isDefined(currentCp))
+            {
+                nrPassedCps = openCJ\checkpoints::getPassedCheckpointCount(currentCp);
+                nrRemainingCps = openCJ\checkpoints::getRemainingCheckpointCount(currentCp);
+            }
+            cpString = "";
+            if (isDefined(nrRemainingCps))
+            {
+                nrTotalCps = nrPassedCps + nrRemainingCps;
+                cpString = "(" + nrPassedCps + " / " + nrTotalCps + ")";
+            }
+            else
+            {
+                cpString = "(" + nrPassedCps + " / ?)";
+            }
+            newstring += "Route: " + route + "\n";
+            newString += cpString + "\n";
         }
-        cpString = "";
-        if (isDefined(nrRemainingCps))
-        {
-            nrTotalCps = nrPassedCps + nrRemainingCps;
-            cpString = "(" + nrPassedCps + " / " + nrTotalCps + ")";
-        }
-        else
-        {
-            cpString = "(" + nrPassedCps + " / ?)";
-        }
-        newstring += "Route: " + route + "\n";
-        newString += cpString + "\n";
     }
 
     return newstring;
