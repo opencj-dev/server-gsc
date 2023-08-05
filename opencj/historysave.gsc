@@ -43,16 +43,40 @@ _historyLoad(runID)
 _loadSavesFromDatabase(runID, instanceNumber)
 {
 	self endon("disconnect");
-	rowsRun = self openCJ\mySQL::mysqlAsyncQuery("SELECT timePlayed, saveCount, loadCount, RPGShots, nadeThrows FROM playerRuns WHERE runID = " + runID);
-	rowsSaves = self openCJ\mySQL::mysqlAsyncQuery("SELECT x, y, z, alpha, beta, gamma, RPGJumps, nadeJumps, doubleRPGs, checkpointID, fps, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 50");
+	rowsRun = self openCJ\mySQL::mysqlAsyncQuery("SELECT timePlayed, saveCount, loadCount, explosiveLaunches, explosiveJumps, doubleExplosives, FPSMode, usedEle, usedAnyPct, usedTAS FROM playerRuns WHERE runID = " + runID);
+	rowsSaves = self openCJ\mySQL::mysqlAsyncQuery("SELECT x, y, z, alpha, beta, gamma, explosiveLaunches, explosiveJumps, doubleExplosives, checkpointID, fps, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 50");
 	self openCJ\playerRuns::setRunIDAndInstanceNumber(runID, instanceNumber);
 	self openCJ\events\runIDCreated::main();
 	self openCJ\playerRuns::startRun();
 	self openCJ\playtime::setTimePlayed(int(rowsRun[0][0]));
 	self openCJ\statistics::setSaveCount(int(rowsRun[0][1]));
 	self openCJ\statistics::setLoadCount(int(rowsRun[0][2]));
-	self openCJ\statistics::setRPGShots(int(rowsRun[0][3]));
-	self openCJ\statistics::setNadeThrows(int(rowsRun[0][4]));
+	self openCJ\statistics::setExplosiveLaunches(int(rowsRun[0][3]));
+	self openCJ\statistics::setExplosiveJumps(int(rowsRun[0][4]));
+    self openCJ\statistics::setDoubleExplosives(int(rowsRun[0][5]));
+
+    fpsMode = rowsRun[0][6];
+    self openCJ\fps::setUsedHaxFps(false);
+    self openCJ\fps::setUsedMixFps(false);
+    switch(fpsMode)
+    {
+        case "hax":
+        case "all":
+        {
+            self openCJ\fps::setUsedHaxFps(true);
+        } // Fallthrough
+        case "mix":
+        case "standard":
+        {
+            self openCJ\fps::setUsedMixFps(true);
+        } break;
+    }
+
+    self openCJ\elevate::setEleOverrideEver(strToBool(rowsRun[0][7])); // TODO: is this correct, setting eleOverrideEle to true as well?
+    self openCJ\elevate::setEleOverrideNow(strToBool(rowsRun[0][7]));
+
+    // Any % not yet implemented
+    // TAS not yet implemented
 	self openCJ\healthRegen::resetHealthRegen();
 	self openCJ\shellShock::resetShellShock();
 	self openCJ\checkpointPointers::showCheckpointPointers();
@@ -83,7 +107,7 @@ _getEntNum(targetName, numOfEnt)
 	return undefined;
 }
 
-saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, doubleRPGs, checkpointID, fps, flags)
+saveToDatabase(origin, angles, entTargetName, numOfEnt, explosiveLaunches, explosiveJumps, doubleExplosives, checkpointID, fps, flags)
 {
 	self endon("disconnect");
 	if(self openCJ\playerRuns::isRunFinished())
@@ -103,8 +127,9 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, dou
 	timePlayed = self openCJ\playTime::getTimePlayed();
 	saveCount = self openCJ\statistics::getSaveCount();
 	loadCount = self openCJ\statistics::getLoadCount();
-	RPGShots = self openCJ\statistics::getRPGShots();
-	nadeThrows = self openCJ\statistics::getNadeThrows();
+	explosiveLaunches = self openCJ\statistics::getExplosiveLaunches();
+	explosiveJumps = self openCJ\statistics::getExplosiveJumps();
+    doubleExplosives = self openCJ\statistics::getDoubleExplosives();
 
 	runInstance = self openCJ\playerRuns::getRunInstanceNumber();
 	if(!isDefined(entTargetName))
@@ -129,7 +154,11 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, RPGJumps, nadeJumps, dou
 	alpha = int(angles[0]);
 	beta = int(angles[1]);
 	gamma = int(angles[2]);
-	rows = openCJ\mySQL::mysqlAsyncQuery("SELECT savePosition(" + runID + ", " + runInstance + ", " + x + ", " + y + ", " + z + ", " + alpha + ", " + beta + ", " + gamma + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + RPGJumps + ", " + nadeJumps + ", " + doubleRPGs + ", " + RPGShots + ", " + nadeThrows + ", " + checkpointID + ", " + fps + ", " + flags + ", " + entTargetName + ", " + numOfEnt + ")");
+
+    query = "SELECT savePosition(" + runID + ", " + runInstance + ", " + x + ", " + y + ", " + z + ", " + alpha + ", " + beta + ", " + gamma + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + explosiveLaunches + ", " + explosiveJumps + ", " + doubleExplosives + ", " + checkpointID + ", " + fps + ", " + flags + ", " + entTargetName + ", " + numOfEnt + ")";
+	printf("savePosition query:\n" + query + "\n"); // Debug
+    
+    rows = openCJ\mySQL::mysqlAsyncQuery(query);
 	if(!isDefined(rows[0][0]))
 	{
 		//run has been loaded by another instance

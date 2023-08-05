@@ -59,6 +59,7 @@ loadSettingsFromDatabase()
 			}
 		}
 	}
+
 	self.settingsLoaded = true;
 	self openCJ\events\playerLogin::main();
 }
@@ -161,7 +162,8 @@ onSetting(name, args)
 
     setting = level.settings[name];
 
-    updated = false;
+    update = false;
+    newVal = undefined;
     switch(setting.type)
     {
         case "string":
@@ -177,8 +179,8 @@ onSetting(name, args)
                 return;
             }
 
-            self.settingValues[name] = arg;
-            updated = true;
+            newVal = arg;
+            update = true;
         } break;
         case "int":
         {
@@ -200,8 +202,8 @@ onSetting(name, args)
                 return;
             }
 
-            self.settingValues[name] = arg;
-            updated = true;
+            newVal = arg;
+            update = true;
         } break;
         case "bool":
         {
@@ -213,13 +215,13 @@ onSetting(name, args)
                     return;
                 }
 
-                self.settingValues[name] = strToBool(arg);
+                newVal = strToBool(arg);
             }
             else
             {
-                self.settingValues[name] = !self.settingValues[name];
+                newVal = !self.settingValues[name];
             }
-            updated = true;
+            update = true;
         } break;
         case "float":
         {
@@ -241,8 +243,8 @@ onSetting(name, args)
                 return;
             }
 
-            self.settingValues[name] = arg;
-            updated = true;
+            newVal = arg;
+            update = true;
         } break;
         default:
         {
@@ -251,20 +253,30 @@ onSetting(name, args)
         }
     }
 
-    // If a setting was changed, check if a dvar needs to be changed with it etc
-    if(isDefined(setting.updateFunc))
+    if (!update)
     {
-        self [[setting.updateFunc]](self.settingValues[name]);
+        // Some checks failed, not updating
+        return;
     }
 
-    if(updated)
+    // The setting may have an update func that can prevent the update (although it's typically used to update matching dvars or perform post-update actions)
+    // This can be used, for example, to allow only certain values for a string setting.
+    if (isDefined(setting.updateFunc))
     {
-        self sendLocalChatMessage("Changed setting " + name + " to " + self.settingValues[name], false);
+        result = self [[setting.updateFunc]](newVal);
+        if (isDefined(result) && !result)
+        {
+            // Update func says no..
+            return;
+        }
     }
 
-    // Update setting in database
+    // Update the setting!
+    self.settingValues[name] = newVal;
+    self sendLocalChatMessage("Changed setting " + name + " to " + self.settingValues[name], false);
+
+    // Write updated setting to database
     self thread writePlayerSettingToDb(name, self.settingValues[name]);
-    return;
 }
 
 addSettingString(name, minLen, maxLen, defaultVal, help, updateFunc)
@@ -353,6 +365,6 @@ _createSetting(name, defaultVal, help, updateFunc, typeStr)
 writePlayerSettingToDb(setting, value)
 {
 	query = "CALL setPlayerSetting(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(setting) + "', '" + openCJ\mySQL::escapeString(value + "") + "')";
-	printf(query + "\n");
+	printf("setPlayerSetting query:\n" + query + "\n"); // Debug
 	self thread openCJ\mySQL::mysqlAsyncQueryNosave(query);
 }

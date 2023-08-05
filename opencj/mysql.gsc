@@ -16,7 +16,7 @@ onInit()
 		ret = mysql_real_connect(level.mySQL, level.database["host"], level.database["user"], level.database["pass"], level.database["name"], level.database["port"]);
 		if(!ret)
 		{
-			printf("errno=" + mysql_errno(level.mySQL) + " error= " + mysql_error(level.mySQL) + "\n");
+			printf("ERROR: MYSQL errno=" + mysql_errno(level.mySQL) + " error= " + mysql_error(level.mySQL) + "\n");
 			mysql_close(level.mySQL);
 			return;
 		}

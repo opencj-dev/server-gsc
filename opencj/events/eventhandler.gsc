@@ -225,7 +225,6 @@ _storeFrameToDB(eventsCreateQuery)
 		flags |= 256;
 	}
 	stance = self getStance();
-	//printf(stance + "\n");
 	if(stance == "stand")
 	{
 		flags |= 512;
@@ -266,7 +265,6 @@ _storeFrameToDB(eventsCreateQuery)
 	// Let's append these frames to the query
 	self openCJ\mySQL::mySQLAsyncLongQueryAppend(self.recordLongQueryID, query);
 	self.recordLongQueryRemainingChars -= query.size;
-	//printf(query + "\n");
 
 	// Sync to db if there is not enough room left in the max allowed long query size, or if we reached 200 frames (10 seconds)
 	if((self.recordLongQueryRemainingChars < 250) || (self.recordLongQueryFrameCount >= 200))

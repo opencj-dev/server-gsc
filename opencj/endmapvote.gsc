@@ -13,10 +13,16 @@ onInit()
     level.endVote["status"] = 0; // 0 = idle, 1 = voting, 2 = loading next map
     for (i = 0; i < level.endVote["nrMaps"]; i++)
     {
-        // TODO fill in maps
         level.endVote["votes"][i] = 0;
     }
 
+    precacheMenu(level.endVote["menu"]);
+
+    thread fetchRandomMaps();
+}
+
+fetchRandomMaps()
+{
     // Fetch random maps from database for next vote
     query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getDvar("mapname") + "' ORDER BY RAND() LIMIT " + level.endVote["nrMaps"];
     rows = opencj\mysql::mysqlAsyncQuery(query);
@@ -30,20 +36,7 @@ onInit()
     }
     else
     {
-        printf("Error: could not get random maps for end map vote...\n");
-    }
-
-    precacheMenu(level.endVote["menu"]);
-
-    thread connections();
-}
-
-connections()
-{
-    for(;;)
-    {
-        level waittill("connected", player);
-        player thread onPlayerConnected();
+        printf("ERROR: could not get random maps for end map vote...\n");
     }
 }
 

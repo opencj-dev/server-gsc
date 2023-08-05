@@ -2,10 +2,15 @@
 
 _checkpointPassed(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 {
-	if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
+    cpID = getCheckpointID(cp);
+    if (!isDefined(cpID))
+    {
+        return;
+    }
+
+	if(self openCJ\playerRuns::hasRunID())
 	{
 		runID = self openCJ\playerRuns::getRunID();
-		cpID = self openCJ\checkpoints::getCheckpointID(cp);
 		timePlayed = self openCJ\playTime::getTimePlayed() + tOffset;
 		self thread storeCheckpointPassed(runID, cpID, timePlayed);
 		self thread _notifyCheckpointPassed(runID, cpID, timePlayed);
@@ -21,13 +26,22 @@ storeCheckpointPassed(runID, cpID, timePlayed)
 
 	saveCount = self openCJ\statistics::getSaveCount();
 	loadCount = self openCJ\statistics::getLoadCount();
-	nadeJumps = self openCJ\statistics::getNadeJumps();
-	nadeThrows = self openCJ\statistics::getNadeThrows();
-	RPGJumps = self openCJ\statistics::getRPGJumps();
-	RPGShots = self openCJ\statistics::getRPGShots();
-	doubleRPGs = self openCJ\statistics::getDoubleRPGs();
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT checkpointPassed(" + runID + ", " + cpID + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + nadeJumps + ", " + nadeThrows + ", " + RPGJumps + ", " + RPGShots + ", " + doubleRPGs + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ")");
-	if(!isDefined(rows[0][0]))
+	explosiveJumps = self openCJ\statistics::getExplosiveJumps(); // RPG/nade jump
+	explosiveLaunches = self openCJ\statistics::getExplosiveLaunches(); // RPG launch / nade throw
+    doubleExplosives = self openCJ\statistics::getDoubleExplosives(); // Double RPGs
+    FPSMode = self openCJ\statistics::getFPSMode();
+    usedEle = self openCJ\statistics::getUsedEle();
+    usedAnyPct = self openCJ\statistics::getUsedAnyPct();
+    usedTAS = self openCJ\statistics::getUsedTAS();
+
+    // This is a store procedure in SQL database
+    filterStr = "'" + FPSMode + "'" + ", " + usedEle + ", " + usedAnyPct + ", " + usedTAS;
+    explosiveStr = explosiveJumps + ", " + explosiveLaunches + ", " + doubleExplosives;
+    query = "SELECT checkpointPassed(" + runID + ", " + cpID + ", " + timePlayed + ", " + saveCount + ", " + loadCount + ", " + explosiveStr + ", " + filterStr + ", " + self openCJ\playerRuns::getRunInstanceNumber() + ")";
+    printf("Executing checkpointPassed query:\n" + query + "\n");  // Debug
+
+    rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+    if(!isDefined(rows[0][0]))
 	{
 		self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
 		self openCJ\playerRuns::printRunIDandInstanceNumber();
@@ -80,6 +94,7 @@ onInit()
 	{
 		rows = openCJ\mySQL::mysqlSyncQuery("SELECT a.cpID, a.x, a.y, a.z, a.radius, a.onGround, GROUP_CONCAT(b.childCpID), a.ender, a.elevate, a.endShaderColor, c.bigBrotherID FROM checkpoints a LEFT JOIN checkpointConnections b ON a.cpID = b.cpID LEFT JOIN checkpointBrothers c ON a.cpID = c.cpID WHERE a.mapID = " + openCJ\mapid::getMapID() + " GROUP BY a.cpID");
 
+        // First we obtain all checkpoints for the current map from the database
 		checkpoints = [];
 		for(i = 0; i < rows.size; i++)
 		{
@@ -104,6 +119,7 @@ onInit()
 			checkpoints[checkpoints.size] = checkpoint;
 		}
 
+        // Now fill in all the children for each checkpoint
 		for(i = 0; i < checkpoints.size; i++)
 		{
 			checkpoints[i].childs = [];
@@ -114,39 +130,55 @@ onInit()
 				{
 					if(k == i)
 					{
-						continue;
+						continue; // Skip self
 					}
+
+                    // Find a checkpoint that is a child of the checkpoint for which we're adding the children
 					if(checkpoints[k].id == int(checkpoints[i].childIDs[j]))
 					{
 						checkpoints[i].childs[checkpoints[i].childs.size] = checkpoints[k];
-						checkpoints[i].ender = undefined; //cannot have enders on mid-route checkpoints
+						checkpoints[i].ender = undefined; // This is not the last checkpoint in a route, so it mustn't have an ender
 						checkpoints[k].hasParent = true;
 						found = true;
 						break;
 					}
 				}
+
+                // Checkpoint has childIDs, but we could not find any children checkpoints..
 				if(!found)
 				{
 					printf("WARNING: Could not find child " + checkpoints[i].childIDS[j] + " for checkpoint " + checkpoints[i].id + "\n");
 				}
 			}
-			checkpoints[i].childIDs = undefined;
+			checkpoints[i].childIDs = undefined; // This was a CSV list, no longer need it now that the children are filled in
+            checkpoints[i].hasChildren = (checkpoints[i].childs.size > 0);
 			checkpoints[i].endCheckpoints = [];
 		}
+
+        // Fill in the big brother checkpoints 
 		for(i = 0; i < checkpoints.size; i++)
 		{
+            // Ah, this checkpoint has a big brother, let's find it
 			if(isDefined(checkpoints[i].bigBrother))
 			{
 				for(j = 0; j < checkpoints.size; j++)
 				{
-					if(checkpoints[j].id == checkpoints[i].bigBrother && checkpoints[j] != checkpoints[i])
+                    if (i == j)
+                    {
+                        continue; // Skip self
+                    }
+
+					if(checkpoints[i].bigBrother == checkpoints[j].id)
 					{
+                        // OK, this checkpoint's id is the big brother we were searching
 						checkpoints[i].bigBrother = checkpoints[j];
 						break;
 					}
 				}
 			}
 		}
+
+        // All checkpoints without parents are deemed to be 'start' checkpoints, so fill them in
 		for(i = 0; i < checkpoints.size; i++)
 		{
 			if(!checkpoints[i].hasParent)
@@ -157,14 +189,16 @@ onInit()
 		level.checkpoints_startCheckpoint.checkpointsFromStart = 0;
 
 		level.checkpoints_checkpoints = checkpoints;
+
+        // Now it's time to figure out the route that each checkpoint is part of.
+        // Pathfinding algorithm. If a checkpoint ends up at 1 ender, then the route is clear. Otherwise we know the checkpoints' multiple routes.
 		enders = getAllEndCheckpoints();
 		level.checkpoints_startCheckpoint.endCheckpoints = enders;
-		level.checkpoints_startCheckpoint.enderName = _calculateEnderName(enders);
-		if(!enders.size)
+		level.checkpoints_startCheckpoint.enderName = _determineEnderName(enders);
+		if(enders.size <= 0)
 		{
 			level.checkpoints_startCheckpoint.checkpointsTillEnd = 0;
 		}
-
 		for(i = 0; i < enders.size; i++)
 		{
 			openList = [];
@@ -246,10 +280,11 @@ onInit()
 			openList = newOpenList;
 			iterationNum++;
 		}
-		for(i = 0; i < checkpoints.size; i++)
-		{
-			checkpoints[i].enderName = _calculateEnderName(checkpoints[i].endCheckpoints);
-		}
+
+        // Finally, for each checkpoint we can fill in the route name. Which means we can also note down all the routes in the map and their end checkpoints for leaderboard use.
+        // There may be end checkpoints with unnamed routes. We want to fix those first.
+        // The following function both fills in route names (unnamed1, unnamed2, ...) for unnamed routes, as well as store all routes it encounters into level.routeEnders
+        _parseRoutesAndFixUnnamedRoutes();
 	}
 }
 
@@ -258,44 +293,85 @@ getEnderName(checkpoint)
 	return checkpoint.enderName;
 }
 
-_calculateEnderName(endCheckpoints)
+_parseRoutesAndFixUnnamedRoutes()
 {
-	enders = [];
-	hasUndefinedEnders = false;
-	for(i = 0; i < endCheckpoints.size; i++)
-	{
-		if(!isDefined(endCheckpoints[i].ender))
-		{
-			hasUndefinedEnders = true;
-			continue;
-		}
-		if(!isInArray(endCheckpoints[i].ender, enders))
-		{
-			enders[enders.size] = endCheckpoints[i].ender;
-		}
-	}
-	if(hasUndefinedEnders)
-	{
-		if(enders.size == 0)
-		{
-			return undefined;
-		}
-		else
-		{
-			return undefined;
-		}
-	}
-	else
-	{
-		if(enders.size == 1)
-		{
-			return enders[0];
-		}
-		else
-		{
-			return undefined;
-		}
-	}
+    // Goal: fill in names for unnamed routes, and store all (not only unnamed) routes into level.routeEnders for later leaderboard use
+
+    nextRouteNr = 1;
+    level.routeEnders = []; // Will have all 'finish' checkpoint IDs for each route
+    for (i = 0; i < level.checkpoints_checkpoints.size; i++)
+    {
+        checkpoint = level.checkpoints_checkpoints[i];
+        if (checkpoint.hasChildren)
+        {
+            // Not an end checkpoint
+            continue;
+        }
+
+        // Even if the checkpoint has an ender, bigBrother takes precedence and we'll encounter (or have encountered) that checkpoint.
+        if (isDefined(checkpoint.bigBrother))
+        {
+            // All 'little brother' checkpoints link to the same big brother, but we do a quick check for corruption
+            bigBro = checkpoint.bigBrother;
+            if (isDefined(bigBro.bigBrother))
+            {
+                printf("WARNING: big brother is not as big as he thought..\n"); // We'd want to dump the ID, but since it has a big brother we shouldn't..
+            }
+
+            continue;
+        }
+
+        // Found an end checkpoint. Check if its ender has a name.
+        if (isDefined(checkpoint.ender) && (checkpoint.ender.size > 0))
+        {
+            // Route is named, store this route name if it wasn't already known
+            _storeRouteAndEndCheckpoint(checkpoint);
+            continue;
+        }
+
+        // No route was found. Generate a name.
+        checkpoint.ender = "unnamed_" + nextRouteNr;
+        nextRouteNr++;
+
+        // Store the (newly filled in) route name
+        _storeRouteAndEndCheckpoint(checkpoint);
+    }
+}
+
+_storeRouteAndEndCheckpoint(checkpoint)
+{
+    enderName = checkpoint.ender;
+    if (!isDefined(level.routeEnders[enderName]))
+    {
+        level.routeEnders[enderName] = [];
+    }
+
+    // And add the end checkpoint for the route.
+    level.routeEnders[enderName][level.routeEnders[enderName].size] = checkpoint;
+}
+
+_determineEnderName(endCheckpoints) // Argument is the end checkpoint(s) for a specific checkpoint
+{
+    // Goal: determine what route a checkpoint is part of
+    // This is used for displaying the route on screen, so if the player has not yet selected a route, we want to show nothing (undefined)
+    enderName = undefined;
+    for(i = 0; i < endCheckpoints.size; i++)
+    {
+        if(!isDefined(endCheckpoints[i].ender))
+        {
+            return undefined; // There is (at least) an unnamed ender in here. So we don't know the name of the route for sure.
+        }
+
+        // We already had an enderName from one of the other end checkpoints, and now another one
+        if (isDefined(enderName))
+        {
+            return undefined; // Multiple ender names, can't know for sure which route
+        }
+
+        enderName = endCheckpoints[i].ender;
+    }
+
+    return enderName;
 }
 
 getCheckpointShaderColor(checkpoint)
@@ -381,7 +457,45 @@ checkpointHasID(cp)
 
 getCheckpointID(cp)
 {
-	return cp.id;
+    id = undefined;
+
+    // Checkpoint may not have an ID
+    if (!isDefined(cp))
+    {
+        return; // That's a shame
+    }
+
+    if (!isDefined(cp.id))
+    {
+        if (!isDefined(cp.bigBrother))
+        {
+            return; // Nothing we can do
+        }
+
+        brotherCheckpoint = cp.bigBrother;
+        for (i = 0; i < level.checkpoints.size; i++)
+        {
+            if (isDefined(brotherCheckpoint.id))
+            {
+                id = brotherCheckpoint.id;
+                break; // Found it!
+            }
+
+            if (!isDefined(brotherCheckpoint.bigBrother))
+            {
+                break; // No luck
+            }
+
+            // Try the next one
+            brotherCheckpoint = brotherCheckpoint.bigBrother;
+        }
+    }
+    else
+    {
+        id = cp.id;
+    }
+
+	return id;
 }
 
 getCurrentCheckpointID()

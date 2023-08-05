@@ -46,7 +46,6 @@ _doLoadRecordingQuery(runID, demoID)
 	openCJ\mySQL::mysqlAsyncQuery(query);
 	query = "SELECT pr.x, pr.y, pr.z, pr.a, pr.b, pr.c, pr.isKeyFrame, pr.flags, ev.saveNum, ev.loadNum, ev.rpg, pr.frameTime FROM playerRecordings pr LEFT JOIN demoEvents ev ON pr.eventID = ev.eventID WHERE runID = " + runID + " ORDER BY frameNum ASC";
 
-	//printf("query: " + query + "\n");
 	result = openCJ\mySQL::mysqlAsyncQueryNoRows(query);
 	if(!isDefined(result) || (result == 0))
 	{
@@ -72,7 +71,7 @@ _doLoadRecordingQuery(runID, demoID)
 	if(createDemoResult == -2)
 	{
 		// Oh no, we ran out of free space.
-		printf("Ran out of free demo space... oops\n");
+		printf("ERROR: Ran out of free demo space... oops\n");
 		return;
 	}
 	else if(createDemoResult == -1)
@@ -393,12 +392,10 @@ _stopDemo()
 	self iprintln("Demo ended");
 	if(self openCJ\savePosition::canLoadError(0) == 0)
 	{
-		//printf("loading\n");
 		self thread openCJ\events\loadPosition::main(0);
 	}
 	else
 	{
-		//printf("spawning\n");
 		self thread openCJ\events\spawnPlayer::main();
 	}
 

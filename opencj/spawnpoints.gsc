@@ -16,7 +16,7 @@ _initSpawnpoints(className)
 	spawnpoints = getEntArray(className, "classname");
 	if(!isDefined(spawnpoints) || !spawnpoints.size)
 	{
-		printf("Using a fake spawnpoint for " + className + "\n");
+		printf("INFO: Using a fake spawnpoint for " + className + "\n");
 		spawnpoint = spawn("script_origin", (0, 0, 0));
 		spawnpoints[0] = spawnpoint;
 	}
