@@ -19,14 +19,27 @@ onStartDemo()
 	self _hideRunInfo();
 }
 
+onRunStarted()
+{
+    self _showRunInfo(self);
+}
+
 whileAlive()
 {
-	spectators = getSpectatorList(false);
+    shouldShow = self openCJ\playerRuns::hasRunStarted();
+
+	spectators = getSpectatorList(true); // true -> also consider yourself a spectator
 	for(i = 0; i < spectators.size; i++)
 	{
-		spectators[i] _showRunInfo(self);
+        if (shouldShow)
+        {
+		    spectators[i] _showRunInfo(self);
+        }
+        else
+        {
+            spectators[i] _hideRunInfo();
+        }
 	}
-    self _showRunInfo(self);
 }
 
 onSpectatorClientChanged(newClient)
@@ -60,17 +73,19 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 
 _showRunInfo(player)
 {
-	if (player openCJ\fps::hasUsedHaxFPS())
+    // TODO: CoD2 specific FPS don't have a shader (yet)..
+    FPSMode = player openCJ\fps::getCurrentFPSMode();
+	if (FPSMode == "hax")
 	{
         self.hudRunInfo["fps"] setShader(level.runInfoShader["hax"], level.iconWidth, level.iconHeight);
 		self.hudRunInfo["fps"].alpha = 1;
 	}
-    else if (player openCJ\fps::hasUsedMixFPS())
+    else if (FPSMode == "mix")
     {
         self.hudRunInfo["fps"] setShader(level.runInfoShader["mix"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
-    else
+    else if (FPSMode == "125")
     {
         self.hudRunInfo["fps"] setShader(level.runInfoShader["125"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;

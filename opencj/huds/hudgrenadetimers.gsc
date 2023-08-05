@@ -3,13 +3,6 @@
 onPlayerConnect()
 {
 	self.grenadeTimers = [];
-    self.grenadeTimersHudName = "grenadeTimers";
-	y = 40 + (10 * self.grenadeTimers.size);
-    //                             name                       x   y   alignX    alignY    hAlign   vAlign
-    self opencj\huds\base::initHUD(self.grenadeTimersHudName, 20, y,  "left",   "top",    "left",  "top",
-                        //    foreground   font     hideInMenu   color    glowColor  glowAlpha  fontScale  archived alpha
-                              undefined, undefined, undefined, undefined, undefined, undefined, 1,         true,    0);
-	self.hud[self.grenadeTimersHudName].endTime = getTime();
 }
 
 onGrenadeThrow(nade, name)
@@ -32,42 +25,63 @@ _showNadeTimer()
 	self endon("disconnect");
 	self endon("stopNadeTimer");
 
-	self.hud[self.grenadeTimersHudName].nadeTimer.y = 40 + 10 * self.grenadeTimers.size;
-	self.hud[self.grenadeTimersHudName].nadeTimer.alpha = 1;
-	self.hud[self.grenadeTimersHudName].nadeTimer setTenthsTimer(3.45);
+    newIdx = self.grenadeTimers.size;
+    name = "grenadeTimer" + newIdx;
 
-	self.grenadeTimers[self.grenadeTimers.size] = self.hud[self.grenadeTimersHudName].nadeTimer;
+	nadeTimer = newClientHudElem(self);
+	nadeTimer.horzAlign = "left";
+	nadeTimer.vertAlign = "top";
+	nadeTimer.alignX = "left";
+	nadeTimer.alignY = "top";
+	nadeTimer.x = 20;
+	nadeTimer.y = 40 + 10 * self.grenadeTimers.size;
+	nadeTimer.fontScale = 1;
+	nadeTimer.alpha = 1;
+	nadeTimer.archived = true;
+	nadeTimer setTenthsTimer(3.45);
 
-	for(t = 0; t < 70; t++)
+	self.grenadeTimers[self.grenadeTimers.size] = nadeTimer;
+
+    // Loop until the timer has expired
+	for(t = 0; t < 70; t++) // 70 * 0.05 = 3.5
 	{
 		if(t < 35)
 		{
-			self.hud[self.grenadeTimersHudName].nadeTimer.color = (t / 35, 1, 0);
+			nadeTimer.color = (t / 35, 1, 0);
 		}
 		else
 		{
-			self.hud[self.grenadeTimersHudName].nadeTimer.color = (1, 1 - ((t - 35) / 35), 0);
+			nadeTimer.color = (1, 1 - ((t - 35) / 35), 0);
 		}
 		wait 0.05;
 	}
 
-	ownNum = self.grenadeTimers.size - 1;
+    // Now that the nade timer has expired, remove it from the list
+    // Gotta re-find it though, since the list could have changed during the wait period
+    ownNum = self.grenadeTimers.size - 1;
 	for(i = 0; i < self.grenadeTimers.size; i++)
 	{
-		if(self.grenadeTimers[i] != self.hud[self.grenadeTimersHudName].nadeTimer)
+		if(self.grenadeTimers[i] != nadeTimer)
 		{
-			if(self.grenadeTimers[i].y > self.hud[self.grenadeTimersHudName].nadeTimer.y)
+            // Since we're destroying a nade timer, let other nade timers fill in the space
+			if(self.grenadeTimers[i].y > nadeTimer.y)
 			{
 				self.grenadeTimers[i].y -= 10;
 			}
 		}
-		else
-		{
-			ownNum = i;
-		}
+        else
+        {
+            // Found the right nade timer in the potentially changed list
+            ownNum = i;
+        }
 	}
+
+    // Re-use the slot for the last nade timer so we don't have an ever-expanding array size
 	self.grenadeTimers[ownNum] = self.grenadeTimers[self.grenadeTimers.size - 1];
 	self.grenadeTimers[self.grenadeTimers.size - 1] = undefined;
+
+    // Destroy the expired nade timer
+    nadeTimer destroy();
 }
 
 removeNadeTimers()

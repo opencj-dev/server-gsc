@@ -63,7 +63,15 @@ _fixDecimals(org)
 
 _updatePosHudValues()
 {
-    org = _fixDecimals(self getOrigin());
+    org = self getOrigin();
+    if (getCodVersion() == 4) // For CoD4 elevators we want a more accurate position
+    {
+        org = _fixDecimals(org);
+    }
+    else
+    {
+        org = (int(org[0]), int(org[1]), int(org[2]));
+    }
     self.hudPos["x"] setValue(org[0]);
     self.hudPos["y"] setValue(org[1]);
     self.hudPos["z"] setValue(org[2]);

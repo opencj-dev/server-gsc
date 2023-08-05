@@ -143,7 +143,12 @@ _loadDemo(demoID, result, framecount, lazyLoad)
 
 isPlayingDemo()
 {
-	return self.playingDemo;
+    if (isDefined(self.playingDemo))
+    {
+	    return self.playingDemo;
+    }
+    
+    return false;
 }
 
 onPlayerConnect()

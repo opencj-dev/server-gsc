@@ -86,8 +86,8 @@ onPlayerConnected()
     self.rt["curPage"] = 1;
 
     // Set route information at the start since it does not differ per player and is constant during the map (other than which page is being viewed)
-    level.rtMaxPage = floor(level.routeEnders.size / level.rtMaxEntriesPerPage) + 1;
-    self setClientDvar(level.lbDvarPrefix + "rtpagemax", level.rtMaxPage);
+    level.rtMaxPage = int(level.routeEnders.size / level.rtMaxEntriesPerPage) + 1;
+    self setClientCvar(level.lbDvarPrefix + "rtpagemax", level.rtMaxPage);
     self updateRoutes();
 
     self thread onMenuResponse();
@@ -146,20 +146,20 @@ updateLeaderBoard()
     self fetchUpdatedLeaderBoardData();
 
     // Update all dvars
-    self.lb["page"]["max"] = floor(self.lb["nrTotalEntries"] / level.lbMaxEntriesPerPage) + 1;
+    self.lb["page"]["max"] = int(self.lb["nrTotalEntries"] / level.lbMaxEntriesPerPage) + 1;
 
     // Update page text dvars after updating leader board
-    self setClientDvar(level.lbDvarPrefix + "lbpagetxt", self.lb["page"]["cur"] + "/" + self.lb["page"]["max"]);
-    self setClientDvar(level.lbDvarPrefix + "lbpage", self.lb["page"]["cur"]);
-    self setClientDvar(level.lbDvarPrefix + "lbpagemax", self.lb["page"]["max"]);
+    self setClientCvar(level.lbDvarPrefix + "lbpagetxt", self.lb["page"]["cur"] + "/" + self.lb["page"]["max"]);
+    self setClientCvar(level.lbDvarPrefix + "lbpage", self.lb["page"]["cur"]);
+    self setClientCvar(level.lbDvarPrefix + "lbpagemax", self.lb["page"]["max"]);
     
     // Update sorting dvars
     // First, clear prev sorting dvar
     if (self.lb["sortBy"] != self.lb["prevSortBy"])
     {
-        self setClientDvar(level.lbDvarPrefix + "sort_" + self.lb["prevSortBy"], 0);
+        self setClientCvar(level.lbDvarPrefix + "sort_" + self.lb["prevSortBy"], 0);
     }
-    self setClientDvar(level.lbDvarPrefix + "sort_" + self.lb["sortBy"], self.lb["sort"]);
+    self setClientCvar(level.lbDvarPrefix + "sort_" + self.lb["sortBy"], self.lb["sort"]);
 
     // And now the actual leaderboard data
     keys = getArrayKeys(self.lb["cols"][0]); // Although empty when i >= self.lb["nrEntriesThisPage"], can still be used for getArrayKeys
@@ -191,12 +191,12 @@ updateLeaderBoard()
                 */
 
                 // Send the updated dvar
-                self setClientDvar(dvar, val);
+                self setClientCvar(dvar, val);
             }
             else
             {
                 // Send cleared dvar to client
-                self setClientDvar(dvar, "");
+                self setClientCvar(dvar, "");
             }
         }
     }
@@ -219,15 +219,15 @@ updateRoutes()
         if (itemNr <= remainingEntries)
         {
             keys = getArrayKeys(level.routeEnders);
-            self setClientDvar(dvar, keys[(firstItemNrCurrentPage-1) + i]); // Starts at [0] not at [1], so -1
+            self setClientCvar(dvar, keys[(firstItemNrCurrentPage-1) + i]); // Starts at [0] not at [1], so -1
         }
         else
         {
-            self setClientDvar(dvar, ""); // Don't show background either
+            self setClientCvar(dvar, ""); // Don't show background either
         }
     }
 
-    self setClientDvar(level.lbDvarPrefix + "rtpage", self.rt["curPage"]);
+    self setClientCvar(level.lbDvarPrefix + "rtpage", self.rt["curPage"]);
 }
 
 updateSelectedRoute(absRouteNr)
@@ -235,11 +235,11 @@ updateSelectedRoute(absRouteNr)
     selectedRouteDvar = level.lbDvarPrefix + "rtselected";
     if (isAbsItemNrOnCurrentPage(absRouteNr, self.rt["curPage"], level.rtMaxEntriesPerPage)) // Currently selected route is visible on current page
     {
-        self setClientDvar(selectedRouteDvar, toRelItemNr(absRouteNr, self.rt["curPage"], level.rtMaxEntriesPerPage));
+        self setClientCvar(selectedRouteDvar, toRelItemNr(absRouteNr, self.rt["curPage"], level.rtMaxEntriesPerPage));
     }
     else // Not visible on current page
     {
-        self setClientDvar(selectedRouteDvar, "");
+        self setClientCvar(selectedRouteDvar, "");
     }
 }
 
@@ -611,7 +611,7 @@ handleFilterChange(button)
         // Filter: toggle allow TAS (Tool Assisted Speedrun)
         self.lb["filter"][button] = !self.lb["filter"][button];
         self openCJ\settings::setSetting(level.lbFilterSettingNames[button], self.lb["filter"][button]);
-        self setClientDvar(level.lbDvarPrefix + button + "_allow", self.lb["filter"][button]);
+        self setClientCvar(level.lbDvarPrefix + button + "_allow", self.lb["filter"][button]);
     }
     else if (isSubStr(button, "fps_"))
     {

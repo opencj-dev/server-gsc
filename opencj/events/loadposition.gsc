@@ -19,6 +19,7 @@ main(backwardsCount)
 		self openCJ\playTime::addTimeUntil(getTime() + (int(self getJumpSlowdownTimer() / 50) * 50)); //todo: make this flag-specific since disabling jump_slowdown should not give this delay, might already work baked-in to the function though
 	}
 
+    // Cheating
 	if(self openCJ\cheating::isCheating() && !openCJ\savePosition::isCheating(save))
 	{
 		self openCJ\cheating::setCheating(false);
@@ -28,35 +29,35 @@ main(backwardsCount)
 		self openCJ\cheating::setCheating(true);
 	}
 
+    // Spawn the player
 	self spawn(save.origin, save.angles);
 
 	self openCJ\statistics::setExplosiveJumps(save.explosiveJumps);
-	self openCJ\statistics::setExplosiveLaunches(save.explosiveLaunches);
 	self openCJ\statistics::setDoubleExplosives(save.doubleExplosives);
 	self openCJ\statistics::onLoadPosition();
 	self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID);
 	self openCJ\checkpoints::onLoadPosition();
 	self openCJ\huds\hudSpeedometer::onLoadPosition();
 
-
-	//set speed mode vars here
+	// Set speed mode
 	self openCJ\speedMode::setSpeedModeEver(openCJ\savePosition::hasSpeedModeEver(save));
 	self openCJ\speedMode::setSpeedMode(openCJ\savePosition::hasSpeedModeNow(save));
-	//set elevate override vars here
+
+	// Set elevator
 	self openCJ\elevate::setEleOverrideEver(openCJ\savePosition::getFlagEleOverrideEver(save));
 	self openCJ\elevate::setEleOverrideNow(openCJ\savePosition::getFlagEleOverrideNow(save));
-	//set hax/mix vars here
-	self openCJ\fps::setUsedHaxFPS(openCJ\savePosition::hasHaxFPS(save));
-	if(self openCJ\fps::getCurrentFPS() != save.fps)
-	{
-		self openCJ\fps::setUsedMixFPS(true);
-	}
-	else
-	{
-		self openCJ\fps::setUsedMixFPS(openCJ\savePosition::hasMixFPS(save));
-	}
 
-    // Any% and TAS not supported yet
+	// Set FPSMode. If save had non-hax non-mix, then the FPS mode should depend on the user's current mode instead
+    if ((save.FPSMode == "hax") || (save.FPSMode == "mix"))
+    {
+        self openCJ\fps::forceFPSMode(save.FPSMode);
+    }
+    else
+    {
+        self openCJ\fps::forceFPSMode(self openCJ\fps::getCurrentFPSMode());
+    }
+
+    // TODO: implement any% and TAS
 
 	self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
 	self openCJ\savePosition::printLoadSuccess();

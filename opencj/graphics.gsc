@@ -82,5 +82,5 @@ _onSettingFX(newVal)
 	{
 		newVal = 1;
 	}
-	self setClientDvar("fx_enable", newVal);
+	self setClientCvar("fx_enable", newVal);
 }

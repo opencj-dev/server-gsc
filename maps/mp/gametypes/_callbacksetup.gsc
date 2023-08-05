@@ -110,7 +110,6 @@ CodeCallback_MoveLeft()
 
 CodeCallback_FPSChange(newFrameTime)
 {
-	//self openCJ\events\FPSChange::main(newFrameTime);
 	self thread openCJ\events\fpsChange::onPmoveFPSChange(newFrameTime);
 }
 

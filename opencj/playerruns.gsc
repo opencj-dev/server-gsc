@@ -175,9 +175,9 @@ startRun()
 {
 	if(self openCJ\login::isLoggedIn() && self hasRunID() && self.sessionState == "playing" && !self.playerRuns_runStarted)
 	{
-		self openCJ\FPS::onRunStarted();
 		self.playerRuns_runStarted = true;
 		self unLink();
+        self openCJ\FPS::onRunStarted();
 		self openCJ\playTime::startTimer();
 	}
 }
