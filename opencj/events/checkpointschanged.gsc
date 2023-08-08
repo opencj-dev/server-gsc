@@ -6,7 +6,11 @@ main()
 	self openCJ\showRecords::onCheckpointsChanged();
 	self openCJ\huds\hudProgressBar::onCheckpointsChanged();
 	self openCJ\elevate::onCheckpointsChanged();
-	checkpoints = self openCJ\checkpoints::getCheckpoints();
+    self openCJ\statistics::onCheckpointsChanged();
+
+
+    // Debug
+	checkpoints = self openCJ\checkpoints::getCurrentChildCheckpoints();
 	for(i = 0; i < checkpoints.size; i++)
 	{
 		str = "";
@@ -26,9 +30,7 @@ main()
                 isFirstCp = false;
             }
 		}
-
-        // Debug
-		printf("Checkpoint " + openCJ\checkpoints::getCheckpointID(checkpoints[i]) + " has end checkpoints: " + str + "\n");
-		printf("Route completion: " + openCJ\checkpoints::getPassedCheckpointCount(self.checkpoints_checkpoint) + " to go: " + openCJ\checkpoints::getRemainingCheckpointCount(self.checkpoints_checkpoint) + "\n");
+		printf("DEBUG: checkpoint " + openCJ\checkpoints::getCheckpointID(checkpoints[i]) + " has end checkpoints: " + str + "\n");
+		printf("DEBUG: route completion: " + openCJ\checkpoints::getPassedCheckpointCount(self.checkpoints_checkpoint) + " to go: " + openCJ\checkpoints::getRemainingCheckpointCount(self.checkpoints_checkpoint) + "\n");
 	}
 }

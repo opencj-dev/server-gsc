@@ -22,6 +22,7 @@ main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 	self openCJ\elevate::onRunFinished(cp);
 	self openCJ\playTime::onRunFinished(cp);
 	self openCJ\events\eventHandler::onRunFinished(cp);
+    self openCJ\statistics::onRunFinished();
 }
 
 _notifyFinishedMap(runID, cpID, timePlayed)

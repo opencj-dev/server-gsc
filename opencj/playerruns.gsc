@@ -149,8 +149,24 @@ hasRunStarted()
 
 onRunIDCreated()
 {
-	self.playerRuns_runStarted = false;
-	self.playerRuns_runFinished = false;
+    self.playerRuns_runStarted = false;
+    self.playerRuns_runFinished = false;
+}
+
+restoreRun(runID)
+{
+    self.playerRuns_runStarted = true;
+    self.playerRuns_runFinished = false;
+    self.playerRuns_runID = runID;
+
+    self openCJ\events\runIDRestored::main();
+    self openCJ\historySave::historyLoad(runID);
+    if(self openCJ\savePosition::canLoadError(0) == 0)
+    {
+        self thread openCJ\events\loadPosition::main(0);
+    }
+
+    self iprintln("^2Restored ^7run with ID " + runID);
 }
 
 onSpawnPlayer()
@@ -177,7 +193,6 @@ startRun()
 	{
 		self.playerRuns_runStarted = true;
 		self unLink();
-        self openCJ\FPS::onRunStarted();
-		self openCJ\playTime::startTimer();
+        self openCJ\events\onRunStarted::main();
 	}
 }

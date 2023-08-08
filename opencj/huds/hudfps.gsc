@@ -12,7 +12,7 @@ onPlayerConnect()
     self.fpsHudName = "fps";
     //                                     name             x		y	alignX 		alignY	hAlign		vAlign
     self openCJ\huds\base::initInfiniteHUD(self.fpsHudName, -5, 	0,	"right",	"top",	"right",	"top",
-    //	foreground	font			hideInMenu   color            glowColor                        glowAlpha  fontScale  archived alpha
+    //	foreground	font		hideInMenu   color            glowColor                        glowAlpha  fontScale  archived alpha
         undefined,	"default",	true,        (1.0, 1.0, 1.0), ((20/255), (33/255), (125/255)), 0.1,       1.4,       false,   0);
 }
 

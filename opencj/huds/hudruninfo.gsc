@@ -126,6 +126,7 @@ _createRunInfoHud()
     self.hudRunInfo["fps"].y = yAboveProgressBar;
     self.hudRunInfo["fps"].alpha = 0;
     self.hudRunInfo["fps"].archived = false;
+    self.hudRunInfo["fps"].hideWhenInMenu = true;
     self.hudRunInfo["fps"] setShader(level.runInfoShader["125"], level.iconWidth, level.iconHeight);
 
     self.hudRunInfo["ele"] = newClientHudElem(self);
@@ -137,5 +138,6 @@ _createRunInfoHud()
     self.hudRunInfo["ele"].y = yAboveProgressBar;
     self.hudRunInfo["ele"].alpha = 0;
     self.hudRunInfo["ele"].archived = false;
+    self.hudRunInfo["ele"].hideWhenInMenu = true;
     self.hudRunInfo["ele"] setShader(level.runInfoShader["ele"], level.iconWidth, level.iconHeight);
 }

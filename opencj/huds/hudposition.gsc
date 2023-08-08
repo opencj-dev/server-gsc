@@ -100,5 +100,6 @@ _initPosHud(name, colors, yOffset)
         self.hudPos[name].color = colors;
         self.hudPos[name].fontscale = 1.4;
         self.hudPos[name].archived = false;
+        self.hudPos[name].hideWhenInMenu = true;
     }
 }

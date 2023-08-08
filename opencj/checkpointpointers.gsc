@@ -47,7 +47,12 @@ onStartDemo()
 
 onRunIDCreated()
 {
-	self _hideCheckpointPointers();
+    self _hideCheckpointPointers();
+}
+
+onRunIDRestored()
+{
+    self _hideCheckpointPointers();
 }
 
 onSpawnSpectator()
@@ -60,7 +65,7 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 	self _hideCheckpointPointers();
 }
 
-onCheckpointsChanged(cp)
+onCheckpointsChanged()
 {
 	self showCheckpointPointers();
 }
@@ -75,7 +80,7 @@ showCheckpointPointers()
 	if(self.sessionState != "playing")
 		return;
 
-	checkpoints = self openCJ\checkpoints::getCheckpoints();
+	checkpoints = self openCJ\checkpoints::getCurrentChildCheckpoints();
 
 	for(i = 0; i < checkpoints.size; i++)
 	{

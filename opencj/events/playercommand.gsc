@@ -50,6 +50,10 @@ main(args)
 			{
 				self openCJ\chat::onChatMessage(args);
 			}
+            else if(args[0] == "openrunsboard")
+            {
+                self openMenu("opencj_runsboard");
+            }
             else if(args[0] == "openleaderboard")
             {
                 self openMenu("opencj_leaderboard");

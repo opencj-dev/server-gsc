@@ -71,6 +71,11 @@ onRunIDCreated()
     self openCJ\settings::setSetting(strAllowMix, true);
 }
 
+onRunIDRestored()
+{
+    
+}
+
 forceFPSMode(newFPSMode) // For example called when restoring a previous load or when FPS is not present in UserInfo
 {
     self _setFPSMode(newFPSMode, true); // force

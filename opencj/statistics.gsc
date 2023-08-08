@@ -23,8 +23,15 @@ onRunIDCreated()
     self.statistics["curr"]["usedEle"] = false;
     self.statistics["curr"]["usedAnyPct"] = false;
     self.statistics["curr"]["usedTAS"] = false;
+    self.statistics["curr"]["route"] = undefined;
+    self.statistics["curr"]["progress"] = undefined;
 
 	self updateStatistics();
+}
+
+onRunIDRestored()
+{
+
 }
 
 whileAlive()
@@ -46,6 +53,61 @@ whileAlive()
     self.statistics["curr"]["usedTAS"] = false; // Not implemented yet
 }
 
+_updateProgress()
+{
+    currentCheckpoint = self openCJ\checkpoints::getCurrentCheckpoint();
+    shouldClear = false;
+    if (self openCJ\playerRuns::hasRunStarted() && isDefined(currentCheckpoint))
+    {
+        route = openCJ\checkpoints::getRouteNameForCheckpoint(currentCheckpoint);
+        if(isDefined(route))
+        {
+            // Route
+            self.statistics["curr"]["route"] = route;
+
+            // Progress
+            if (self openCJ\playerRuns::isRunFinished())
+            {
+                self.statistics["curr"]["progress"] = "Finished";
+            }
+            else
+            {
+                currentCp = self openCJ\checkpoints::getCurrentCheckpoint();
+                nrPassedCps = 0;
+                nrRemainingCps = undefined;
+                if (isDefined(currentCp))
+                {
+                    nrPassedCps = openCJ\checkpoints::getPassedCheckpointCount(currentCp);
+                    nrRemainingCps = openCJ\checkpoints::getRemainingCheckpointCount(currentCp);
+                    if (isDefined(nrRemainingCps))
+                    {
+                        nrTotalCps = nrPassedCps + nrRemainingCps;
+                        self.statistics["curr"]["progress"] = nrPassedCps + " / " + nrTotalCps;
+                    }
+                    else
+                    {
+                        self.statistics["curr"]["progress"] = nrPassedCps + " / ?";
+                    }
+                }
+            }
+        }
+        else
+        {
+            shouldClear = true;
+        }
+    }
+    else
+    {
+        shouldClear = true;
+    }
+
+    if (shouldClear)
+    {
+        self.statistics["curr"]["route"] = undefined;
+        self.statistics["curr"]["progress"] = undefined;
+    }
+}
+
 increaseAndGetSaveCount()
 {
 	if(self openCJ\playerRuns::isRunFinished())
@@ -57,6 +119,21 @@ increaseAndGetSaveCount()
 	return self.statistics["curr"]["saveCount"];
 }
 
+onRunFinished()
+{
+    self _updateProgress();
+}
+
+onRunStarted()
+{
+    self _updateProgress();
+}
+
+onCheckpointsChanged()
+{
+    self _updateProgress();
+}
+
 onLoadPosition()
 {
 	if(self openCJ\playerRuns::isRunFinished())
@@ -65,6 +142,8 @@ onLoadPosition()
 	}
 
 	self.statistics["curr"]["loadCount"]++;
+
+    self _updateProgress();
 }
 
 onPlayerDamage(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hitLoc, psOffsetTime)
@@ -153,6 +232,20 @@ updateStatistics()
 }
 
 // Getters/setters
+
+getRouteAndProgress()
+{
+    str = "";
+    if (isDefined(self.statistics["curr"]["route"]))
+    {
+        str += "Route: " + self.statistics["curr"]["route"] + "\n";
+        if (isDefined(self.statistics["curr"]["progress"]))
+        {
+            str += "Progress: " + self.statistics["curr"]["progress"];
+        }
+    }
+    return str;
+}
 
 setJumpCount(val)
 {

@@ -3,8 +3,12 @@
 main()
 {
     if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
+    {
         return;
+    }
+
     self notify("spawned");
+
     resetTimeout();
     self.sessionTeam = "allies";
     self.sessionState = "playing";
