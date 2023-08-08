@@ -467,6 +467,66 @@ getAllEndCheckpoints()
 	return enders;
 }
 
+getAllCheckpoints()
+{
+    return level.checkpoints_checkpoints;
+}
+
+getCheckpointsForRoute(routeName)
+{
+    if (!isDefined(level.routeEnders[routeName]))
+    {
+        return undefined;
+    }
+
+    endCheckpointForRoute = undefined;
+    for (i = 0; i < level.routeEnders[routeName]; i++)
+    {
+        if (!isDefined(level.routeEnders[routeName][i].bigBrother))
+        {
+            // Should only be one final checkpoint
+            endCheckpointForRoute = level.routeEnders[routeName][i];
+            break;
+        }
+    }
+
+    if (!isDefined(endCheckpointForRoute))
+    {
+        printf("ERROR: all ender checkpoints have big brothers or none exist\n");
+        return undefined;
+    }
+
+    // Get all checkpoint ids in the route from the end checkpoint id
+    checkpointIdsInRoute = [];
+    currentCheckpoint = endCheckpointForRoute;
+    nextIdx = 0;
+    for (i = 0; i < level.checkpoints_checkpoints.size; i++) // Using a for loop to prevent infinite loop
+    {
+        if (isDefined(currentCheckpoint.bigBrother))
+        {
+            currentCheckpoint = currentCheckpoint.bigBrother;
+        }
+
+        // Add this checkpoint as part of the route
+        checkpointIdsInRoute[nextIdx] = currentCheckpoint.id;
+        nextIdx++;
+
+        // Continue with the parent of the checkpoint. If there is none, we are finished.
+        parents = getCheckpointParents(currentCheckpoint);
+        if (!isDefined(parents))
+        {
+            break; // No parents
+        }
+
+        if (parents.size > 0) // We're at the point where routes are splitting
+        {
+            break; // Multiple parents
+        }
+
+        currentCheckpoint = parents[0];
+    }
+}
+
 getCheckpointParents(checkpoint)
 {
 	parents = [];
@@ -565,12 +625,12 @@ setCurrentCheckpointID(id)
 	}
 }
 
-getCheckpoints()
+getCurrentChildCheckpoints()
 {
 	return self.checkpoints_checkpoint.childs;
 }
 
-getCheckpoint()
+getCurrentCheckpoint()
 {
 	return self.checkpoints_checkpoint;
 }
@@ -578,6 +638,11 @@ getCheckpoint()
 onRunIDCreated()
 {
 	self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
+}
+
+onRunIDRestored()
+{
+    
 }
 
 onLoadPosition()

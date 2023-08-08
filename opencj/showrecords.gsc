@@ -8,7 +8,7 @@ onInit()
 
 onCheckpointsChanged()
 {
-	self thread _getRecords(self openCJ\checkpoints::getCheckpoints(), false);
+	self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), false);
 }
 
 onCheckpointPassed(cp, timems)
@@ -50,6 +50,7 @@ onPlayerConnect()
 	self.showRecordsHighlight.archived = false;
 	self.showRecordsHighlight.sort = -98;
 	self.showRecordsHighlight.color = (0.75, 0.75, 0.75);
+    self.showRecordsHighlight.hideWhenInMenu = true;
 	self.showRecordsHighlight setShader(level.showRecordsHighlightShader, 195, 11);
 	self _hideRecords(true);
 }
@@ -83,12 +84,22 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 	self _hideRecords(false);
 }
 
+_runChanged()
+{
+    self.nextUpdate = 0;
+    self _hideRecords(false);
+    self.showRecords_rows = [];
+    self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), 0);
+}
+
 onRunIDCreated()
 {
-	self.nextUpdate = 0;
-	self _hideRecords(false);
-	self.showRecords_rows = [];
-	self thread _getRecords(self openCJ\checkpoints::getCheckpoints(), 0);
+    _runChanged();
+}
+
+onRunIDRestored()
+{
+    _runChanged();
 }
 
 onSpawnSpectator()

@@ -3,6 +3,9 @@
 onInit()
 {
 	level.saveFlags = [];
+
+    // Flags are hardcoded in database right now, so do NOT modify existing ones.
+    // When adding, do the same in pla
 	level.saveFlags["cheating"] = 1;
 	level.saveFlags["speedModeNow"] = 2;
 	level.saveFlags["speedModeEver"] = 4;
@@ -100,8 +103,8 @@ createFlags()
 
 onRunIDCreated()
 {
-	self savePosition_initClient();
-	self resetBackwardsCount();
+    self savePosition_initClient();
+    self resetBackwardsCount();
 }
 
 canSaveError()

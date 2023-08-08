@@ -381,3 +381,18 @@ stripColors(string)
 	}
 	return string;
 }
+
+xOrEmpty(val) // Useful for menus that want to show an empty cell instead of hiding it, when empty
+{
+    if (val > 0)
+    {
+        return "X";
+    }
+
+    return "^7";
+}
+
+dbStr(str)
+{
+    return "'" + str + "'";
+}

@@ -153,35 +153,8 @@ _getHUDString(client)
 
     // FPS is already covered by runInfo icons
 
-    // Routes
-    currentCheckpoint = client openCJ\checkpoints::getCheckpoint();
-    if (self openCJ\playerRuns::hasRunStarted() && isDefined(currentCheckpoint))
-    {
-        route = openCJ\checkpoints::getRouteNameForCheckpoint(currentCheckpoint);
-        if(isDefined(route))
-        {
-            currentCp = client openCJ\checkpoints::getCheckpoint();
-            nrPassedCps = 0;
-            nrRemainingCps = undefined;
-            if (isDefined(currentCp))
-            {
-                nrPassedCps = openCJ\checkpoints::getPassedCheckpointCount(currentCp);
-                nrRemainingCps = openCJ\checkpoints::getRemainingCheckpointCount(currentCp);
-            }
-            cpString = "";
-            if (isDefined(nrRemainingCps))
-            {
-                nrTotalCps = nrPassedCps + nrRemainingCps;
-                cpString = "(" + nrPassedCps + " / " + nrTotalCps + ")";
-            }
-            else
-            {
-                cpString = "(" + nrPassedCps + " / ?)";
-            }
-            newstring += "Route: " + route + "\n";
-            newString += cpString + "\n";
-        }
-    }
+    // Routes & progress
+    newstring += client openCJ\statistics::getRouteAndProgress() + "\n";
 
     return newstring;
 }

@@ -6,8 +6,8 @@ main()
 	self openCJ\country::onPlayerConnected();
 	self openCJ\huds\infiniteHuds::onPlayerConnected();
 	self openCJ\graphics::onPlayerConnected();
-    self openCJ\endMapVote::onPlayerConnected();
-    self openCJ\leaderBoard::onPlayerConnected();
+    self openCJ\menus\endMapVote::onPlayerConnected();
+    self openCJ\menus\board_base::onPlayerConnected();
 
 	self openCJ\events\spawnSpectator::main();
 }

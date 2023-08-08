@@ -2,7 +2,12 @@
 
 onRunIDCreated()
 {
-	self.cheating = false;
+    self.cheating = false;
+}
+
+onRunIDRestored()
+{
+    self.cheating = false;
 }
 
 isCheating()

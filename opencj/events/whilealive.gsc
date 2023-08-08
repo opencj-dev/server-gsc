@@ -4,6 +4,7 @@ main()
 {
     self endon("disconnect");
     self endon("spawned");
+    self endon("spawned_spectator");
 
     while(self.sessionState == "playing")
     {

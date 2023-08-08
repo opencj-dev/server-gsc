@@ -7,7 +7,12 @@ onInit()
 
 onRunIDCreated()
 {
-	self.shellShock_completedTime = undefined;
+    self.shellShock_completedTime = undefined;
+}
+
+onRunIDRestored()
+{
+    self.shellShock_completedTime = undefined;
 }
 
 onPlayerDamage(inflictor, attacker, damage, flags, meansOfDeath, weapon, vPoint, vDir, hitLoc, psOffsetTime)

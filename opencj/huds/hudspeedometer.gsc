@@ -83,5 +83,6 @@ _initSpeedHud(name, colors, yOffset)
         self.hudSpeed[name].color = colors;
         self.hudSpeed[name].fontscale = 1.8;
         self.hudSpeed[name].archived = false;
+        self.hudSpeed[name].hideWhenInMenu = true;
     }
 }

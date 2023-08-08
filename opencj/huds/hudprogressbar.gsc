@@ -5,7 +5,7 @@ onInit()
 	level.progressBarShader = "progress_bar_fill";
     level.progressBarHeight = 10;
     level.progressBarMinWidth = 1; // Lower than this and it will default to its normal size
-    level.progressBarOffsetX = 55; // To the left of this will be run info
+    level.progressBarOffsetX = 0;
     level.progressBarOffsetY = 480;
     level.progressBarMaxValue = (640 - level.progressBarOffsetX);
     level.progressBarScaleDuration = 0.25;
@@ -68,6 +68,7 @@ _createProgressBar()
 	self.progressBar.alpha = 0;
 	self.progressBar.color = (1, 1, 1);
 	self.progressBar.archived = true;
+    self.progressBar.hideWhenInMenu = true;
     self.progressBar.shader = level.progressBarShader;
     self.prevProgress = 0;
     self.prevRunFinished = false;
@@ -105,7 +106,7 @@ _updateProgressBar()
 	{
 		self.progressBar.color = (1, 1, 1);
         self.progressBar.alpha = 0.6;
-		checkpoint = self openCJ\checkpoints::getCheckpoint();
+		checkpoint = self openCJ\checkpoints::getCurrentCheckpoint();
 		if(isDefined(checkpoint))
 		{
 			passed = openCJ\checkpoints::getPassedCheckpointCount(checkpoint);

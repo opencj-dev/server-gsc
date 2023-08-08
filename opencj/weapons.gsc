@@ -46,6 +46,11 @@ switchToDemoWeapon(isRPG)
 	}
 }
 
+onRunIDRestored()
+{
+    self _deleteGrenades();
+}
+
 onRunIDCreated()
 {
 	self _deleteGrenades();

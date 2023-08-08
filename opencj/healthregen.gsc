@@ -21,7 +21,12 @@ onStartDemo()
 
 onRunIDCreated()
 {
-	self.healthRegen_completedTime = undefined;
+    self.healthRegen_completedTime = undefined;
+}
+
+onRunIDRestored()
+{
+    self.healthRegen_completedTime = undefined;
 }
 
 onSpawnSpectator()

@@ -10,11 +10,21 @@ onInit()
 	openCJ\commands_base::addAlias(cmd, "speed");
 }
 
+_runChanged()
+{
+    self.speedModeNow = undefined;
+    self.speedModeEver = false;
+    self setSpeedMode(false);
+}
+
 onRunIDCreated()
 {
-	self.speedModeNow = undefined;
-	self.speedModeEver = false;
-	self setSpeedMode(false);
+    _runChanged();
+}
+
+onRunIDRestored()
+{
+    _runChanged();
 }
 
 speedMode(args)

@@ -24,6 +24,11 @@ onRunIDCreated()
 	self setAFK(true);
 }
 
+onRunIDRestored()
+{
+    
+}
+
 onRunFinished(cp)
 {
 	self pauseTimer();

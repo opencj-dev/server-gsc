@@ -2,36 +2,38 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("runs", "Display all runs or load a previously saved run from your history\nUsage: !runs [runid]", ::historyLoad, 0, 1, 0);
+	cmd = openCJ\commands_base::registerCommand("runs", "Display all runs or load a previously saved run from your history\nUsage: !runs [runid]", ::historyLoadCmd, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "historyload");
 }
 
-historyLoad(args) // TODO: support self-named runs
+historyLoadCmd(args) // TODO: support self-named runs
 {
-	if (args.size == 0)
-	{
-		self sendLocalChatMessage("Showing runs list is not implemented yet"); // TODO: support list of existing runs
-	}
-	else
-	{
-		if (isValidInt(args[0]))
-		{
-			runID = int(args[0]);
-			if(self openCJ\login::isLoggedIn())
-			{
-				self thread _historyLoad(runID);
-			}
-		}
-	}
+    if (args.size == 0)
+    {
+        self sendLocalChatMessage("Showing runs list is not implemented yet"); // TODO: support list of existing runs
+    }
+    else
+    {
+        if (isValidInt(args[0]))
+        {
+            runID = int(args[0]);
+            if(self openCJ\login::isLoggedIn())
+            {
+                self thread historyLoad(runID);
+            }
+        }
+    }
 }
 
-_historyLoad(runID)
+historyLoad(runID)
 {
 	self endon("disconnect");
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT historyLoad(" + openCJ\mapID::getMapID() + ", " + self openCJ\login::getPlayerID() + ", " + runID + ")");
 	if(isDefined(rows[0][0]))
 	{
 		instanceNumber = int(rows[0][0]);
+        self savePosition_initClient();
+	    self openCJ\savePosition::resetBackwardsCount();
 		self _loadSavesFromDatabase(runID, instanceNumber);
 	}
 	else
@@ -43,10 +45,15 @@ _historyLoad(runID)
 _loadSavesFromDatabase(runID, instanceNumber)
 {
 	self endon("disconnect");
-	rowsRun = self openCJ\mySQL::mysqlAsyncQuery("SELECT timePlayed, saveCount, loadCount, explosiveLaunches FROM playerRuns WHERE runID = " + runID);
-	rowsSaves = self openCJ\mySQL::mysqlAsyncQuery("SELECT x, y, z, alpha, beta, gamma, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 50");
+    query1 = "SELECT timePlayed, saveCount, loadCount, explosiveLaunches FROM playerRuns WHERE runID = " + runID;
+    printf("DEBUG: executing historyLoad query1:\n" + query1 + "\n");
+    rowsRun = self openCJ\mySQL::mysqlAsyncQuery(query1);
+
+    query2 = "SELECT x, y, z, alpha, beta, gamma, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 50";
+    printf("DEBUG: executing historyLoad query2:\n" + query2 + "\n");
+    rowsSaves = self openCJ\mySQL::mysqlAsyncQuery(query2);
+
 	self openCJ\playerRuns::setRunIDAndInstanceNumber(runID, instanceNumber);
-	self openCJ\events\runIDCreated::main();
 	self openCJ\playerRuns::startRun();
 	self openCJ\playtime::setTimePlayed(int(rowsRun[0][0]));
 	self openCJ\statistics::setSaveCount(int(rowsRun[0][1]));
@@ -69,6 +76,7 @@ _loadSavesFromDatabase(runID, instanceNumber)
         fpsMode = openCJ\fps::FPSModeToInt(rowsSaves[i][9]);
         flags = int(rowsSaves[i][10]);
         entNum = _getEntNum(rowsSaves[i][11], intOrUndefined(rowsSaves[i][12]));
+        printf("DEBUG: saving position " + i + " with rpgjumps: " + explosiveJumps + "\n");
 		self savePosition_save(org, angles, entNum, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, numOfThisSave);
 	}
 

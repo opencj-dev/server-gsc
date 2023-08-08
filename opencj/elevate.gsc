@@ -47,10 +47,10 @@ _onCommandEleOverride(args)
 
 onRunIDCreated()
 {
-	// New run started, all ele things are not relevant anymore
-	self.eleOverrideNow = false;
-	self.eleOverrideEver = false;
-	self updateServerEleOverride();
+    // New run started, all ele things are not relevant anymore
+    self.eleOverrideNow = false;
+    self.eleOverrideEver = false;
+    self updateServerEleOverride();
 }
 
 onRunFinished(cp)
@@ -134,5 +134,5 @@ onElevate()
 
 _isEleAllowedThisCheckpoint()
 {
-	return (isDefined(self openCJ\checkpoints::getCheckpoint()) && openCJ\checkpoints::isEleAllowed(self openCJ\checkpoints::getCheckpoint()));
+	return (isDefined(self openCJ\checkpoints::getCurrentCheckpoint()) && openCJ\checkpoints::isEleAllowed(self openCJ\checkpoints::getCurrentCheckpoint()));
 }

@@ -14,7 +14,12 @@ onPlayerConnect()
 
 onRunIDCreated()
 {
-	self disableNoclip();
+    self disableNoclip();
+}
+
+onRunIDRestored()
+{
+    self disableNoclip();
 }
 
 noclip(args)
