@@ -55,6 +55,16 @@ abs(value)
 	return value;
 }
 
+max(value1, value2)
+{
+    if (value1 > value2)
+    {
+        return value1;
+    }
+
+    return value2;
+}
+
 hasResult(rows)
 {
 	return ((rows.size > 0) && isDefined(rows[0][0]));
