@@ -236,7 +236,7 @@ updateBoard()
     self [[self.currentBoard["updateFunc"]]]();
 
     // Update all dvars
-    self.currentBoard["page"]["max"] = max(1, floor(self.currentBoard["nrTotalEntries"] / self.currentBoard["maxEntriesPerPage"]));
+    self.currentBoard["page"]["max"] = max(1, int(self.currentBoard["nrTotalEntries"] / self.currentBoard["maxEntriesPerPage"]));
 
     // Update page text dvars after updating board
     self setClientCvar(level.boardsDvarPrefix + "pagetxt", self.currentBoard["page"]["cur"] + "/" + self.currentBoard["page"]["max"]);
