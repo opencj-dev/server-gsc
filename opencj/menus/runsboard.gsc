@@ -87,6 +87,7 @@ fetchUpdatedData()
                 " AND a.archived = False" +
                 " AND a.finishTimeStamp IS NULL" +
                 " AND a.mapID = " + openCJ\mapID::getMapID() + 
+                self getRunStr() + 
                 getFilterStr(self.currentBoard["filter"]["ele"], self.currentBoard["filter"]["any"], self.currentBoard["filter"]["tas"]) +
                 " AND a.FPSMode IN " + openCJ\menus\board_base::getFPSModeStr(self.currentBoard["filter"]["fps"]) +
             " ORDER BY " + sortStr +
@@ -206,6 +207,17 @@ getNonEndCheckpointIdsForRoute(routeName)
         checkpoints = openCJ\checkpoints::getAllCheckpoints();
     }
     */
+}
+
+getRunStr()
+{
+    str = "";
+    if(self openCJ\playerRuns::hasRunID())
+    {
+        str = " AND a.runID != " + self openCJ\playerRuns::getRunID();
+    }
+
+    return str;
 }
 
 getFilterStr(ele, any, tas)
