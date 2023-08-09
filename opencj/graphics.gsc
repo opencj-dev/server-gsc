@@ -24,11 +24,11 @@ onInit()
 		_configureMinimap();
 	}
 
-	underlyingCmd = openCJ\settings::addSettingInt("fov", 13, 160, 90, "Set your field-of-view\nUsage: !fov [value between 13 and 160]", ::_onSettingFOV);
-	underlyingCmd = openCJ\settings::addSettingBool("fullbright", false, "Enable/disable fullbright\nUsage: !fullbright [on/off]", ::_onSettingFullbright);
-	underlyingCmd = openCJ\settings::addSettingBool("hidecollidingplayers", false, "Hide colliding players\nUsage: !hidecollidingplayers [on/off]");
-	underlyingCmd = openCJ\settings::addSettingBool("viewbob", false, "Change view bobbing\nUsage: !viewbob [on/off]", ::_onSettingViewBob);
-	underlyingCmd = openCJ\settings::addSettingBool("fx", false, "fx_enable\nUsage: !fx [on/off]", ::_onSettingFX);
+	underlyingCmd = openCJ\settings::addSettingInt("fov", 13, 160, 90, "Set your field-of-view. Usage: !fov [value between 13 and 160]", ::_onSettingFOV);
+	underlyingCmd = openCJ\settings::addSettingBool("fullbright", false, "Enable/disable fullbright. Usage: !fullbright [on/off]", ::_onSettingFullbright);
+	underlyingCmd = openCJ\settings::addSettingBool("hidecollidingplayers", false, "Hide colliding players. Usage: !hidecollidingplayers [on/off]");
+	underlyingCmd = openCJ\settings::addSettingBool("viewbob", false, "Change view bobbing. Usage: !viewbob [on/off]", ::_onSettingViewBob);
+	underlyingCmd = openCJ\settings::addSettingBool("fx", false, "fx_enable. Usage: !fx [on/off]", ::_onSettingFX);
 }
 
 onPlayerConnected()

@@ -4,9 +4,9 @@
 
 onInit()
 {
-    underlyingCmd = openCJ\settings::addSettingBool("allowhax", false, "Set whether hax fps is allowed in current run\nUsage: !hax [on/off]");
+    underlyingCmd = openCJ\settings::addSettingBool("allowhax", false, "Set whether hax fps is allowed in current run. Usage: !hax [on/off]");
     openCJ\commands_base::addAlias(underlyingCmd, "hax");
-    underlyingCmd = openCJ\settings::addSettingBool("allowmix", true, "Set whether mix fps is allowed in current run\nUsage: !mix [on/off]");
+    underlyingCmd = openCJ\settings::addSettingBool("allowmix", true, "Set whether mix fps is allowed in current run. Usage: !mix [on/off]");
     openCJ\commands_base::addAlias(underlyingCmd, "mix");
 }
 

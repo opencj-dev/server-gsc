@@ -2,7 +2,7 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("ele", "Used to (dis)allow elevators in current run\nUsage: !ele [on/off]", ::_onCommandEleOverride, 0, 1, 0);
+	cmd = openCJ\commands_base::registerCommand("ele", "Used to (dis)allow elevators in current run. Usage: !ele [on/off]", ::_onCommandEleOverride, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "eleoverride");
 	openCJ\commands_base::addAlias(cmd, "elevateoverride");
 }

@@ -2,7 +2,7 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("runs", "Display all runs or load a previously saved run from your history\nUsage: !runs [runid]", ::historyLoadCmd, 0, 1, 0);
+	cmd = openCJ\commands_base::registerCommand("runs", "Display all runs or load a previously saved run from your history. Usage: !runs [runid]", ::historyLoadCmd, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "historyload");
 }
 
