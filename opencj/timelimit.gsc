@@ -9,7 +9,7 @@ onInit()
     }
     else
     {
-        level.timeLimitSeconds = (8 * 60);
+        level.timeLimitSeconds = (60 * 60);
     }
     level.startTimeMs = getTime();
     level.remainingTimeSeconds = level.timeLimitSeconds;
