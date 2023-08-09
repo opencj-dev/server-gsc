@@ -5,6 +5,24 @@ onInit()
     cmd = openCJ\commands_base::registerCommand("vote", "Vote for something. Usage: !vote <extend|map mp_mapname|yes|no>", ::vote, 1, 2, 0);
 
     level.vote = undefined; // Will be filled in with spawnStruct
+    thread loop();
+}
+
+loop()
+{
+    while (1)
+    {
+        if (isDefined(level.isAutoExtendQueued) && level.isAutoExtendQueued && !isDefined(level.hasAutoExtended))
+        {
+            if (!isDefined(level.vote))
+            {
+                level.isAutoExtendQueued = false;
+                level.hasAutoExtended = true;
+                _setupVote(undefined, "Vote: extend time (30m)", undefined);
+            }
+        }
+        wait .1;
+    }
 }
 
 voteSingleArg(arg) // Helper for externally calling vote command
@@ -21,15 +39,7 @@ vote(args) //args[0] = map, extend, yes/no
         return;
     }
 
-    if((args[0] == "map") && isDefined(args[1]))
-    {
-        self thread _doVoteMap(args[1]); // TODO: check if map exists on disk?
-    }
-    else if(args[0] == "extend")
-    {
-        self thread _doVoteExtend();
-    }
-    else if(isValidBool(args[0]) && isDefined(level.vote))
+    if(isValidBool(args[0]) && isDefined(level.vote)) // Yes/no
     {
         vote = strToBool(args[0]);
 
@@ -41,6 +51,31 @@ vote(args) //args[0] = map, extend, yes/no
 
         self.vote = vote;
         level _updateVoteCount();
+    }
+    else
+    {
+        // Vote cooldown
+        canVoteIn = int(self.canVoteAt - (getTime() / 1000) + 0.5);
+        if (canVoteIn > 0)
+        {
+            self iprintln("You can vote in another ^1" + canVoteIn + "^7 seconds");
+            return;
+        }
+
+        // If an auto extend is queued, don't allow player to vote (edge case)
+        if (isDefined(level.isAutoExtendQueued) && level.isAutoExtendQueued)
+        {
+            return;
+        }
+
+        if((args[0] == "map") && isDefined(args[1]))
+        {
+            self thread _doVoteMap(args[1]); // TODO: check if map exists on disk?
+        }
+        else if(args[0] == "extend")
+        {
+            self thread _doVoteExtend();
+        }
     }
 }
 
@@ -57,6 +92,30 @@ onPlayerLogin()
         self setClientCvar("openCJ_voteTimeString", "");
         self setClientCvar("openCJ_voteHeaderString", "");
         self _setMapVoteImage();
+    }
+
+    self _setVoteCooldown();
+    self thread menuResponse();
+}
+
+_setVoteCooldown()
+{
+    self.canVoteAt = (getTime() / 1000) + 120; // 2 minute vote lockout at start and after voting
+}
+
+menuResponse()
+{
+    while (1)
+    {
+        self waittill("menuresponse", menu, response);
+        if (response == "cjvoteyes")
+        {
+            self voteSingleArg("yes");
+        }
+        else if (response == "cjvoteno")
+        {
+            self voteSingleArg("no");
+        }
     }
 }
 
@@ -79,6 +138,14 @@ getMapImage(mapName)
 onPlayerDisconnect()
 {
     level _updateVoteCount();
+}
+
+queueAutoExtendVote()
+{
+    if (!isDefined(level.hasAutoExtended) || !level.hasAutoExtended && !level.isAutoExtendQueued)
+    {
+        level.isAutoExtendQueued = true;
+    }
 }
 
 _setMapVoteImage(image)
@@ -112,26 +179,34 @@ _doVoteMap(mapName)
     }
 
     // Create the vote object that serves as a hudElem
-    _setupVote(map, "Vote: change map\n  " + map);
+    _setupVote(map, "Vote: change map\n  " + map, self);
 }
 
 _doVoteExtend()
 {
     self endon("disconnect");
 
+    // Create the vote object that serves as a hudElem
+    _setupVote(undefined, "Vote: extend time (30m)", self);
+}
+
+_setupVote(mapName, text, playerEnt)
+{
     // Only one vote at a time
-    if(isDefined(level.vote))
+    if (isDefined(level.vote))
     {
-        self iprintln("Another vote is already in progress");
+        if (isDefined(playerEnt))
+        {
+            playerEnt iprintln("Another vote is already in progress");
+        }
         return;
     }
 
-    // Create the vote object that serves as a hudElem
-    _setupVote(undefined, "Vote: extend time (30m)");
-}
+    if (isDefined(playerEnt))
+    {
+        playerEnt _setVoteCooldown();
+    }
 
-_setupVote(mapName, text)
-{
     level.vote = spawnStruct();
     level.vote.str = text;
     if (isDefined(mapName))
@@ -155,11 +230,17 @@ _setupVote(mapName, text)
     }
 
     // Let everyone know
-    iprintln(self.name + " ^7started a vote");
-
-    // Add the player's vote
-    self.vote = true;
-    level _updateVoteCount();
+    if (isDefined(playerEnt))
+    {
+        iprintln(playerEnt.name + " ^7started a vote");
+        playerEnt.vote = true;
+        // Add the player's vote
+        level _updateVoteCount();
+    }
+    else
+    {
+        iprintln("Automatic extend time vote");
+    }
 
     // Keep monitoring the vote
     if (isDefined(level.vote)) // Could have already passed/failed immediately
