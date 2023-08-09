@@ -171,6 +171,14 @@ _doVoteMap(mapName)
         return;
     }
 
+    // TODO: this is a temporary check for alpha available maps
+    if (!openCJ\menus\endMapVote::isMapAvailable(mapName))
+    {
+        self iprintln("Sorry, this map is not yet available");
+        return;
+    }
+
+
     // Map needs to be found in db for vote to go through
     map = _findMapByName(mapName, true);
     if(!isDefined(map))

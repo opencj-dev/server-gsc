@@ -40,6 +40,24 @@ fetchRandomMaps()
     }
 }
 
+// Temporary function while not all maps are implemented
+isMapAvailable(mapName)
+{
+    if (!isDefined(level.endVote) || !isDefined(level.endVote["maps"]))
+    {
+        return false;
+    }
+    for (i = 0; i < level.endVote["maps"].size; i++)
+    {
+        if (mapName == level.endVote["maps"][i])
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 onPlayerConnected()
 {
     self.endVote = -1;

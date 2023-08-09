@@ -12,6 +12,5 @@ bounce()
 	{
 		self waittill("trigger", player);
         player iprintln("Sorry, this script is disabled due to exploitability");
-        wait 10;
 	}
 }
