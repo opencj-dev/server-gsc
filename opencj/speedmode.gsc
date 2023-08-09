@@ -121,7 +121,7 @@ applySpeedMode()
 {
 	if(!isDefined(self.speedModeSpeed))
 	{
-		self.speedModeSpeed = level.speedMode["max"];
+		self.speedModeSpeed = level.speedMode["maxspeed"];
 	}
 
 	if(self.speedModeNow)

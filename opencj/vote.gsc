@@ -2,253 +2,411 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("vote", "Vote for something.\nUsage: !vote <extend|map mp_mapname>", ::vote, 1, 2, 0);
+    cmd = openCJ\commands_base::registerCommand("vote", "Vote for something. Usage: !vote <extend|map mp_mapname|yes|no>", ::vote, 1, 2, 0);
+
+    level.vote = undefined; // Will be filled in with spawnStruct
 }
 
-vote(args) //say !vote map mapname or !vote yes/no or !vote extend
+voteSingleArg(arg) // Helper for externally calling vote command
 {
-	if(!self openCJ\login::isLoggedIn())
-	{
-		return;
-	}
+    args = [];
+    args[0] = arg;
+    vote(args);
+}
 
-	if((args[0] == "map") && isDefined(args[1]))
-	{
-		// TODO: check if map exists
-		self thread _doVoteMap(args[1]);
-	}
-	else if(isValidBool(args[0]))
-	{
-		vote = strToBool(args[0]);
+vote(args) //args[0] = map, extend, yes/no
+{
+    if(!self openCJ\login::isLoggedIn())
+    {
+        return;
+    }
 
-		// Don't allow vote to be cast twice
-		if(isDefined(self.voted) && (self.voted == vote))
-		{
-			return;
-		}
+    if((args[0] == "map") && isDefined(args[1]))
+    {
+        self thread _doVoteMap(args[1]); // TODO: check if map exists on disk?
+    }
+    else if(args[0] == "extend")
+    {
+        self thread _doVoteExtend();
+    }
+    else if(isValidBool(args[0]) && isDefined(level.vote))
+    {
+        vote = strToBool(args[0]);
 
-		self.voted = vote;
-		level _updateVoteCount();
-	}
+        // Don't allow vote to be cast twice
+        if(isDefined(self.vote) && (self.vote == vote))
+        {
+            return;
+        }
+
+        self.vote = vote;
+        level _updateVoteCount();
+    }
 }
 
 onPlayerLogin()
 {
-	if(isDefined(level.vote))
-	{
-		self _setMapVoteImage(level.vote.mapImage);
-		self _writeVoteCounts();
-		self _writeVoteString();
-	}
-	else
-	{
-		self setClientCvar("openCJ_voteString", "");
-		self _setMapVoteImage();
-	}
+    if(isDefined(level.vote))
+    {
+        self _setMapVoteImage(level.vote.mapImage);
+        self _writeVoteCountString();
+        self _writeVoteString();
+    }
+    else
+    {
+        self setClientCvar("openCJ_voteTimeString", "");
+        self setClientCvar("openCJ_voteHeaderString", "");
+        self _setMapVoteImage();
+    }
 }
 
-getMapImage(map)
+getMapImage(mapName)
 {
-	if(isDefined(map))
-	{
-		switch(map)
-		{
-			case "jm_pier_2":
-				return "jhs_jm_pier_2";
-		}
-	}
-	return "white";
+    if(isDefined(mapName))
+    {
+        if (getCodVersion() == 4)
+        {
+            return "loadscreen_" + mapName;
+        }
+        switch(mapName)
+        {
+            case "jm_pier_2": return "jhs_jm_pier_2";
+        }
+    }
+    return "default";
 }
 
 onPlayerDisconnect()
 {
-	level _updateVoteCount();
+    level _updateVoteCount();
 }
 
 _setMapVoteImage(image)
 {
-	if(isDefined(image))
-		self setClientCvar("openCJ_mapvoteImage", image);
-	else
-		self setClientCvar("openCJ_mapvoteImage", "");
+    if(isDefined(image))
+    {
+        self setClientCvar("openCJ_mapvoteImage", image);
+    }
+    else
+    {
+        self setClientCvar("openCJ_mapvoteImage", "");
+    }
 }
 
-_doVoteMap(mapname)
+_doVoteMap(mapName)
 {
-	self endon("disconnect");
-	map = _findMapByName(mapname, true);
-	if(!isDefined(map))
-		return;
-	if(isDefined(level.vote))
-	{
-		self iprintln("Another vote is already in progress");
-		return;
-	}
-	level.vote = spawnStruct();
-	level.vote.map = map;
-	level.vote.mapImage = getMapImage(level.vote.map);
-	players = getEntArray("player", "classname");
-	for(i = 0; i < players.size; i++)
-		players[i].voted = undefined;
-	//self.voted = true;
-	iprintln(self.name + " ^7 called a vote to change the map to " + map);
-	level _updateVoteCount();
-	if(isDefined(level.vote))
-		level thread _monitorVote();
+    self endon("disconnect");
+
+    // Only one vote at a time
+    if(isDefined(level.vote))
+    {
+        self iprintln("Another vote is already in progress");
+        return;
+    }
+
+    // Map needs to be found in db for vote to go through
+    map = _findMapByName(mapName, true);
+    if(!isDefined(map))
+    {
+        return;
+    }
+
+    // Create the vote object that serves as a hudElem
+    _setupVote(map, "Vote: change map\n  " + map);
+}
+
+_doVoteExtend()
+{
+    self endon("disconnect");
+
+    // Only one vote at a time
+    if(isDefined(level.vote))
+    {
+        self iprintln("Another vote is already in progress");
+        return;
+    }
+
+    // Create the vote object that serves as a hudElem
+    _setupVote(undefined, "Vote: extend time (30m)");
+}
+
+_setupVote(mapName, text)
+{
+    level.vote = spawnStruct();
+    level.vote.str = text;
+    if (isDefined(mapName))
+    {
+        level.vote.map = mapName;
+    }
+    else
+    {
+        level.vote.extend = true;
+    }
+    level.vote.mapImage = getMapImage(mapName);
+    level.vote.yesCount = 0;
+    level.vote.noCount  = 0;
+    level.vote.timeLeft = 30; // Seconds
+
+    // Initialize all players' initial votes
+    players = getEntArray("player", "classname");
+    for(i = 0; i < players.size; i++)
+    {
+        players[i].vote = undefined;
+    }
+
+    // Let everyone know
+    iprintln(self.name + " ^7started a vote");
+
+    // Add the player's vote
+    self.vote = true;
+    level _updateVoteCount();
+
+    // Keep monitoring the vote
+    if (isDefined(level.vote)) // Could have already passed/failed immediately
+    {
+        level thread _monitorVote();
+    }
 }
 
 _findMapByName(string, recurse)
 {
-	self endon("disconnect");
-	if(!recurse)
-		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT mapname FROM mapids WHERE mapname LIKE '%" + openCJ\mySQL::escapeString(string) + "%'");
-	else
-		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT mapname FROM mapids WHERE mapname = '" + openCJ\mySQL::escapeString(string) + "'");
-	if(rows.size == 1)
-		return rows[0][0];
-	else if(rows.size)
-	{
-		self iprintln("Multiple matches found: ");
-		for(i = 0; i < rows.size; i++)
-		{
-			self iprintln(rows[i][0]);
-		}
-	}
-	else if(recurse)
-		return self _findMapByName(string, false);
-	else
-		self iprintln("Map not found");
+    self endon("disconnect");
+    if(!recurse)
+    {
+        rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT mapname FROM mapids WHERE mapname LIKE '%" + openCJ\mySQL::escapeString(string) + "%'");
+    }
+    else
+    {
+        rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT mapname FROM mapids WHERE mapname = '" + openCJ\mySQL::escapeString(string) + "'");
+    }
+    if(isDefined(rows) && (rows.size > 0))
+    {
+        if(rows.size == 1)
+        {
+            return rows[0][0];
+        }
+        else if (rows.size > 5)
+        {
+            self sendLocalChatMessage("Too many matches found (" + rows.size + ")");
+        }
+        else
+        {
+            self sendLocalChatMessage("Multiple matches found:");
+            chatStr = "";
+            for(i = 0; i < rows.size; i++)
+            {
+                if (i > 0)
+                {
+                    chatStr += ", ";
+                }
+                chatStr += rows[i][0];
+            }
+
+            self sendLocalChatMessage(chatStr);
+        }
+    }
+    else if(recurse)
+    {
+        return self _findMapByName(string, false);
+    }
+    else
+    {
+        self sendLocalChatMessage("Map not found");
+    }
+    
+    return undefined;
 }
 
 _updateVoteCount()
 {
-	if(!isDefined(level.vote))
-		return;
-	players = getEntArray("player", "classname");
-	yesCount = 0;
-	noCount = 0;
-	totalCount = 0;
-	for(i = 0; i < players.size; i++)
-	{
-		if(players[i] openCJ\login::isLoggedIn())
-		{
-			if(isDefined(players[i].voted))
-			{
-				if(players[i].voted)
-					yesCount++;
-				else
-					noCount++;
-			}
-			totalCount++;
-		}
-	}
-	if(noCount > int(totalCount / 2))
-	{
-		//vote failed
-		_voteFailed();
-	}
-	else if(yesCount > int(totalCount / 2))
-	{
-		//vote success
-		_voteSuccess();
-	}
+    if(!isDefined(level.vote))
+    {
+        return;
+    }
 
-	else
-	{
-		level.vote.voteCounts = "Yes: " + yesCount + "\nNo: " + noCount;
-		for(i = 0; i < players.size; i++)
-		{
-			if(players[i] openCJ\login::isLoggedIn())
-				players[i] _writeVoteCounts();
-		}
-	}
+    yesCount = 0;
+    noCount = 0;
+    totalEligiblePlayers = 0;
+
+    players = getEntArray("player", "classname");
+    for(i = 0; i < players.size; i++)
+    {
+        if(players[i] openCJ\login::isLoggedIn())
+        {
+            if(isDefined(players[i].vote))
+            {
+                if(players[i].vote)
+                {
+                    yesCount++;
+                }
+                else
+                {
+                    noCount++;
+                }
+            }
+
+            totalEligiblePlayers++;
+        }
+    }
+
+    level.vote.yesCount = yesCount;
+    level.vote.noCount = noCount;
+
+    // Check if votes have passed a ratio to succeed or fail the vote now
+    voteThreshold = int(totalEligiblePlayers / 2);
+    if(noCount > voteThreshold)
+    {
+        _voteFailed();
+    }
+    else if(yesCount > voteThreshold)
+    {
+        _voteSuccess();
+    }
+    else
+    {
+        for(i = 0; i < players.size; i++)
+        {
+            if(players[i] openCJ\login::isLoggedIn())
+            {
+                players[i] _writeVoteCountString();
+            }
+        }
+    }
+}
+
+_getVoteCountString()
+{
+    voteYesStr = "Yes: ";
+    voteNoStr = "No:   ";
+
+    if(isDefined(self.vote))
+    {
+        if (self.vote)
+        {
+            voteYesStr += "^2";
+        }
+        else
+        {
+            voteNoStr += "^1";
+        }
+    }
+    voteYesStr += level.vote.yesCount;
+    voteNoStr += level.vote.noCount;
+
+    return voteYesStr + "^7\n" + voteNoStr + "^7";
 }
 
 _destroyVote()
 {
-	players = getEntArray("player", "classname");
-	for(i = 0; i < players.size; i++)
-	{
-		if(players[i] openCJ\login::isLoggedIn())
-		{
-			players[i] _writeVoteString();
-			players[i] _setMapVoteImage();
-		}
-	}
+    level.vote = undefined;
+
+    players = getEntArray("player", "classname");
+    for(i = 0; i < players.size; i++)
+    {
+        players[i] _writeVoteString();
+        players[i] _setMapVoteImage();
+    }
 }
 
 _writeVoteString()
 {
-	self setClientCvar("openCJ_voteString", level.vote.voteString);
+    if (isDefined(level.vote))
+    {
+        timeStr = "" + level.vote.timeLeft;
+        if (level.vote.timeLeft < 5)
+        {
+            timeStr = "^1" + timeStr;
+        }
+        self setClientCvar("openCJ_voteTimeString", timeStr);
+        self setClientCvar("openCJ_voteHeaderString", level.vote.str);
+    }
+    else
+    {
+        self setClientCvar("openCJ_voteTimeString", "");
+        self setClientCvar("openCJ_voteHeaderString", "");
+    }
 }
 
-_getVoteString(time)
+_writeVoteCountString()
 {
-	if(isDefined(level.vote.map))
-	{
-		return "Change map to " + level.vote.map + " (" + time + ")";
-	}
-	return "";
-}
-
-_writeVoteCounts()
-{
-	self setClientCvar("openCJ_voteCounts", level.vote.voteCounts);
+    self setClientCvar("openCJ_voteCounts", self _getVoteCountString());
 }
 
 _monitorVote()
 {
-	players = getEntArray("player", "classname");
-	for(i = 0; i < players.size; i++)
-	{
-		if(!players[i] openCJ\login::isLoggedIn())
-			continue;
-		players[i] _setMapVoteImage(level.vote.mapImage);
-		players[i] _writeVoteCounts();
-	}
-	for(time = 30; time >= 0; time--)
-	{
-		if(!isDefined(level.vote))
-			return;
-		level.vote.voteString = _getVoteString(time);
-		players = getEntArray("player", "classname");
-		for(i = 0; i < players.size; i++)
-		{
-			if(players[i] openCJ\login::isLoggedIn())
-				players[i] _writeVoteString();
-		}
-		wait 1;
-	}
-	if(isDefined(level.vote))
-		_voteFailed();
+    // Update the votes and menu for each player
+    players = getEntArray("player", "classname");
+    for(i = 0; i < players.size; i++)
+    {
+        if(!players[i] openCJ\login::isLoggedIn())
+        {
+            continue;
+        }
+        players[i] _writeVoteCountString();
+    }
+
+    // Start 30 second timer
+    for(time = level.vote.timeLeft; time > 0; time--)
+    {
+        if(!isDefined(level.vote))
+        {
+            return;
+        }
+
+        // Update the vote string for everyone
+        level.vote.timeLeft = time;
+        players = getEntArray("player", "classname");
+        for(i = 0; i < players.size; i++)
+        {
+            if(players[i] openCJ\login::isLoggedIn())
+            {
+                players[i] _setMapVoteImage(level.vote.mapImage);
+                players[i] _writeVoteString();
+            }
+        }
+
+        wait 1;
+    }
+
+    // If the vote went the full 30 seconds, then it means the vote failed
+    if(isDefined(level.vote))
+    {
+        _voteFailed();
+    }
 }
 
 _voteFailed()
 {
-	level.vote.voteString = "";
-	iprintln("Vote failed. Not enough players voted yes");
-	_destroyVote();
-	level.vote = undefined;
+    iprintln("Vote ^1failed^7");
+    _destroyVote();
 }
 
 _voteSuccess()
 {
-	if(isDefined(level.vote.map))
-	{
-		iprintln("The vote for " + level.vote.map + " passed");
-		thread _changeMap(level.vote.map);
-	}
-	level.vote.voteString = "";
-	_destroyVote();
-	level.vote = undefined;
+    if(isDefined(level.vote.map))
+    {
+        iprintln("Vote ^2passed^7: " + level.vote.map);
+        thread _changeMap(level.vote.map);
+    }
+    else if(isDefined(level.vote.extend))
+    {
+        iprintln("Vote ^2passed^7: " + "extend time");
+        thread _extendTime(30);
+    }
+
+    _destroyVote();
 }
 
 _changeMap(map)
 {
-	iprintlnbold("Switching map to " + map + " in 5 seconds..");
-	wait 5;
-	openCJ\events\eventHandler::onMapChanging();
-	setCvar("sv_maprotation", "map " + map);
-	exitLevel(false);
+    iprintlnbold("Changing map to " + map + " in 5 seconds..");
+    wait 5;
+    openCJ\events\eventHandler::onMapChanging();
+    setCvar("sv_maprotation", "map " + map);
+    exitLevel(false);
 }
 
+_extendTime(minutes)
+{
+    openCJ\timeLimit::addTimeSeconds(minutes * 60);
+}
