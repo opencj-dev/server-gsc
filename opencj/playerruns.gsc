@@ -127,7 +127,7 @@ _createRunID()
 	{
 		self.playerRuns_runID = int(rows[0][0]);
 
-		self iprintln("Created new run with ID: " + self.playerRuns_runID);
+		self iprintln("^5Started ^7new run (" + self.playerRuns_runID + ")");
 
 		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
 		if(rows.size && isDefined(rows[0][0]))

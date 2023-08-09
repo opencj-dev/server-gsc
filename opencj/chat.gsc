@@ -6,8 +6,8 @@ onInit()
 	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player. Usage: !pm [player] [message]", ::_onCommandPM, 2, undefined, 0);
 	openCJ\commands_base::addAlias(cmd, "whisper");
 	openCJ\commands_base::addAlias(cmd, "message");
-	openCJ\commands_base::registerCommand("mute", "Mute a player. Usage: !mute [player] [time]. Time is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::_onCommandmute, 1, 2, 0);
-	openCJ\commands_base::registerCommand("unmute", "Unmute a player. Usage: !unmute [player]", ::_onCommandUnmute, 1, 1, 0);
+	openCJ\commands_base::registerCommand("mute", "Mute a player. Usage: !mute [player] [time]. Time is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::_onCommandmute, 1, 2, 40);
+	openCJ\commands_base::registerCommand("unmute", "Unmute a player. Usage: !unmute [player]", ::_onCommandUnmute, 1, 1, 40);
 	cmd = openCJ\commands_base::registerCommand("ignore", "Temporarily ignore a specific player until map change. Usage: !ignore <playerName|playerId>", ::_onCommandIgnore, 1, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "tignore");
 	cmd = openCJ\commands_base::registerCommand("pignore", "Permanently ignore a specific player. Usage: !pignore <playerName|playerId>", ::_onCommandPermIgnore, 1, 1, 0);
@@ -15,6 +15,65 @@ onInit()
 
 	cmd = openCJ\commands_base::registerCommand("unignore", "Unignore a player, regardless of whether the ignore was temporary or permanent. Usage: !unignore <playerName|playerId>", ::_onCommandUnIgnore, 1, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "tignore");
+
+    cmd = openCJ\commands_base::registerCommand("playerid", "View your playerID", ::_onCmdPID, 0, 0, 0);
+    openCJ\commands_base::addAlias(cmd, "pid");
+
+    cmd = openCJ\commands_base::registerCommand("ent", "Teleport to an entity", ::_onCmdEntTele, 1, 3, 90);
+}
+
+_onCmdPID(args)
+{
+    if (self openCJ\login::isLoggedIn())
+    {
+        self sendLocalChatMessage("Your playerID is: " + self openCJ\login::getPlayerID());
+    }
+    else
+    {
+        self sendLocalChatMessage("^1You are not logged in");
+    }
+}
+
+_onCmdEntTele(args)
+{
+    if (isDefined(args) && (args.size >= 1))
+    {
+        isArray = (args.size > 1) && (strToBool(args[1]));
+        if (isArray)
+        {
+            if (args.size == 2)
+            {
+                self sendLocalChatMessage("You forgot argument <index of ent in array>");
+            }
+            else // Have more than 2
+            {
+                entArray = getEntArray(args[0], "targetname");
+                idx = int(args[2]);
+                if (entArray.size > idx)
+                {
+                    self setOrigin(entArray[idx].origin);
+                    self sendLocalChatMessage("Teleported you to entity: " + args[0] + "[" + idx + "]");
+                }
+                else
+                {
+                    self sendLocalChatMessage("Index of " + args[0] + " only goes to " + (entArray.size - 1));
+                }
+            }
+        }
+        else
+        {
+            ent = getEnt(args[0], "targetname");
+            if (isDefined(ent))
+            {
+                self setOrigin(ent.origin);
+                self sendLocalChatMessage("Teleported you to entity: " + args[0]);
+            }
+            else
+            {
+                self sendLocalChatMessage("^1Could not find entity: " + args[0]);
+            }
+        }
+    }
 }
 
 
