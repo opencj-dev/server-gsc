@@ -52,14 +52,14 @@ main()
 	//precacheModel("playermodel_aot_rosco_00_light");
 	
 	maps\mp\_load::main();
-	maps\mp\extremetext::main();
+	maps\mp\mp_the_extreme_text::main();
 	maps\mp\extremeteleport::main();
-	maps\mp\extremebounce::main();
+	maps\mp\mp_the_extreme_bounce::main();
 	maps\mp\doorslide::main();
 	maps\mp\key::main();
 	maps\mp\music::main();
-	maps\mp\killtriggers::main();
-	maps\mp\hardfinish::main();
+	maps\mp\mp_the_extreme_killtriggers::main();
+	maps\mp\mp_the_extreme_hardfinish::main();
 	maps\mp\telerotate::main();
 	
 	level.knockback = getDvarInt("g_knockback");

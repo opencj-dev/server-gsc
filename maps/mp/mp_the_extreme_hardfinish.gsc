@@ -181,7 +181,7 @@ finish_hard()
 
 
 
-			wait 3;
+			wait 5;
 
 			player.credits destroy();
 			player.credits1 destroy();
@@ -235,7 +235,7 @@ finish_hard()
 			player.blackscreen destroy();
 			
 			player.finish= true;
-			iprintln (player.name + " ^7has finished ^1Extreme Way^7!");
+			iprintln (player.name + "^7has finished ^1Extreme Way^7!");
 		}
 	}
 }
