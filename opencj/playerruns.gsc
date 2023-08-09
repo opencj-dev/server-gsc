@@ -166,7 +166,7 @@ restoreRun(runID)
         self thread openCJ\events\loadPosition::main(0);
     }
 
-    self iprintln("^2Restored ^7run with ID " + runID);
+    self iprintln("^2Restored run (" + runID + ")"); // TAS users depend on this message, do not modify
 }
 
 onSpawnPlayer()

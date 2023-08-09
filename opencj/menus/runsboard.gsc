@@ -104,37 +104,9 @@ fetchUpdatedData()
     // |---------|---------|---------------|------------|----------------|-----------|---------------------|---------|-------|
     // | ....
 
-    /*
-    query = "SELECT COUNT(*) OVER() AS totalNr, a.runID, a.runLabel, a.timePlayed, a.explosiveJumps, a.loadCount, a.startTimeStamp, a.FPSMode, a.ele, a.anyPct, a.hardTas FROM (" +
-                "SELECT pr.playerID, pr.runLabel, cs.timePlayed, cs.explosiveJumps, cs.loadCount, pr.startTimeStamp, cs.FPSMode, cs.ele, cs.anyPct, cs.hardTas, cs.runID, cs.saveCount, (" + 
-                    "ROW_NUMBER() OVER (PARTITION BY pr.runID ORDER BY timePlayed DESC" +
-                ")) AS rn " + 
-                "FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID " + 
-                "WHERE pr.playerID = " + playerID + 
-                " AND pr.finishcpID IS NULL" +
-                " AND pr.finishTimeStamp IS NULL" +
-                " AND pr.mapID = " + openCJ\mapID::getMapID() + 
-                " AND cs.ele <= " + self.currentBoard["filter"]["ele"] +
-                " AND cs.anyPct <= " + self.currentBoard["filter"]["any"] +
-                " AND cs.hardTAS <= " + self.currentBoard["filter"]["tas"] +
-                " AND cs.FPSMode IN " + openCJ\menus\board_base::getFPSModeStr(self.currentBoard["filter"]["fps"]) +
-            " ) a WHERE a.rn = 1 ORDER BY " + sortStr +
-            " LIMIT " + self.currentBoard["maxEntriesPerPage"] +
-            " OFFSET " + openCJ\menus\board_base::getOffsetFromPage(self.currentBoard["page"]["cur"], self.currentBoard["maxEntriesPerPage"]);
-    */
 
     // Might remain useful for now to print the query
     printf("Runsboard query:\n" + query + "\n"); // Debug
-
-    // Example output (pretend there are 10 rows instead of 2 though):
-    // ---------------------------------------------------------------------------------------------------------------------------------------|
-    // | totalNr | runID   | runLabel      | timePlayed | explosiveJumps | loadCount | startTimeStamp      | FPSMode | ele | anyPct | hardTAS |
-    // |--------------------------------------------------------------------------------------------------------------------------------------|
-    // | 13      | 1234    | imbadlol      | 416800     | 0              | 38        | 2022-09-04 08:22:12 | all     | 0   | 0      | 0       |
-    // |---------|---------|---------------|------------|----------------|-----------|---------------------|---------|-----|--------|---------|
-    // | 13      | 1446    | norpg run     | 657000     | 1              | 69        | 2022-09-04 09:53:58 | all     | 0   | 0      | 0       |
-    // |---------|---------|---------------|------------|----------------|-----------|---------------------|---------|-----|--------|---------|
-    // | ....
 
     rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 
@@ -169,9 +141,9 @@ fetchUpdatedData()
             self.currentBoard["cols"][i]["date"] = rows[i][6]; // startTimeStamp
             self.currentBoard["cols"][i]["fps"] = rows[i][7];
 
-            eleVal = int(rows[i][8]) & level.saveFlags["eleOverrideEver"];
-            anyVal = int(rows[i][8]) & level.saveFlags["anyPctEver"];
-            TASVal = int(rows[i][8]) & level.saveFlags["TASEver"];
+            eleVal = int(rows[i][8]) & level.saveFlags[level.saveFlagName_eleOverrideEver];
+            anyVal = int(rows[i][8]) & level.saveFlags[level.saveFlagName_anyPctEver];
+            TASVal = int(rows[i][8]) & level.saveFlags[level.saveFlagName_hardTAS];
             self.currentBoard["cols"][i]["ele"] = xOrEmpty(eleVal);
             self.currentBoard["cols"][i]["any"] = xOrEmpty(anyVal);
             self.currentBoard["cols"][i]["tas"] = xOrEmpty(TASVal);
@@ -222,10 +194,14 @@ getRunStr()
 
 getFilterStr(ele, any, tas)
 {
+    eleVal = int(ele) * level.saveFlags[level.saveFlagName_eleOverrideEver];
+    anyVal = int(any) * level.saveFlags[level.saveFlagName_anyPctEver];
+    tasVal = int(tas) * level.saveFlags[level.saveFlagName_hardTAS];
+
     flagsBeginStr = " AND (a.flags & ";
-    str = flagsBeginStr + level.saveFlags["eleOverrideEver"] + ") <= " + ele;
-    str += flagsBeginStr + level.saveFlags["anyPctEver"] + ") <= " + any;
-    str += flagsBeginStr + level.saveFlags["TASEver"] + ") <= " + tas;
+    str = flagsBeginStr + level.saveFlags["eleOverrideEver"] + ") <= " + eleVal;
+    str += flagsBeginStr + level.saveFlags["anyPctEver"] + ") <= " + anyVal;
+    str += flagsBeginStr + level.saveFlags["hardTAS"] + ") <= " + tasVal;
 
     return str;
 }

@@ -2,70 +2,74 @@
 
 onInit()
 {
-	level.saveFlags = [];
+    level.saveFlagName_cheating = "cheating";
+    level.saveFlagName_speedModeNow = "speedModeNow";
+    level.saveFlagName_speedModeEver = "speedModeEver";
+    level.saveFlagName_hasRPG = "rpg";
+    level.saveFlagName_eleOverrideNow = "eleOverrideNow";
+    level.saveFlagName_eleOverrideEver = "eleOverrideEver";
+    level.saveFlagName_anyPctNow = "anyPctNow";
+    level.saveFlagName_anyPctEver = "anyPctEver";
+    level.saveFlagName_hardTAS = "hardTAS";
+
+    level.saveFlags = [];
 
     // Flags are hardcoded in database right now, so do NOT modify existing ones.
     // When adding, do the same in pla
-	level.saveFlags["cheating"] = 1;
-	level.saveFlags["speedModeNow"] = 2;
-	level.saveFlags["speedModeEver"] = 4;
-	level.saveFlags["rpg"] = 8;
-	level.saveFlags["eleOverrideNow"] = 16;
-	level.saveFlags["eleOverrideEver"] = 32;
-    level.saveFlags["anyPctNow"] = 64;
-    level.saveFlags["anyPctEver"] = 128;
-    level.saveFlags["TASNow"] = 256;
-    level.saveFlags["TASEver"] = 512;
+    level.saveFlags[level.saveFlagName_cheating] = 1;
+    level.saveFlags[level.saveFlagName_speedModeNow] = 2;
+    level.saveFlags[level.saveFlagName_speedModeEver] = 4;
+    level.saveFlags[level.saveFlagName_hasRPG] = 8;
+    level.saveFlags[level.saveFlagName_eleOverrideNow] = 16;
+    level.saveFlags[level.saveFlagName_eleOverrideEver] = 32;
+    level.saveFlags[level.saveFlagName_anyPctNow] = 64;
+    level.saveFlags[level.saveFlagName_anyPctEver] = 128;
+    level.saveFlags[level.saveFlagName_hardTAS] = 256;
 }
 
 getFlagEleOverrideNow(save)
 {
-	return (save.flags & level.saveFlags["eleOverrideNow"]) != 0;
+	return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideNow]) != 0;
 }
 
 getFlagEleOverrideEver(save)
 {
-	return (save.flags & level.saveFlags["eleOverrideEver"]) != 0;
+	return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideEver]) != 0;
 }
 
 getUsedAnyPctNow(save)
 {
-    return (save.flags & level.saveFlags["anyPctNow"]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_anyPctNow]) != 0;
 }
 
 getUsedAnyPctEver(save)
 {
-    return (save.flags & level.saveFlags["anyPctEver"]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_anyPctEver]) != 0;
 }
 
-getUsedTASNow(save)
+getUsedHardTAS(save)
 {
-    return (save.flags & level.saveFlags["TASNow"]) != 0;
-}
-
-getUsedTASEver(save)
-{
-    return (save.flags & level.saveFlags["TASEver"]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_hardTAS]) != 0;
 }
 
 isCheating(save)
 {
-	return (save.flags & level.saveFlags["cheating"]) != 0;
+	return (save.flags & level.saveFlags[level.saveFlagName_cheating]) != 0;
 }
 
 hasSpeedModeNow(save)
 {
-	return (save.flags & level.saveFlags["speedModeNow"]) != 0;
+	return (save.flags & level.saveFlags[level.saveFlagName_speedModeNow]) != 0;
 }
 
 hasSpeedModeEver(save)
 {
-	return (save.flags & level.saveFlags["speedModeEver"]) != 0;
+	return (save.flags & level.saveFlags[level.saveFlagName_speedModeEver]) != 0;
 }
 
 hasRPG(save)
 {
-	return (save.flags & level.saveFlags["rpg"]) != 0;
+	return (save.flags & level.saveFlags[level.saveFlagName_hasRPG]) != 0;
 }
 
 createFlags()
@@ -73,30 +77,34 @@ createFlags()
 	flags = 0;
 	if(self openCJ\cheating::isCheating())
 	{
-		flags |= level.saveFlags["cheating"];
+		flags |= level.saveFlags[level.saveFlagName_cheating];
 	}
 	if(self openCJ\speedMode::hasSpeedMode())
 	{
-		flags |= level.saveFlags["speedModeNow"];
+		flags |= level.saveFlags[level.saveFlagName_speedModeNow];
 	}
 	if(self openCJ\speedMode::hasSpeedModeEver())
 	{
-		flags |= level.saveFlags["speedModeEver"];
+		flags |= level.saveFlags[level.saveFlagName_speedModeEver];
 	}
 	if(openCJ\weapons::isRPG(self getCurrentWeapon()))
 	{
-		flags |= level.saveFlags["rpg"];
+		flags |= level.saveFlags[level.saveFlagName_hasRPG];
 	}
 	if(openCJ\elevate::hasEleOverrideNow())
 	{
-		flags |= level.saveFlags["eleOverrideNow"];
+		flags |= level.saveFlags[level.saveFlagName_eleOverrideNow];
 	}
 	if(openCJ\elevate::hasEleOverrideEver())
 	{
-		flags |= level.saveFlags["eleOverrideEver"];
+		flags |= level.saveFlags[level.saveFlagName_eleOverrideEver];
 	}
+    if(openCJ\tas::hasHardTAS())
+    {
+        flags |= level.saveFlags[level.saveFlagName_hardTAS];
+    }
 
-    // TODO: implement any % and TAS
+    // TODO: implement any %
 
 	return flags;
 }
