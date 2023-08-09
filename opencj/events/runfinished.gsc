@@ -5,18 +5,23 @@ main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
     cpID = openCJ\checkpoints::getCheckPointID(cp);
     if (isDefined(cpID))
     {
-        self iprintln("Run finished: " + cpID);
-        if(self openCJ\playerRuns::hasRunID() && self openCJ\checkpoints::checkpointHasID(cp))
+        if(self openCJ\playerRuns::hasRunID())
         {
             runID = self openCJ\playerRuns::getRunID();
-            self openCJ\playTime::setTimePlayed(self openCJ\playTime::getTimePlayed() + tOffset);
-            timePlayed = self openCJ\playTime::getTimePlayed();
-            self thread openCJ\checkpoints::storeCheckpointPassed(runID, cpID, timePlayed);
-            self thread _notifyFinishedMap(runID, cpID, timePlayed);
+            self iprintln("Finished run (" + runID + ")");
+
+            if (self openCJ\checkpoints::checkpointHasID(cp))
+            {
+                self openCJ\playTime::setTimePlayed(self openCJ\playTime::getTimePlayed() + tOffset);
+                timePlayed = self openCJ\playTime::getTimePlayed();
+                self thread openCJ\checkpoints::storeCheckpointPassed(runID, cpID, timePlayed);
+                self thread _notifyFinishedMap(runID, cpID, timePlayed);
+            }
         }
     }
 	self thread openCJ\playerRuns::onRunFinished(cp);
 	self openCJ\checkpointPointers::onRunFinished(cp);
+    self openCJ\tas::onRunFinished();
 	self openCJ\showRecords::onRunFinished(cp);
 	self openCJ\huds\hudProgressBar::onRunFinished(cp);
 	self openCJ\elevate::onRunFinished(cp);

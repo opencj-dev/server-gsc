@@ -6,12 +6,14 @@ onInit()
     level.runInfoShader["mix"] = "opencj_icon_fpsmix";
     level.runInfoShader["125"] = "opencj_icon_fps125";
     level.runInfoShader["ele"] = "opencj_icon_ele";
+    level.runInfoShader["hardTAS"] = "opencj_icon_tas";
     level.iconWidth = 16;
     level.iconHeight = 20;
     precacheShader(level.runInfoShader["hax"]);
     precacheShader(level.runInfoShader["mix"]);
     precacheShader(level.runInfoShader["125"]);
     precacheShader(level.runInfoShader["ele"]);
+    precacheShader(level.runInfoShader["hardTAS"]);
 }
 
 onStartDemo()
@@ -100,7 +102,16 @@ _showRunInfo(player)
     }
     else
     {
-        self.hudRunInfo["ele"].alpha = 0.2;
+        self.hudRunInfo["ele"].alpha = 0.1;
+    }
+
+    if (player openCJ\tas::hasHardTAS())
+    {
+        self.hudRunInfo["hardTAS"].alpha = 1;
+    }
+    else
+    {
+        self.hudRunInfo["hardTAS"].alpha = 0.1;
     }
 }
 
@@ -108,6 +119,7 @@ _hideRunInfo()
 {
     self.hudRunInfo["fps"].alpha = 0;
     self.hudRunInfo["ele"].alpha = 0;
+    self.hudRunInfo["hardTAS"].alpha = 0;
 }
 
 _createRunInfoHud()
@@ -140,4 +152,16 @@ _createRunInfoHud()
     self.hudRunInfo["ele"].archived = false;
     self.hudRunInfo["ele"].hideWhenInMenu = true;
     self.hudRunInfo["ele"] setShader(level.runInfoShader["ele"], level.iconWidth, level.iconHeight);
+
+    self.hudRunInfo["hardTAS"] = newClientHudElem(self);
+    self.hudRunInfo["hardTAS"].horzAlign = "fullscreen";
+    self.hudRunInfo["hardTAS"].vertAlign = "fullscreen";
+    self.hudRunInfo["hardTAS"].alignX = "left";
+    self.hudRunInfo["hardTAS"].alignY = "bottom";
+    self.hudRunInfo["hardTAS"].x = firstIconX + (2 * (spaceBetweenIcons + level.iconWidth));
+    self.hudRunInfo["hardTAS"].y = yAboveProgressBar;
+    self.hudRunInfo["hardTAS"].alpha = 0;
+    self.hudRunInfo["hardTAS"].archived = false;
+    self.hudRunInfo["hardTAS"].hideWhenInMenu = true;
+    self.hudRunInfo["hardTAS"] setShader(level.runInfoShader["hardTAS"], level.iconWidth, level.iconHeight);
 }

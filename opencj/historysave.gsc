@@ -76,7 +76,6 @@ _loadSavesFromDatabase(runID, instanceNumber)
         fpsMode = openCJ\fps::FPSModeToInt(rowsSaves[i][9]);
         flags = int(rowsSaves[i][10]);
         entNum = _getEntNum(rowsSaves[i][11], intOrUndefined(rowsSaves[i][12]));
-        printf("DEBUG: saving position " + i + " with rpgjumps: " + explosiveJumps + "\n");
 		self savePosition_save(org, angles, entNum, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, numOfThisSave);
 	}
 

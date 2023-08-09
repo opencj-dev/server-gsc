@@ -3,6 +3,7 @@
 main()
 {
     self openCJ\saveposition::onRunIDCreated();
+    self openCJ\tas::onRunIDCreated();
     self openCJ\weapons::onRunIDCreated();
     self openCJ\playerRuns::onRunIDCreated();
     self openCJ\statistics::onRunIDCreated();
