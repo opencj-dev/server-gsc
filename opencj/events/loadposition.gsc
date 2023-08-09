@@ -47,14 +47,14 @@ main(backwardsCount)
 	self openCJ\elevate::setEleOverrideEver(openCJ\savePosition::getFlagEleOverrideEver(save));
 	self openCJ\elevate::setEleOverrideNow(openCJ\savePosition::getFlagEleOverrideNow(save));
 
-	// Set FPSMode. If save had non-hax non-mix, then the FPS mode should depend on the user's current mode instead
+	// Set FPSMode. If save had non-hax non-mix, then the FPS mode should depend on the user's current FPS instead
     if ((save.FPSMode == "hax") || (save.FPSMode == "mix"))
     {
         self openCJ\fps::forceFPSMode(save.FPSMode);
     }
     else
     {
-        self openCJ\fps::forceFPSMode(self openCJ\fps::getCurrentFPSMode());
+        self openCJ\fps::forceFPSMode(self openCJ\fps::getNewFPSModeStrByFPS(save.FPSMode, self openCJ\fps::getCurrentFPS()));
     }
 
     // TODO: implement any% and TAS
