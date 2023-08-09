@@ -6,6 +6,9 @@ onInit()
     level.endVote["prefix"] = "opencj_ui_end_";
     level.endVote["winning"] = undefined;
 
+    // All maps for alpha right now
+    level.maps = [];
+
     // Define random maps for the next map vote
     level.endVote["maps"] = [];
     level.endVote["mapImages"] = [];
@@ -24,38 +27,32 @@ onInit()
 fetchRandomMaps()
 {
     // Fetch random maps from database for next vote
-    query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getCvar("mapname") + "' ORDER BY RAND() LIMIT " + level.endVote["nrMaps"];
+    //query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getCvar("mapname") + "' ORDER BY RAND() LIMIT " + level.endVote["nrMaps"];
+    // For now no limit
+    query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getCvar("mapname") + "' ORDER BY RAND()";
     rows = opencj\mysql::mysqlAsyncQuery(query);
     if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
     {
+        maxVal = rows.size;
+        if (rows.size > level.endVote["nrMaps"])
+        {
+            maxVal = level.endVote["nrMaps"];
+        }
         for(i = 0; i < rows.size; i++)
         {
-            level.endVote["maps"][i] = rows[i][0];
-            level.endVote["mapImages"][i] = "loadscreen_" + level.endVote["maps"][i];
+            level.maps[i] = rows[i][0];
+            if (i < maxVal)
+            {
+                level.endVote["maps"][i] = rows[i][0];
+                level.endVote["mapImages"][i] = "loadscreen_" + level.endVote["maps"][i];
+            }
         }
+        level.maps[level.maps.size] = getCvar("mapname");
     }
     else
     {
         printf("ERROR: could not get random maps for end map vote...\n");
     }
-}
-
-// Temporary function while not all maps are implemented
-isMapAvailable(mapName)
-{
-    if (!isDefined(level.endVote) || !isDefined(level.endVote["maps"]))
-    {
-        return false;
-    }
-    for (i = 0; i < level.endVote["maps"].size; i++)
-    {
-        if (mapName == level.endVote["maps"][i])
-        {
-            return true;
-        }
-    }
-
-    return false;
 }
 
 onPlayerConnected()
