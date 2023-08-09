@@ -3,11 +3,11 @@
 onInit()
 {
 	thread _getMessages();
-	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player\nUsage: !pm [player] [message]", ::_onCommandPM, 2, undefined, 0);
+	cmd = openCJ\commands_base::registerCommand("pm", "Send a pm to a player. Usage: !pm [player] [message]", ::_onCommandPM, 2, undefined, 0);
 	openCJ\commands_base::addAlias(cmd, "whisper");
 	openCJ\commands_base::addAlias(cmd, "message");
-	openCJ\commands_base::registerCommand("mute", "Mute a player\nUsage: !mute [player] [time]\nTime is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::_onCommandmute, 1, 2, 0);
-	openCJ\commands_base::registerCommand("unmute", "Unmute a player\nUsage: !unmute [player]", ::_onCommandUnmute, 1, 1, 0);
+	openCJ\commands_base::registerCommand("mute", "Mute a player. Usage: !mute [player] [time]. Time is optional and formatted in either [m]inutes, [h]ours or [d]ays", ::_onCommandmute, 1, 2, 0);
+	openCJ\commands_base::registerCommand("unmute", "Unmute a player. Usage: !unmute [player]", ::_onCommandUnmute, 1, 1, 0);
 	cmd = openCJ\commands_base::registerCommand("ignore", "Temporarily ignore a specific player until map change. Usage: !ignore <playerName|playerId>", ::_onCommandIgnore, 1, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "tignore");
 	cmd = openCJ\commands_base::registerCommand("pignore", "Permanently ignore a specific player. Usage: !pignore <playerName|playerId>", ::_onCommandPermIgnore, 1, 1, 0);

@@ -6,7 +6,7 @@ onInit()
 	level.speedMode["maxspeed"] = 500;
 	level.speedMode["minspeed"] = 1;
 
-	cmd = openCJ\commands_base::registerCommand("speedmode", "Used to enable/disable speed mode\nUsage: !speedmode [<value>|off]", ::speedMode, 0, 1, 0);
+	cmd = openCJ\commands_base::registerCommand("speedmode", "Used to enable/disable speed mode. Usage: !speedmode [<value>|off]", ::speedMode, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "speed");
 }
 

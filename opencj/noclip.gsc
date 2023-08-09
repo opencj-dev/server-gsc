@@ -2,7 +2,7 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("noclip", "Enables/disables noclip.\nUsage: !noclip [speed]", ::noclip, 0, 1, 0);
+	cmd = openCJ\commands_base::registerCommand("noclip", "Enables/disables noclip. Usage: !noclip [speed]", ::noclip, 0, 1, 0);
 	openCJ\commands_base::addAlias(cmd, "ufo"); // It's not the same, but we don't have ufo anyway so..
 }
 

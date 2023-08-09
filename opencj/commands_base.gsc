@@ -3,7 +3,7 @@
 onInit()
 {
 	level.commands = [];
-	cmd = registerCommand("help", "Shows all available commands or help for a specific function.\nUsage: !help [command] [subcommand] ..", ::_showHelp, 0, 1, 0);
+	cmd = registerCommand("help", "Shows all available commands or help for a specific function. Usage: !help [command] [subcommand] ..", ::_showHelp, 0, 1, 0);
 	addAlias(cmd, "commands");
 }
 

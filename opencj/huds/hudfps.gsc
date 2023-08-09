@@ -3,7 +3,7 @@
 onInit()
 {
 	// TODO: expand command so each HUD can be enabled/disabled
-	underlyingCmd = openCJ\settings::addSettingBool("fpshud", true, "Turn on/off FPS hud\nUsage: !fpshud [on/off]", ::_onFPSHudSetting);
+	underlyingCmd = openCJ\settings::addSettingBool("fpshud", true, "Turn on/off FPS hud. Usage: !fpshud [on/off]", ::_onFPSHudSetting);
 	openCJ\huds\infiniteHuds::initInfiniteHud("fps");
 }
 
