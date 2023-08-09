@@ -46,11 +46,11 @@ _loadSavesFromDatabase(runID, instanceNumber)
 {
 	self endon("disconnect");
     query1 = "SELECT timePlayed, saveCount, loadCount, explosiveLaunches FROM playerRuns WHERE runID = " + runID;
-    printf("DEBUG: executing historyLoad query1:\n" + query1 + "\n");
+    //printf("DEBUG: executing historyLoad query1:\n" + query1 + "\n");
     rowsRun = self openCJ\mySQL::mysqlAsyncQuery(query1);
 
     query2 = "SELECT x, y, z, alpha, beta, gamma, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, entTargetName, numOfEnt FROM playerSaves WHERE runID = " + runID + " ORDER BY saveNumber DESC LIMIT 50";
-    printf("DEBUG: executing historyLoad query2:\n" + query2 + "\n");
+    //printf("DEBUG: executing historyLoad query2:\n" + query2 + "\n");
     rowsSaves = self openCJ\mySQL::mysqlAsyncQuery(query2);
 
 	self openCJ\playerRuns::setRunIDAndInstanceNumber(runID, instanceNumber);

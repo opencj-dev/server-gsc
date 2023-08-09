@@ -7,11 +7,11 @@ main(backwardsCount)
 		return undefined;
 	}
 
-	save = self openCJ\savePosition::getSavedPosition(backwardsCount);
+    save = self openCJ\savePosition::getSavedPosition(backwardsCount);
 
 	if(getCodVersion() == 4)
 	{
-		giveRPG = self openCJ\settings::getSetting("rpgonload") || openCJ\weapons::isRPG(self getCurrentWeapon());
+		giveRPG = (self openCJ\settings::getSetting("rpgonload") && self openCJ\savePosition::hasRPG(save)) || openCJ\weapons::isRPG(self getCurrentWeapon());
 	}
 	else
 	{
