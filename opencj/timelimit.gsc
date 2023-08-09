@@ -22,6 +22,7 @@ onInit()
 addTimeSeconds(seconds)
 {
     level.timeLimitSeconds += seconds;
+    level.remainingTimeSeconds = int(getRemainingTimeMs() / 1000);
     thread opencj\events\onRemainingTimeChanged::main();
 }
 

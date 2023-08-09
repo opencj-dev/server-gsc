@@ -15,9 +15,16 @@ angle2short(vec)
 	return (int((vec[0] * 65536 / 360)) & 65535, int((vec[1] * 65536 / 360)) & 65535, int((vec[2] * 65536 / 360)) & 65535);
 }
 
-isPlayerReady()
+isPlayerReady(requiresRunReady)
 {
-	return self openCJ\login::isLoggedIn() && self openCJ\playerRuns::hasRunID() && self openCJ\settings::areSettingsLoaded();
+    ready = (self openCJ\login::isLoggedIn() && self openCJ\settings::areSettingsLoaded());
+
+    if (isDefined(requiresRunReady) && requiresRunReady)
+    {
+        return ready && self openCJ\playerRuns::hasRunID();
+    }
+
+    return ready;
 }
 
 getEyePos()

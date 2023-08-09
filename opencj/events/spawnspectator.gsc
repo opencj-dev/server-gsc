@@ -2,6 +2,11 @@
 
 main()
 {
+    if (self.sessionState == "spectator")
+    {
+        return;
+    }
+
     self notify("spawned_spectator");
 
     resetTimeout();
@@ -11,6 +16,10 @@ main()
     self.spectatorClient = -1;
     self.archiveTime = 0;
     self.pers["team"] = "spectator";
+
+    specSpawnpoint = self openCJ\spawnpoints::getSpectatorSpawnpoint();
+    self setOrigin(specSpawnpoint.origin);
+    self setPlayerAngles(specSpawnpoint.angles);
 
     self openCJ\shellShock::resetShellShock();
     self openCJ\healthRegen::onSpawnSpectator();
