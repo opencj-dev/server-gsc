@@ -6,7 +6,7 @@ onInit()
     level.progressBarHeight = 10;
     level.progressBarMinWidth = 1; // Lower than this and it will default to its normal size
     level.progressBarOffsetX = 0;
-    level.progressBarOffsetY = 480;
+    level.progressBarOffsetY = 482; // Needs a +2 otherwise there is a gap under it, for whatever reason
     level.progressBarMaxValue = (640 - level.progressBarOffsetX);
     level.progressBarScaleDuration = 0.25;
 	precacheShader(level.progressBarShader);

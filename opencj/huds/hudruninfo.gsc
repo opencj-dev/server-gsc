@@ -126,7 +126,7 @@ _createRunInfoHud()
 {
     self.hudRunInfo = [];
 
-    firstIconX = 55;
+    firstIconX = 65;
     yAboveProgressBar = 460; // Right above progress bar
     spaceBetweenIcons = 5;
     self.hudRunInfo["fps"] = newClientHudElem(self);

@@ -9,7 +9,7 @@ onInit()
     }
     else
     {
-        level.timeLimitSeconds = 3600;
+        level.timeLimitSeconds = (8 * 60);
     }
     level.startTimeMs = getTime();
     level.remainingTimeSeconds = level.timeLimitSeconds;
@@ -33,6 +33,7 @@ muteTimerSound(mute)
 loop()
 {
     hasTimeExpired = false;
+    hasVotedAutoExtend = false;
     while (1)
     {
         remainingTimeMs = getRemainingTimeMs();
@@ -47,6 +48,13 @@ loop()
             }
             wait .05;
             continue; // Refresh the variables
+        }
+
+        // Auto extend time vote
+        if (!hasVotedAutoExtend && (level.remainingTimeSeconds < (5 * 60)))
+        {
+            self openCJ\vote::queueAutoExtendVote();
+            hasVotedAutoExtend = true;
         }
 
         hasTimeExpired = false;
