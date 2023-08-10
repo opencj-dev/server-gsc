@@ -2,6 +2,11 @@
 
 main(backwardsCount)
 {
+    if (self.sessionState != "playing")
+    {
+        return;
+    }
+
 	if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
 	{
 		return undefined;

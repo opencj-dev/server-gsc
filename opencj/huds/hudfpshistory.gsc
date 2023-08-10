@@ -22,10 +22,10 @@ onPlayerConnect()
 
 onSpectatorClientChanged(newClient)
 {
-	if (!isDefined(newClient) || newClient openCJ\demos::isPlayingDemo())
+	if (!isDefined(newClient) || (newClient openCJ\demos::isPlayingDemo()))
 	{
 		// Not spectating anyone anymore
-		self _clearFPSHistory();
+		self hideAndClearFPSHistory();
 	}
 	else
 	{
@@ -154,27 +154,31 @@ _addFPSHistory(text)
 
 _setFPSHistory(text)
 {
-	if(self openCJ\demos::isPlayingDemo())
-	{
-		return;
-	}
+    if(self openCJ\demos::isPlayingDemo())
+    {
+        return;
+    }
 
-	if (self.fpsHistoryText == text)
-	{
-		return; // Already set
-	}
+    if (self.fpsHistoryText == text)
+    {
+        return; // Already set
+    }
 
-	self.fpsHistoryText = text;
-	if(text.size <= 1)
-	{
-		return;
-	}
-	spectators = self getSpectatorList(false);
-	for (i = 0; i < spectators.size; i++)
-	{
-		spectators[i].hud[level.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
-		spectators[i] openCJ\huds\base::enableHUD(level.fpsHistoryHudName);
-	}
+    if((text.size <= 1) && (self.fpsHistoryText != ""))
+    {
+        return;
+    }
+    self.fpsHistoryText = text;
+
+    if (self.sessionState == "playing")
+    {
+        spectators = self getSpectatorList(false);
+        for (i = 0; i < spectators.size; i++)
+        {
+            spectators[i].hud[level.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(text, spectators[i], false);
+            spectators[i] openCJ\huds\base::enableHUD(level.fpsHistoryHudName);
+        }
+    }
 }
 
 _setDemoFPSHistory(text)
