@@ -308,7 +308,7 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 				playerId = players[j] openCJ\login::getPlayerID();
 				if(!isInArray(playerId, ignoredByListInt))
 				{
-					players[i] sendChatMessage("^3[^7" + server + "^3]^7 " + name + ":^7 " +  msg);
+					players[j] sendChatMessage("^3[^7" + server + "^3]^7 " + name + ":^7 " +  msg);
 				}
 			}
 		}
@@ -329,53 +329,63 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 
 onChatMessage(args)
 {
-	if(!self isPlayerReady())
-	{
-		return;
-	}
-	//say and say_team have identical behavior
-	if(self isMuted())
-	{
-		self sendLocalChatMessage("You are currently muted", true);
-		return;
-	}
+    if(!self isPlayerReady())
+    {
+        return;
+    }
+    //say and say_team have identical behavior
+    if(self isMuted())
+    {
+        self sendLocalChatMessage("You are currently muted", true);
+        return;
+    }
 
-	// Build the message (without the 'say' / 'say_team')
-	msg = "";
-	for(i = 1; i < args.size; i++)
-	{
-		msg += args[i] + " ";
-	}
+    isLocalMessage = (isDefined(args) && isDefined(args[0]) && (args[0] == "say_team"));
 
-	// Direct the message to other players, keeping  in mind ignore, mute ..
-	players = getEntArray("player", "classname");
-	for(i = 0; i < players.size; i++)
-	{
-		if(!players[i] openCJ\login::isLoggedIn() || !players[i] openCJ\settings::areSettingsLoaded())
-		{
-			// Don't direct messages to any non-logged in players
-			continue;
-		}
+    // Build the message (without the 'say' / 'say_team')
+    msg = "";
+    for(i = 1; i < args.size; i++)
+    {
+        msg += args[i] + " ";
+    }
 
-		if(players[i] isIgnoring(self))
-		{
-			// Don't direct messages to any players who are ignoring this player
-			continue;
-		}
+    // Direct the message to other players, keeping  in mind ignore, mute ..
+    messageColor = "^7";
+    if (isLocalMessage)
+    {
+        messageColor = "^5";
+    }
+    players = getEntArray("player", "classname");
+    for(i = 0; i < players.size; i++)
+    {
+        if(!players[i] openCJ\login::isLoggedIn() || !players[i] openCJ\settings::areSettingsLoaded())
+        {
+            // Don't direct messages to any non-logged in players
+            continue;
+        }
 
-		// Send the message
-		if(self.pers["team"] == "spectator")
-		{
-			players[i] sendChatMessage("(Spectator)" + self.name + "^7: " + msg);
-		}
-		else
-		{
-			players[i] sendChatMessage(self.name + "^7: " + msg);
-		}
-	}
+        if(players[i] isIgnoring(self))
+        {
+            // Don't direct messages to any players who are ignoring this player
+            continue;
+        }
 
-	// Save into database for cross-server chat
-	thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT INTO messages (playerID, message, server) VALUES (" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(msg) + "', '" + openCJ\mySQL::escapeString(getServerName()) + "')");
+        // Send the message (local messages get a cyan color)
+        if(self.pers["team"] == "spectator")
+        {
+            players[i] sendChatMessage("(Spectator)" + self.name + "^7: " + messageColor + msg);
+        }
+        else
+        {
+            players[i] sendChatMessage(self.name + "^7: " + messageColor + msg);
+        }
+    }
+
+    // Save into database for cross-server chat, but only if this message was not meant for current server only (say_team)
+    if (!isLocalMessage)
+    {
+        thread openCJ\mySQL::mysqlAsyncQueryNosave("INSERT INTO messages (playerID, message, server) VALUES (" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(msg) + "', '" + openCJ\mySQL::escapeString(getServerName()) + "')");
+    }
 }
 
 isIgnoring(player)

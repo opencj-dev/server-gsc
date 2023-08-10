@@ -53,13 +53,12 @@ onFPSChange(newFPS) // Not called with undefined FPS
         return;
     }
 
-    // Any checks will be done by this function
-    self setFPSMode(self getNewFPSModeStrByFPS(self getCurrentFPSMode(), newFPS));
-
-    // Let other scripts know that the FPS changed
+    // Let other scripts know that the FPS changed. Do this before changing the FPS mode, because that one might call setSafeFPS which will call onFPSChange as well
     openCJ\events\onFPSChanged::main(newFPS);
-
     self.FPS = newFPS;
+
+    // Update the FPS mode. This may be accepted or prevented based on user settings.
+    self setFPSMode(self getNewFPSModeStrByFPS(self getCurrentFPSMode(), newFPS));
 }
 
 onRunCreated()
@@ -132,7 +131,7 @@ _shouldFPSModeChange(currentFPSMode, newFPSMode)
     }
 
     // User's settings may prevent this change
-    if (self userSettingsPreventFPSMode(newFPSMode))
+    if (self userSettingsPreventFPSMode(currentFPSMode, newFPSMode))
     {
         return false;
     }
@@ -161,9 +160,9 @@ _shouldFPSModeChange(currentFPSMode, newFPSMode)
     return false;
 }
 
-userSettingsPreventFPSMode(newFPSMode)
+userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
 {
-    if (!self openCJ\playerRuns::hasRunStarted())
+    if (!self openCJ\playerRuns::hasRunStarted() || self openCJ\playerRuns::isRunPaused())
     {
         return false;
     }
@@ -174,7 +173,18 @@ userSettingsPreventFPSMode(newFPSMode)
         return false;
     }
 
-    // If the user changed their FPS to something their settings don't allow, load back.
+    // If current FPS mode was already hax, then the settings don't matter
+    if (currentFPSMode == "hax")
+    {
+        return false;
+    }
+
+    // When current FPS mode is mix and we're not switching to hax, settings don't matter either
+    if ((currentFPSMode == "mix") && (newFPSMode != "hax"))
+    {
+        return false;
+    }
+
     fpsTypeStr = "hax";
     if (newFPSMode == "mix")
     {

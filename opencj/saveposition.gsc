@@ -111,6 +111,7 @@ createFlags()
 
 onRunCreated()
 {
+    self.savedPosition = undefined;
     self savePosition_initClient();
     self resetBackwardsCount();
 }
@@ -259,37 +260,64 @@ setSavedPosition()
     FPSModeNum = self openCJ\fps::FPSModeToInt(FPSModeStr);
 	saveNum = self openCJ\statistics::increaseAndGetSaveCount();
 	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeStr, flags);
-	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeNum, flags, saveNum);
+	self savePosition(origin, angles, entNum, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeNum, flags, saveNum);
 	return saveNum;
+}
+
+savePosition(org, angles, entNum, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, numOfThisSave)
+{
+    // Local cache will be useful for various purposes
+    self.savedPosition = spawnStruct();
+    self.savedPosition.origin = org;
+    self.savedPosition.angles = angles;
+    self.savedPosition.entNum = entNum;
+    self.savedPosition.explosiveJumps = explosiveJumps;
+    self.savedPosition.doubleExplosives = doubleExplosives;
+    self.savedPosition.checkpointID = checkpointID;
+    self.savedPosition.FPSMode = FPSMode;
+    self.savedPosition.flags = flags;
+    self.savedPosition.numOfThisSave = numOfThisSave;
+
+    self savePosition_save(org, angles, entNum, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, numOfThisSave);
+}
+
+// Doesn't actually select a save, just uses what the player last used.
+// Useful for if someone else wants to use this save (teleporting)
+getCurrentSave()
+{
+    return self.savedPosition; // Can be undefined!
 }
 
 getSavedPosition(backwardsCount)
 {
-	self savePosition_selectSave(backwardsCount);
+	error = self savePosition_selectSave(backwardsCount);
+    if (error == 0) // No error
+    {
+        self.savedPosition = spawnStruct();
+        self.savedPosition.origin = self savePosition_getOrigin();
+        self.savedPosition.angles = self savePosition_getAngles();
+        self.savedPosition.explosiveJumps = self savePosition_getExplosiveJumps();
+        self.savedPosition.doubleExplosives = self savePosition_getDoubleExplosives();
+        self.savedPosition.checkpointID = self savePosition_getCheckpointID();
+        self.savedPosition.flags = self savePosition_getFlags();
+        self.savedPosition.FPSMode = self openCJ\fps::FPSModeToString(self savePosition_getFPSMode());
+        self.savedPosition.saveNum = self savePosition_getSaveNum();
 
-	save = spawnStruct();
-	save.origin = self savePosition_getOrigin();
-	save.angles = self savePosition_getAngles();
+        groundEntity = self savePosition_getGroundEntity();
 
-	save.explosiveJumps = self savePosition_getExplosiveJumps();
-	save.doubleExplosives = self savePosition_getDoubleExplosives();
-	save.checkpointID = self savePosition_getCheckpointID();
-	save.flags = self savePosition_getFlags();
-	save.FPSMode = self openCJ\fps::FPSModeToString(self savePosition_getFPSMode());
-	save.saveNum = self savePosition_getSaveNum();
+        if(isDefined(groundEntity))
+        {
+            x = vectorScale(anglesToForward(groundEntity.angles), self.savedPosition.origin[0]);
+            y = vectorScale(anglesToRight(groundEntity.angles), self.savedPosition.origin[1]);
+            z = vectorScale(anglesToUp(groundEntity.angles), self.savedPosition.origin[2]);
+            self.savedPosition.origin = groundEntity.origin + x + y + z;
+            self.savedPosition.angles = (self.savedPosition.angles[0], self.savedPosition.angles[1] + groundEntity.angles[1], self.savedPosition.angles[2]);
+        }
 
-	groundEntity = self savePosition_getGroundEntity();
+        return self.savedPosition;
+    }
 
-	if(isDefined(groundEntity))
-	{
-		x = vectorScale(anglesToForward(groundEntity.angles), save.origin[0]);
-		y = vectorScale(anglesToRight(groundEntity.angles), save.origin[1]);
-		z = vectorScale(anglesToUp(groundEntity.angles), save.origin[2]);
-		save.origin = groundEntity.origin + x + y + z;
-		save.angles = (save.angles[0], save.angles[1] + groundEntity.angles[1], save.angles[2]);
-	}
-
-	return save;
+    return undefined;
 }
 
 incrementBackwardsCount(amount)

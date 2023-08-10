@@ -50,7 +50,7 @@ setAFK(value)
 	{
 		self.AFKTimer = getTime() + 5000;
 		self.AFKOrigin = self.origin;
-		if(self openCJ\playerRuns::hasRunStarted())
+		if(self openCJ\playerRuns::hasRunStarted() && !self openCJ\playerRuns::isRunPaused())
 		{
 			self startTimer();
 		}

@@ -50,11 +50,6 @@ onRunCreated()
     self _hideCheckpointPointers();
 }
 
-onRunRestored()
-{
-    self _hideCheckpointPointers();
-}
-
 onSpawnSpectator()
 {
 	self _hideCheckpointPointers();
@@ -113,8 +108,8 @@ showCheckpointPointers()
 				self objective_player_add(i, "active", checkpoints[i].origin, shader_objective); 
 			}
 		}
-
 	}
+
 	for(i = self.checkpointPointers_huds.size - 1; i >= checkpoints.size; i--)
 	{
 		self.checkpointPointers_huds[i] notify("stopJump");
