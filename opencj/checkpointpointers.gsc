@@ -45,12 +45,12 @@ onStartDemo()
 	self _hideCheckpointPointers();
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     self _hideCheckpointPointers();
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     self _hideCheckpointPointers();
 }

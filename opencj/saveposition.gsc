@@ -109,7 +109,7 @@ createFlags()
 	return flags;
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     self savePosition_initClient();
     self resetBackwardsCount();
@@ -171,20 +171,29 @@ onSpawnPlayer()
 
 canLoadError(backwardsCount)
 {
-	if((self.sessionState != "playing") && (self.sessionState != "spectator"))
-	{
-		return 999;
-	}
-	if(self openCJ\demos::isPlayingDemo())
-	{
-		return 998;
-	}
-	if(self openCJ\noclip::hasNoclip())
-	{
-		return 4;
-	}
-	error = self savePosition_selectSave(backwardsCount);
-	return error;
+    error = 0; // No error by default
+    if((self.sessionState != "playing") && (self.sessionState != "spectator"))
+    {
+        error = 999;
+    }
+    else if(self openCJ\demos::isPlayingDemo())
+    {
+        error = 998;
+    }
+    else if(self openCJ\noclip::hasNoclip())
+    {
+        error = 4;
+    }
+    else
+    {
+        error = self savePosition_selectSave(backwardsCount);
+    }
+
+    if (error != 0) // Useful for debugging
+    {
+        //self iprintln("canLoadError: " + error);
+    }
+    return error;
 }
 
 printCanLoadError(error)

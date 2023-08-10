@@ -19,12 +19,12 @@ onStartDemo()
 	self.healthRegen_completedTime = undefined;
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     self.healthRegen_completedTime = undefined;
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     self.healthRegen_completedTime = undefined;
 }

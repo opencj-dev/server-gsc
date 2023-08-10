@@ -15,7 +15,7 @@ whileAlive()
 	}
 }
 
-onRunIDCreated()
+onRunCreated()
 {
 	self.startTime = getTime();
 	self.stopTime = getTime();
@@ -24,7 +24,7 @@ onRunIDCreated()
 	self setAFK(true);
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     
 }
