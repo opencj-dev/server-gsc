@@ -2,12 +2,14 @@
 
 main()
 {
-	self endon("disconnect");
-	self endon("spawned");
+    self endon("disconnect");
+    self endon("spawned");
 
-	while(self.sessionState == "spectator")
-	{
-		self openCJ\playerNames::whileSpectating();
-		wait 0.05;
-	}
+    while(self.sessionState == "spectator")
+    {
+        self openCJ\playerNames::whileSpectating();
+        self openCJ\events\eventHandler::whileSpectating();
+        self openCJ\huds\hudStatistics::whileSpectating();
+        wait 0.05;
+    }
 }

@@ -41,7 +41,13 @@ onLoadPositionRequest(backwardsAmount)
 
 whileSpectating()
 {
-	//todo: handle spec loads here
+    // Load bind while spectating spawns you at your latest save
+    if (isDefined(self.eventQueue["load"]))
+    {
+        self thread openCJ\events\spawnPlayer::main(true);
+    }
+
+    self.eventQueue = []; // Clear event queue
 }
 
 onPlayerDisconnect()
@@ -116,7 +122,7 @@ whileAlive()
 		if(isDefined(self.eventQueue["load"]))
 		{
 			error = self openCJ\savePosition::canLoadError(self openCJ\savePosition::getBackwardsCount());
-			if(error)
+			if(error != 0)
 			{
 				self openCJ\savePosition::printCanLoadError(error);
 				eventsCreateQuery += "NULL";

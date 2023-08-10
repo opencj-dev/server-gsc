@@ -1,6 +1,6 @@
 #include openCJ\util;
 
-main()
+main(atLastSavedPosition)
 {
     if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
     {
@@ -33,10 +33,17 @@ main()
     self openCJ\huds\hudPosition::onSpawnPlayer();
     self openCJ\huds\hudRunInfo::onSpawnPlayer();
     self openCJ\events\eventHandler::onSpawnPlayer();
+    self openCJ\statistics::onSpawnPlayer();
 
     self setSharedSpawnVars();
     self thread openCJ\events\whileAlive::main();
     self thread _dummy();
+
+    // Set player at last saved position if requested
+    if (isDefined(atLastSavedPosition) && atLastSavedPosition)
+    {
+        self openCJ\events\eventHandler::onLoadPositionRequest(0);
+    }
 }
 
 setSharedSpawnVars(giveRPG)

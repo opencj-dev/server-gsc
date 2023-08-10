@@ -1,6 +1,6 @@
 main()
 {
-	maps\mp\phoenix\phoenix_effects::main();
+	maps\mp\mp_phoenix_effects::main();
 
 	teles = GetEntArray("teleport", "targetname");
     for(i = 0; i < teles.size; i++)

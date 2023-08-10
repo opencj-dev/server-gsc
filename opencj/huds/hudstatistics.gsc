@@ -55,12 +55,16 @@ whileAlive()
 	self _drawHUD();
 }
 
+whileSpectating()
+{
+	self _drawHUD();
+}
+
 _drawHUD()
 {
 	// self = owner of statistics
 
-	// TODO: this causes up to 1 second delay before statistics are updated for spectators
-	if(!self openCJ\statistics::haveStatisticsChanged())
+	if(!self openCJ\statistics::shouldRefreshStatistics())
 	{
 		return;
 	}

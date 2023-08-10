@@ -4,8 +4,16 @@ onInit()
 {
     cmd = openCJ\commands_base::registerCommand("vote", "Vote for something. Usage: !vote <extend|map mp_mapname|yes|no>", ::vote, 1, 2, 0);
 
+    cmd = openCJ\commands_base::registerCommand("maprestart", "Restart the current map", ::onCmdRestartMap, 0, 0, 60);
+    openCJ\commands_base::addAlias(cmd, "restartmap");
+
     level.vote = undefined; // Will be filled in with spawnStruct
     thread loop();
+}
+
+onCmdRestartMap(args)
+{
+    _changeMap(getCvar("mapname"));
 }
 
 loop()
@@ -70,7 +78,15 @@ vote(args) //args[0] = map, extend, yes/no
 
         if((args[0] == "map") && isDefined(args[1]))
         {
-            self thread _doVoteMap(args[1]); // TODO: check if map exists on disk?
+            mapName = args[1];
+            if (getCvar("mapname") != mapName)
+            {
+                self thread _doVoteMap(args[1]); // TODO: check if map exists on disk?
+            }
+            else
+            {
+                self sendLocalChatMessage("You can't vote for the current map", true);
+            }
         }
         else if(args[0] == "extend")
         {
@@ -100,7 +116,7 @@ onPlayerLogin()
 
 _setVoteCooldown()
 {
-    self.canVoteAt = (getTime() / 1000) + 120; // 2 minute vote lockout at start and after voting
+    self.canVoteAt = (getTime() / 1000) + 60; // minutes of vote lockout at start of map and after voting
 }
 
 menuResponse()
@@ -506,7 +522,15 @@ _voteSuccess()
 
 _changeMap(map)
 {
-    iprintlnbold("Changing map to " + map + " in 5 seconds..");
+    if (getCvar("mapname") == map)
+    {
+        iprintlnbold("Current map will restart in 5 seconds..");
+    }
+    else
+    {
+        iprintlnbold("Changing map to " + map + " in 5 seconds..");
+    }
+
     wait 5;
     openCJ\events\eventHandler::onMapChanging();
     setCvar("sv_maprotation", "map " + map);

@@ -7,11 +7,18 @@ onPlayerConnect()
 	self.statistics = [];
 	self.statistics["curr"] = [];
 	self.statistics["prev"] = [];
+
+    self thread loop();
 }
 
 onRunCreated()
 {
     clear();
+}
+
+onSpawnPlayer()
+{
+    self.shouldStatisticsBeUpdated = true;
 }
 
 clear()
@@ -31,7 +38,29 @@ clear()
     self.statistics["curr"]["route"] = undefined;
     self.statistics["curr"]["progress"] = undefined;
 
-    self updateStatistics();
+    self.shouldStatisticsBeUpdated = true;
+}
+
+loop()
+{
+    self endon("disconnect");
+    self.shouldStatisticsBeUpdated = true;
+    while(true)
+    {
+        if (!self.shouldStatisticsBeUpdated)
+        {
+            keys = getArrayKeys(self.statistics["curr"]);
+            for(i = 0; i < keys.size; i++)
+            {
+                if(!isDefined(self.statistics["prev"][keys[i]]) || (self.statistics["curr"][keys[i]] != self.statistics["prev"][keys[i]]))
+                {
+                    self.shouldStatisticsBeUpdated = true;
+                    break;
+                }
+            }
+        }
+        wait .05; // Allow some breathing room
+    }
 }
 
 whileAlive()
@@ -82,7 +111,8 @@ _updateProgress()
                     if (isDefined(nrRemainingCps))
                     {
                         nrTotalCps = nrPassedCps + nrRemainingCps;
-                        self.statistics["curr"]["progress"] = nrPassedCps + " / " + nrTotalCps;
+                        percentage = int((nrPassedCps / (nrPassedCps + nrRemainingCps)) * 100);
+                        self.statistics["curr"]["progress"] = nrPassedCps + " / " + nrTotalCps + " (" + percentage + "'/.)";
                     }
                     else
                     {
@@ -208,18 +238,9 @@ onRPGFired(rpg, name)
 
 // Logic functions
 
-haveStatisticsChanged()
+shouldRefreshStatistics()
 {
-	keys = getArrayKeys(self.statistics["curr"]);
-	for(i = 0; i < keys.size; i++)
-	{
-		if(!isDefined(self.statistics["prev"][keys[i]]) || (self.statistics["curr"][keys[i]] != self.statistics["prev"][keys[i]]))
-		{
-			return true;
-		}
-	}
-	
-	return false;
+    return self.shouldStatisticsBeUpdated;
 }
 
 updateStatistics()
@@ -229,6 +250,7 @@ updateStatistics()
 	{
 		self.statistics["prev"][keys[i]] = self.statistics["curr"][keys[i]];
 	}
+    self.shouldStatisticsBeUpdated = false;
 }
 
 // Getters/setters
