@@ -11,7 +11,7 @@ _onCommandHardTAS(args)
 {
     if (!self openCJ\playerRuns::hasRunID())
     {
-        self sendLocalChatMessage("This command can only be used during a run");
+        self sendLocalChatMessage("This command can only be used during a run", true);
         return;
     }
 
@@ -54,7 +54,7 @@ setHardTAS(value)
     self.hardTAS = value;
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     // New run started, all TAS things are not relevant anymore
     self.hardTAS = false;

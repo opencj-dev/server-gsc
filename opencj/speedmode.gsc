@@ -17,12 +17,12 @@ _runChanged()
     self setSpeedMode(false);
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     _runChanged();
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     _runChanged();
 }

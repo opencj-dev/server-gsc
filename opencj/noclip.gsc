@@ -12,12 +12,12 @@ onPlayerConnect()
 	self.noclip_speed = 20;
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     self disableNoclip();
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     self disableNoclip();
 }
@@ -26,7 +26,7 @@ noclip(args)
 {
 	if(self openCJ\demos::isPlayingDemo())
 	{
-		self sendLocalChatMessage("Cannot enable noclip during demo playback");
+		self sendLocalChatMessage("Cannot enable noclip during demo playback", true);
 		return;
 	}
 	wasEverEnabled = self hasNoclip();

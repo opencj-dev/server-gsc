@@ -46,12 +46,12 @@ switchToDemoWeapon(isRPG)
 	}
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     self _deleteGrenades();
 }
 
-onRunIDCreated()
+onRunCreated()
 {
 	self _deleteGrenades();
 }

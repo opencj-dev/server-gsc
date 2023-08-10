@@ -45,7 +45,7 @@ _onCommandEleOverride(args)
 	}
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     // New run started, all ele things are not relevant anymore
     self.eleOverrideNow = false;

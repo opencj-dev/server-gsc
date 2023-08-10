@@ -295,7 +295,7 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 
 			// The sender may or may not be ignored by anyone
 			ignoredByListInt = [];
-			if(isDefined(ignoredByCsv))
+			if(isDefined(ignoredByCsv) && (ignoredByCsv.size > 0))
 			{
 				ignoredByListString = strtok(ignoredByCsv, ",");
 				ignoredByListInt = StringArrayToIntArray(ignoredByListString);
@@ -306,9 +306,9 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
 			{
 				// ..unless the player is ignoring the sender
 				playerId = players[j] openCJ\login::getPlayerID();
-				if(!isInArray(ignoredByListInt, playerId))
+				if(!isInArray(playerId, ignoredByListInt))
 				{
-					players[i] sendChatMessage("[" + server + "]" + name + ":^7 " +  msg);
+					players[i] sendChatMessage("^3[^7" + server + "^3]^7 " + name + ":^7 " +  msg);
 				}
 			}
 		}

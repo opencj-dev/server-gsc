@@ -5,12 +5,12 @@ onInit()
 	precacheShellShock("default");
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     self.shellShock_completedTime = undefined;
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     self.shellShock_completedTime = undefined;
 }

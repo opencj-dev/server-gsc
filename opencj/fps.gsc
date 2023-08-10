@@ -4,9 +4,11 @@
 
 onInit()
 {
-    underlyingCmd = openCJ\settings::addSettingBool("allowhax", false, "Set whether hax fps is allowed in current run. Usage: !hax [on/off]");
+    level.allowHaxStr = "allowhax";
+    level.allowMixStr = "allowmix";
+    underlyingCmd = openCJ\settings::addSettingBool(level.allowHaxStr, false, "Set whether hax fps is allowed in current run. Usage: !hax [on/off]");
     openCJ\commands_base::addAlias(underlyingCmd, "hax");
-    underlyingCmd = openCJ\settings::addSettingBool("allowmix", true, "Set whether mix fps is allowed in current run. Usage: !mix [on/off]");
+    underlyingCmd = openCJ\settings::addSettingBool(level.allowMixStr, true, "Set whether mix fps is allowed in current run. Usage: !mix [on/off]");
     openCJ\commands_base::addAlias(underlyingCmd, "mix");
 }
 
@@ -60,20 +62,20 @@ onFPSChange(newFPS) // Not called with undefined FPS
     self.FPS = newFPS;
 }
 
-onRunIDCreated()
+onRunCreated()
 {
-    // Update user FPS preferences
-    strAllowHax = "allowhax";
-    strAllowMix = "allowMix";
-
-    // By default, allow mix but not hax
-    self openCJ\settings::setSetting(strAllowHax, false);
-    self openCJ\settings::setSetting(strAllowMix, true);
+    // Update user FPS preferences. By default, allow mix but not hax
+    self openCJ\settings::setSetting(level.allowHaxStr, false);
+    self openCJ\settings::setSetting(level.allowMixStr, true);
 }
 
-onRunIDRestored()
+onRunRestored()
 {
-    
+    currentFPSMode = self getCurrentFPSMode();
+    isHax = (currentFPSMode == "hax");
+    isMix = (currentFPSMode == "mix");
+    self openCJ\settings::setSetting(level.allowHaxStr, isHax);
+    self openCJ\settings::setSetting(level.allowMixStr, (isMix || isHax));
 }
 
 forceFPSMode(newFPSMode) // For example called when restoring a previous load or when FPS is not present in UserInfo
@@ -161,6 +163,11 @@ _shouldFPSModeChange(currentFPSMode, newFPSMode)
 
 userSettingsPreventFPSMode(newFPSMode)
 {
+    if (!self openCJ\playerRuns::hasRunStarted())
+    {
+        return false;
+    }
+
     if ((newFPSMode != "mix") && (newFPSMode != "hax"))
     {
         // User settings can (currently) only prevent mix or hax
@@ -188,7 +195,15 @@ userSettingsPreventFPSMode(newFPSMode)
         }
         else
         {
-            self openCJ\settings::setSetting("allowhax", true); // Allow for this run because we have no other option
+            // Allow for this run because we have no other option
+            if (fpsTypeStr == "hax")
+            {
+                self openCJ\settings::setSetting(level.allowHaxStr, true);
+            }
+            else
+            {
+                self openCJ\settings::setSetting(level.allowMixStr, true);
+            }
             self iprintlnbold("^1Detected " + fpsTypeStr + " fps, but failed to load back. Reset your run to clear!");
         }
     }

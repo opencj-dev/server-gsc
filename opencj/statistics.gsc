@@ -9,29 +9,29 @@ onPlayerConnect()
 	self.statistics["prev"] = [];
 }
 
-onRunIDCreated()
+onRunCreated()
 {
-	self.statistics["curr"]["secondsPlayed"] = 0;
-	self.statistics["curr"]["saveCount"] = 0;
-	self.statistics["curr"]["loadCount"] = 0;
-	self.statistics["curr"]["explosiveLaunches"] = 0;
-	self.statistics["curr"]["explosiveJumps"] = 0;
+    clear();
+}
+
+clear()
+{
+    self.statistics["curr"]["secondsPlayed"] = 0;
+    self.statistics["curr"]["saveCount"] = 0;
+    self.statistics["curr"]["loadCount"] = 0;
+    self.statistics["curr"]["explosiveLaunches"] = 0;
+    self.statistics["curr"]["explosiveJumps"] = 0;
     self.statistics["curr"]["doubleExplosives"] = 0;
-	self.statistics["curr"]["jumpCount"] = 0;
-	self.statistics["curr"]["lastExplosiveFiredTime"] = undefined;
-	self.statistics["curr"]["lastJumpTime"] = undefined;
+    self.statistics["curr"]["jumpCount"] = 0;
+    self.statistics["curr"]["lastExplosiveFiredTime"] = undefined;
+    self.statistics["curr"]["lastJumpTime"] = undefined;
     self.statistics["curr"]["usedEle"] = false;
     self.statistics["curr"]["usedAnyPct"] = false;
     self.statistics["curr"]["usedTAS"] = false;
     self.statistics["curr"]["route"] = undefined;
     self.statistics["curr"]["progress"] = undefined;
 
-	self updateStatistics();
-}
-
-onRunIDRestored()
-{
-
+    self updateStatistics();
 }
 
 whileAlive()
@@ -188,7 +188,7 @@ onRPGFired(rpg, name)
 	}
 
 	// An RPG was fired
-	self.statistics["curr"]["explosiveJumps"]++;
+	self.statistics["curr"]["explosiveLaunches"]++;
 
 	if(!self isOnGround())
 	{

@@ -23,7 +23,7 @@ _prepareAllDemos()
 _onCommandPlayback(args)
 {
 	// TODO: re-enable after alpha :-)
-	self sendLocalChatMessage("This feature is currenly disabled, sorry.");
+	self sendLocalChatMessage("This feature is currenly disabled, sorry.", true);
 	return;
 
 	if(isDefined(args[0]))

@@ -2,27 +2,7 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("runs", "Display all runs or load a previously saved run from your history. Usage: !runs [runid]", ::historyLoadCmd, 0, 1, 0);
-	openCJ\commands_base::addAlias(cmd, "historyload");
-}
-
-historyLoadCmd(args) // TODO: support self-named runs
-{
-    if (args.size == 0)
-    {
-        self sendLocalChatMessage("Showing runs list is not implemented yet"); // TODO: support list of existing runs
-    }
-    else
-    {
-        if (isValidInt(args[0]))
-        {
-            runID = int(args[0]);
-            if(self openCJ\login::isLoggedIn())
-            {
-                self thread historyLoad(runID);
-            }
-        }
-    }
+    
 }
 
 historyLoad(runID)
@@ -38,7 +18,7 @@ historyLoad(runID)
 	}
 	else
 	{
-		self iprintlnbold("^1Failed loading history save for run: " + runID);
+		self iprintlnbold("^1Failed loading history for run: " + runID);
 	}
 }
 
@@ -53,18 +33,27 @@ _loadSavesFromDatabase(runID, instanceNumber)
     //printf("DEBUG: executing historyLoad query2:\n" + query2 + "\n");
     rowsSaves = self openCJ\mySQL::mysqlAsyncQuery(query2);
 
+    if (!isDefined(rowsRun) || !isDefined(rowsRun[0]) || !isDefined(rowsRun[0][0]))
+    {
+        printf("ERROR: rowsRuns undefined for runID: " + runID + "\n");
+        return;
+    }
+
+    // Update run
 	self openCJ\playerRuns::setRunIDAndInstanceNumber(runID, instanceNumber);
-	self openCJ\playerRuns::startRun();
-	self openCJ\playtime::setTimePlayed(int(rowsRun[0][0]));
+
+    // Update statistics
+    self openCJ\statistics::clear();
 	self openCJ\statistics::setSaveCount(int(rowsRun[0][1]));
 	self openCJ\statistics::setLoadCount(int(rowsRun[0][2]));
 	self openCJ\statistics::setExplosiveLaunches(int(rowsRun[0][3])); // TODO: tbh should not be overall count, but instead bound per save
 
+    self openCJ\playtime::setTimePlayed(int(rowsRun[0][0]));
 	self openCJ\healthRegen::resetHealthRegen();
 	self openCJ\shellShock::resetShellShock();
 	self openCJ\checkpointPointers::showCheckpointPointers();
 
-	//add flags and fps
+	// Restore each save that has been retrieved
 	for(i = rowsSaves.size - 1; i >= 0; i--)
 	{
         numOfThisSave = int(rowsRun[0][1]) - i;
@@ -79,7 +68,17 @@ _loadSavesFromDatabase(runID, instanceNumber)
 		self savePosition_save(org, angles, entNum, explosiveJumps, doubleExplosives, checkpointID, FPSMode, flags, numOfThisSave);
 	}
 
-	self openCJ\playerRuns::printRunIDandInstanceNumber();
+    // If there were no saves, ensure player can't retain their current position
+    if (!isDefined(rowsSaves) || !isDefined(rowsSaves[0]) || !isDefined(rowsSaves[0][0]))
+    {
+        spawnpoint = self openCJ\spawnpoints::getPlayerSpawnpoint();
+        self freezeControls(true);
+        self setVelocity((0, 0, 0));
+        wait .05;
+        self setOrigin(spawnpoint.origin);
+        self setPlayerAngles(spawnpoint.angles);
+        self freezeControls(false);
+    }
 }
 
 _getEntNum(targetName, numOfEnt)

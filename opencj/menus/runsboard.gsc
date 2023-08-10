@@ -33,7 +33,7 @@ handleRestoreRun(str)
         if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
         {
             // Run is indeed by player, we can safely restore run if he's logged in
-            if(self openCJ\login::isLoggedIn())
+            if(self isPlayerReady(false))
             {
                 self openCJ\playerRuns::restoreRun(runID);
             }

@@ -1,11 +1,11 @@
 #include openCJ\util;
 
-onRunIDCreated()
+onRunCreated()
 {
     self.cheating = false;
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     self.cheating = false;
 }

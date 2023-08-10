@@ -92,12 +92,12 @@ _runChanged()
     self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), 0);
 }
 
-onRunIDCreated()
+onRunCreated()
 {
     _runChanged();
 }
 
-onRunIDRestored()
+onRunRestored()
 {
     _runChanged();
 }

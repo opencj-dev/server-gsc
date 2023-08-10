@@ -53,8 +53,8 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 	self endon("disconnect");
 	self notify("checkpointNotify");
 	self endon("checkpointNotify");
+
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(cs.timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
-	self iprintln("cpid: " + cpID);
 	if(rows.size && isDefined(rows[0][0]))
 	{
 		diff = timePlayed - int(rows[0][0]);
@@ -635,14 +635,9 @@ getCurrentCheckpoint()
 	return self.checkpoints_checkpoint;
 }
 
-onRunIDCreated()
+onRunCreated()
 {
-	self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
-}
-
-onRunIDRestored()
-{
-    
+    self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
 }
 
 onLoadPosition()

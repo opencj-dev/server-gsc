@@ -294,11 +294,11 @@ _findMapByName(string, recurse)
         }
         else if (rows.size > 5)
         {
-            self sendLocalChatMessage("Too many matches found (" + rows.size + ")");
+            self sendLocalChatMessage("Too many matches found (" + rows.size + ")", true);
         }
         else
         {
-            self sendLocalChatMessage("Multiple matches found:");
+            self sendLocalChatMessage("Multiple matches found:", true);
             chatStr = "";
             for(i = 0; i < rows.size; i++)
             {
@@ -309,7 +309,7 @@ _findMapByName(string, recurse)
                 chatStr += rows[i][0];
             }
 
-            self sendLocalChatMessage(chatStr);
+            self sendLocalChatMessage(chatStr, true);
         }
     }
     else if(recurse)
@@ -318,7 +318,7 @@ _findMapByName(string, recurse)
     }
     else
     {
-        self sendLocalChatMessage("Map not found");
+        self sendLocalChatMessage("Map not found", true);
     }
     
     return undefined;
