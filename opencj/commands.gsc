@@ -17,6 +17,8 @@ onInit()
     cmd = openCJ\commands_base::registerCommand("playerid", "View your playerID", ::_onCmdPID, 0, 0, 0);
     openCJ\commands_base::addAlias(cmd, "pid");
 
+    cmd = openCJ\commands_base::registerCommand("pauserun", "Pause your current run", ::_onCmdPauseRun, 0, 0, 0);
+
     cmd = openCJ\commands_base::registerCommand("restoreposition", "Restore your last used run", ::_onCmdRestorePosition, 0, 0, 0);
     openCJ\commands_base::addAlias(cmd, "restorerun");
     openCJ\commands_base::addAlias(cmd, "rp");
@@ -24,6 +26,9 @@ onInit()
 
     cmd = openCJ\commands_base::registerCommand("runs", "List your runs or load a specific run. Usage: !runs [runID]", ::_onCmdRuns, 0, 1, 0);
     openCJ\commands_base::addAlias(cmd, "historyloads");
+
+    cmd = openCJ\commands_base::registerCommand("ts", "Teleport to a specific player's save", ::_onCmdTeleSave, 1, 1, 0);
+    cmd = openCJ\commands_base::registerCommand("tp", "Teleport to a specific player's position", ::_onCmdTelePos, 1, 1, 0);
 
     // Useful admin commands for debugging maps
     cmd = openCJ\commands_base::registerCommand("ent", "Teleport to an entity", ::_onCmdEntTele, 1, 2, 90);
@@ -86,6 +91,18 @@ _onCmdPID(args)
 _onCommandResetRun(args)
 {
 	self thread openCJ\playerRuns::resetRun();
+}
+
+_onCmdPauseRun(args)
+{
+    if (self openCJ\playerRuns::hasRunID())
+    {
+        self thread openCJ\cheating::setCheating(true);
+    }
+    else
+    {
+        self sendLocalChatMessage("You are not in a run", true);
+    }
 }
 
 _onCmdRestorePosition(args)
@@ -177,6 +194,7 @@ _onCmdEntTele(args)
             if (entArray.size > idx)
             {
                 self setOrigin(entArray[idx].origin);
+                self openCJ\cheating::setCheating(true);
                 self sendLocalChatMessage("Teleported you to entity: " + args[0] + "[" + idx + "]");
             }
             else
@@ -187,6 +205,7 @@ _onCmdEntTele(args)
         else
         {
             self setOrigin(entArray[0].origin);
+            self openCJ\cheating::setCheating(true);
             self sendLocalChatMessage("Teleported you to entity: " + args[0] + "[" + 0 + "]");
         }
     }
@@ -195,4 +214,57 @@ _onCmdEntTele(args)
 _onCmdSetOrigin(args)
 {
     self setOrigin((int(args[0]), int(args[1]), int(args[2])));
+}
+
+_onCmdTeleSave(args)
+{
+    self _teleportToPlayer(args, true);
+}
+
+_onCmdTelePos(args)
+{
+    self _teleportToPlayer(args, false);
+}
+
+_teleportToPlayer(args, teleToSave)
+{
+    if (args.size == 1)
+    {
+        player = findPlayerByArg(args[0]);
+        if (!isDefined(player))
+        {
+            self sendLocalChatMessage("Target player could not be found", true);
+        }
+        else if(player != self)
+        {
+            shouldTeleToPos = !teleToSave;
+            if (teleToSave)
+            {
+                playerSave = player openCJ\savePosition::getCurrentSave();
+                if (isDefined(playerSave))
+                {
+                    self setOrigin(playerSave.origin);
+                    self setPlayerAngles(playerSave.angles);
+
+                    self openCJ\cheating::setCheating(true);
+                    self sendLocalChatMessage("Teleported you to target player's save");
+                }
+                else
+                {
+                    self sendLocalChatMessage("Target player save not available, teleporting to position", true);
+                    shouldTeleToPos = true;
+                }
+            }
+            
+            if (shouldTeleToPos)
+            {
+                self setOrigin(player getOrigin());
+                self setPlayerAngles(player getPlayerAngles());
+            }
+        }
+        else
+        {
+            self sendLocalChatMessage("You're already at your own location..", true);
+        }
+    }
 }

@@ -56,7 +56,7 @@ main()
 	maps\mp\extremeteleport::main();
 	maps\mp\mp_the_extreme_bounce::main();
 	maps\mp\doorslide::main();
-	maps\mp\key::main();
+	maps\mp\mp_the_extreme_key::main();
 	maps\mp\music::main();
 	maps\mp\mp_the_extreme_killtriggers::main();
 	maps\mp\mp_the_extreme_hardfinish::main();
@@ -82,7 +82,6 @@ main()
 	setDvar("bg_fallDamageMinHeight", 9998);
 	
 	thread skin1();
-	//thread vips();
 	thread skin2();
 	thread skin3();
 	
@@ -98,26 +97,6 @@ skin1()
 		player iprintlnbold("Sorry, this script is not available");
 		wait 5;
     }
-}
-
-vips()
-{
-	level endon("game_ended");
-	
-	while(1)
-	{
-		level waittill("connected", player);
-		
-		guid = getSubStr(player getGuid(), 24);
-		
-		switch(guid)
-		{
-			case "97149715": player.vip = true; break;
-			case "3b31043d": player.vip = true; break;
-			default:
-				player.vip = false; break;
-		}
-	}
 }
 
 skin2()

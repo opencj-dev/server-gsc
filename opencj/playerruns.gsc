@@ -5,6 +5,7 @@
 onPlayerConnect()
 {
 	self.playerRuns_spawnLinker = spawn("script_origin", (0, 0, 0));
+    self.playerRuns_runPaused = false;
 }
 
 onPlayerLogin()
@@ -92,6 +93,26 @@ getRunID()
 getRunInstanceNumber()
 {
 	return self.runInstanceNumber;
+}
+
+pauseRun()
+{
+    self unlink(); // May still be linked
+    if (self hasRunID())
+    {
+        self.playerRuns_runPaused = true;
+        self openCJ\playTime::pauseTimer();
+    }
+}
+
+resumeRun()
+{
+    if (self hasRunID())
+    {
+        self.playerRuns_runPaused = false;
+        self.playerRuns_runStarted = true;
+        self openCJ\playTime::startTimer();
+    }
 }
 
 resetRun()
@@ -197,6 +218,7 @@ startRun()
     if(self isPlayerReady(false) && self hasRunID() && (self.sessionState == "playing") && !self hasRunStarted())
     {
         self.playerRuns_runStarted = true;
+        self.playerRuns_runPaused = false;
         self unLink();
         self openCJ\events\onRunStarted::main();
         self iprintln("Run started");
@@ -262,4 +284,9 @@ _createRunID()
 hasRunStarted()
 {
 	return (isDefined(self.playerRuns_runStarted) && self.playerRuns_runStarted);
+}
+
+isRunPaused()
+{
+    return self.playerRuns_runPaused;
 }

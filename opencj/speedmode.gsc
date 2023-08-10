@@ -72,6 +72,11 @@ speedMode(args)
 
 	if(shouldEnable && !wasEnabled)
 	{
+        if (getCodVersion() == 4)
+        {
+            // For CoD4, speed mode is not a separate category but is just cheating
+            self openCJ\cheating::setCheating(true);
+        }
 		self setSpeedMode(true);
 		self applySpeedMode();
 		self sendLocalChatMessage("Speed mode on");
@@ -81,7 +86,7 @@ speedMode(args)
 		self setSpeedMode(false);
 		self applySpeedMode();
 		self sendLocalChatMessage("Speed mode off");
-		if (wasEverEnabled)
+		if (wasEverEnabled && (getCodVersion() == 4))
 		{
 			self sendLocalChatMessage("History load back until cheating flag is gone, or !reset");
 		}

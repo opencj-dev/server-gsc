@@ -7,6 +7,8 @@ main()
         return;
     }
 
+    self unlink(); // Before run is started, player is linked to stay in place. Remove this link when going to spectator.
+
     self notify("spawned_spectator");
 
     resetTimeout();
