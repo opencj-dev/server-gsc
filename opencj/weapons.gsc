@@ -14,8 +14,8 @@ onInit()
 	else
 	{
 	    underlyingCmd = openCJ\settings::addSettingBool("rpgonload", false, "Enable/disable rpg on load. Usage: !rpgonload [on/off]");
-
 	    underlyingCmd = openCJ\settings::addSettingBool("rpgputaway", false, "Enable/disable rpg putaway on fire. Usage: !rpgputaway [on/off]");
+	    underlyingCmd = openCJ\settings::addSettingBool("rpgsustain", false, "Enable/disable rpg sustain on fire. Usage: !rpgsustain [on/off]");
 
 		_registerLoadout("default", "deserteagle_mp");
 		_registerRPG("default", "rpg_mp");
@@ -135,6 +135,20 @@ onRPGFired(rpg, name)
 		self setWeaponAmmoClip(name, 1);
 		self switchToWeapon(level.weapons_loadouts["default"]);
 	}
+	if(self openCJ\settings::getSetting("rpgsustain"))
+	{
+		self thread _rpgSustain(name);
+	}
+}
+_rpgSustain(name)
+{
+	self endon("disconnect");
+	self endon("spawned");
+	self endon("spawned_spectator");
+	self SetWeaponAmmoStock(name, 0);
+	wait 0.9;
+	self SetWeaponAmmoClip(name, 1);
+	self giveMaxAmmo(name);
 }
 
 onGrenadeThrow(nade, name)
