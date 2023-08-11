@@ -32,7 +32,6 @@ main()
     self openCJ\huds\hudProgressBar::onSpawnSpectator();
     self openCJ\huds\hudOnScreenKeyboard::onSpawnSpectator();
     self openCJ\huds\hudJumpSlowdown::onSpawnSpectator();
-    self openCJ\huds\hudSpeedometer::onSpawnSpectator();
     self openCJ\huds\hudFpsHistory::onSpawnSpectator();
     self openCJ\huds\hudStatistics::onSpawnSpectator();
     self openCJ\huds\hudPosition::onSpawnSpectator();

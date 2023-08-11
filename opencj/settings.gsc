@@ -30,38 +30,48 @@ setDefaultSettings()
 
 loadSettingsFromDatabase()
 {
-	self endon("disconnect");
+    self endon("disconnect");
 
     availableSettings = getArrayKeys(level.settings);
-	query = "SELECT a.settingName, b.value FROM settings a INNER JOIN playerSettings b ON a.settingID = b.settingID WHERE b.playerID = " + self openCJ\login::getPlayerID();
-	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
-	if(isDefined(rows))
-	{
-		for(i = 0; i < rows.size; i++)
-		{
-			name = rows[i][0];
-			if(isInArray(name, availableSettings))
-			{
-				value = parseSettingValue(level.settings[name], rows[i][1]);
-				if(!isDefined(value))
-				{
-					self iprintln("Not setting " + name + " because it has an invalid stored value");
-					self thread _clearSetting(name);
-				}
-				else
-				{
-					self.settingValues[name] = value;
-					if(isDefined(level.settings[name].updateFunc))
-					{
-						self [[level.settings[name].updateFunc]](value);
-					}
-				}
-			}
-		}
-	}
+    query = "SELECT a.settingName, b.value FROM settings a INNER JOIN playerSettings b ON a.settingID = b.settingID WHERE b.playerID = " + self openCJ\login::getPlayerID();
+    rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+    if(isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
+    {
+        for(i = 0; i < rows.size; i++)
+        {
+            name = tolower(rows[i][0]);
+            if(isInArray(name, availableSettings))
+            {
+                value = parseSettingValue(level.settings[name], rows[i][1]);
+                if(!isDefined(value))
+                {
+                    self iprintln("Not setting " + name + " because it has an invalid stored value");
+                    self thread _clearSetting(name);
+                }
+                else
+                {
+                    // Update the setting, will be applied later together with remaining defaults
+                    self.settingValues[name] = value;
+                }
+            }
+        }
+    }
 
-	self.settingsLoaded = true;
-	self openCJ\events\playerLogin::main();
+    // Now that the player's custom settings were retrieved, apply all settings (including any remaining defaults)
+    keys = getArrayKeys(self.settingValues);
+    for (i = 0; i < keys.size; i++)
+    {
+        name = keys[i];
+
+        // Call the update function to apply this change
+        if(isDefined(level.settings[name].updateFunc))
+        {
+            self [[level.settings[name].updateFunc]](self.settingValues[name]);
+        }
+    }
+
+    self.settingsLoaded = true;
+    self openCJ\events\playerLogin::main();
 }
 
 onNewAccount()
@@ -75,7 +85,7 @@ _clearSetting(name)
 	self thread openCJ\mySQL::mysqlAsyncQueryNosave("DELETE FROM playerSettings WHERE playerID = " + self openCJ\login::getPlayerID() + " AND settingID = (SELECT settingID FROM settings WHERE setting = " + openCJ\mySQL::escapeString(name) + ")");
 }
 
-setSetting(name, val)
+setSetting(name, val, changedByPlayer)
 {
     if(!isDefined(level.settings[name]))
     {
@@ -84,7 +94,7 @@ setSetting(name, val)
 
     args = [];
     args[0] = val;
-    onSetting(name, args);
+    self onSetting(name, args, changedByPlayer);
     return true;
 }
 
@@ -150,7 +160,7 @@ parseSettingValue(setting, value)
 	return undefined;
 }
 
-onSetting(name, args)
+onSetting(name, args, changedByPlayer)
 {
     // For now we always have 0-1 arguments
     if(!isDefined(args) || (args.size > 1) || ((args.size == 0) && (level.settings[name].type != "bool")))
@@ -273,7 +283,11 @@ onSetting(name, args)
 
     // Update the setting!
     self.settingValues[name] = newVal;
-    self sendLocalChatMessage("Changed setting " + name + " to " + self.settingValues[name], false);
+
+    if (isDefined(changedByPlayer) && changedByPlayer)
+    {
+        self sendLocalChatMessage("Changed setting " + name + " to " + self.settingValues[name], false);
+    }
 
     // Write updated setting to database
     self thread writePlayerSettingToDb(name, self.settingValues[name]);

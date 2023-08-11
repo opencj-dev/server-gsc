@@ -237,6 +237,11 @@ getSpectatorList(includeSelf)
 	return ret;
 }
 
+isSpectator()
+{
+    return (self.sessionState == "spectator");
+}
+
 intOrUndefined(value)
 {
 	if(!isDefined(value))
