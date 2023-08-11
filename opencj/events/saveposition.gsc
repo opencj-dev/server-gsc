@@ -1,11 +1,16 @@
 #include openCJ\util;
 
-main()
+main() // Not threaded as it returns a result
 {
-	if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
-		return undefined;
+    if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
+    {
+        return undefined;
+    }
 
-	saveNum = self openCJ\savePosition::setSavedPosition();
-	self openCJ\savePosition::printSaveSuccess();
-	return saveNum;
+    saveNum = self openCJ\savePosition::setSavedPosition();
+    self openCJ\savePosition::printSaveSuccess();
+
+    self thread openCJ\huds\hudSpeedometer::onSavePosition();
+
+    return saveNum;
 }

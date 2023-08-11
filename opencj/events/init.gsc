@@ -35,6 +35,7 @@ main()
     openCJ\huds\hudOnScreenKeyboard::onInit();
     openCJ\huds\hudProgressBar::onInit();
     openCJ\huds\hudRunInfo::onInit();
+    openCJ\huds\hudSpeedometer::onInit();
     openCJ\fps::onInit();
     openCJ\vote::onInit();
     openCJ\graphics::onInit();
