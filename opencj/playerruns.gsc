@@ -16,7 +16,7 @@ onPlayerConnect()
 
 onPlayerLogin()
 {
-	self thread _createRunID(true);
+	self thread _createRunID();
 }
 
 onStartDemo()
@@ -140,7 +140,7 @@ stopRun(shouldReset)
         archiveRun(self, runID);
 
         // Create a new run
-        self _createRunID(true);
+        self _createRunID();
     }
     else if (self hasRunID())
     {
