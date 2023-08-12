@@ -29,7 +29,7 @@ onSpectatorClientChanged(newClient)
 	}
 	else
 	{
-		self _setFPSHistory(newClient.fpsHistoryText);
+        self.hud[level.fpsHistoryHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(newclient.fpsHistoryText, self, false);
 		self openCJ\huds\base::enableHUD(level.fpsHistoryHudName);
 	}
 }
@@ -129,8 +129,28 @@ _onOnGroundThread(isOnGround)
 	}
 	else
 	{
+		if(self openCJ\events\onGroundChanged::getLastGroundEnterTime() < getTime() - 500)
+		{
+			self _clearFPSHistory();
+		}
+		else
+		{
+			self _onBhopThread();
+		}
 		// No longer onGround, so show the initial FPS
 		self _setFPSHistory(openCJ\fps::getShortFPS(self openCJ\fps::getCurrentFPS()));
+	}
+}
+
+_onBhopThread()
+{
+	if (self.fpsHistoryText != "")
+	{
+		self _addFPSHistory("/");
+		self endon("fpshistory_fpschanged");
+		self endon("fpshistory_clear");
+		wait 0.15;
+		self _addFPSHistory(openCJ\fps::getShortFPS(self openCJ\fps::getCurrentFPS()));
 	}
 }
 

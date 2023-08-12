@@ -38,3 +38,13 @@ main(isOnGround, time, origin)
     // Callbacks for events start here
     self openCJ\huds\hudFpsHistory::onOnGround(isOnGround);
 }
+
+getLastGroundEnterTime()
+{
+    return self.lastGroundEnterTime;
+}
+
+getLastGroundLeaveTime()
+{
+    return self.lastGroundLeaveTime;
+}
