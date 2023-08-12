@@ -85,7 +85,17 @@ _clearSetting(name)
 	self thread openCJ\mySQL::mysqlAsyncQueryNosave("DELETE FROM playerSettings WHERE playerID = " + self openCJ\login::getPlayerID() + " AND settingID = (SELECT settingID FROM settings WHERE setting = " + openCJ\mySQL::escapeString(name) + ")");
 }
 
-setSetting(name, val, changedByPlayer)
+setSetting(name, val)
+{
+    self _setSetting(name, val, false);
+}
+
+setSettingByScript(name, val)
+{
+    self _setSetting(name, val, true);
+}
+
+_setSetting(name, val, changedByScript)
 {
     if(!isDefined(level.settings[name]))
     {
@@ -94,7 +104,7 @@ setSetting(name, val, changedByPlayer)
 
     args = [];
     args[0] = val;
-    self onSetting(name, args, changedByPlayer);
+    self onSetting(name, args, changedByScript);
     return true;
 }
 
@@ -160,7 +170,7 @@ parseSettingValue(setting, value)
 	return undefined;
 }
 
-onSetting(name, args, changedByPlayer)
+onSetting(name, args, changedByScript)
 {
     // For now we always have 0-1 arguments
     if(!isDefined(args) || (args.size > 1) || ((args.size == 0) && (level.settings[name].type != "bool")))
@@ -284,7 +294,7 @@ onSetting(name, args, changedByPlayer)
     // Update the setting!
     self.settingValues[name] = newVal;
 
-    if (isDefined(changedByPlayer) && changedByPlayer)
+    if (!isDefined(changedByScript) || !changedByScript)
     {
         self sendLocalChatMessage("Changed setting " + name + " to " + self.settingValues[name], false);
     }

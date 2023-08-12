@@ -30,10 +30,23 @@ whileAlive()
     {
         self _updateTimer(); // Will hide the timer
     }
-    else if (level.remainingTimeSeconds < lowTimeThresholdSeconds)
+    else
+    {
+        self _setTimerColor();
+    }
+}
+
+_setTimerColor()
+{
+    lowTimeThresholdSeconds = 60.0;
+    if (level.remainingTimeSeconds < lowTimeThresholdSeconds)
     {
         factor = level.remainingTimeSeconds / lowTimeThresholdSeconds;
         self.hudTimeLimit.color = (1.0, factor, factor);
+    }
+    else
+    {
+        self.hudTimeLimit.color = (1.0, 1.0, 1.0);
     }
 }
 
@@ -55,6 +68,7 @@ _updateTimer()
     if (secondsLeft > 0)
     {
         self.hudTimeLimit setTimer(secondsLeft);
+        self _setTimerColor();
     }
     else
     {

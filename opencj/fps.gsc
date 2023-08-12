@@ -64,8 +64,8 @@ onFPSChange(newFPS) // Not called with undefined FPS
 onRunCreated()
 {
     // Update user FPS preferences. By default, allow mix but not hax
-    self openCJ\settings::setSetting(level.allowHaxStr, false);
-    self openCJ\settings::setSetting(level.allowMixStr, true);
+    self openCJ\settings::setSettingByScript(level.allowHaxStr, false);
+    self openCJ\settings::setSettingByScript(level.allowMixStr, true);
 }
 
 onRunRestored()
@@ -73,8 +73,8 @@ onRunRestored()
     currentFPSMode = self getCurrentFPSMode();
     isHax = (currentFPSMode == "hax");
     isMix = (currentFPSMode == "mix");
-    self openCJ\settings::setSetting(level.allowHaxStr, isHax);
-    self openCJ\settings::setSetting(level.allowMixStr, (isMix || isHax));
+    self openCJ\settings::setSettingByScript(level.allowHaxStr, isHax);
+    self openCJ\settings::setSettingByScript(level.allowMixStr, (isMix || isHax));
 }
 
 forceFPSMode(newFPSMode) // For example called when restoring a previous load or when FPS is not present in UserInfo
@@ -208,11 +208,11 @@ userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
             // Allow for this run because we have no other option
             if (fpsTypeStr == "hax")
             {
-                self openCJ\settings::setSetting(level.allowHaxStr, true);
+                self openCJ\settings::setSettingByScript(level.allowHaxStr, true);
             }
             else
             {
-                self openCJ\settings::setSetting(level.allowMixStr, true);
+                self openCJ\settings::setSettingByScript(level.allowMixStr, true);
             }
             self iprintlnbold("^1Detected " + fpsTypeStr + " fps, but failed to load back. Reset your run to clear!");
         }
