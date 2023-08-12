@@ -2,6 +2,12 @@
 
 // Event handlers
 
+onInit()
+{
+    // Useful for a variety of purposes such as run label cleaning
+    level.basicAllowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_,.<>?/!@#*()[]{}|";
+}
+
 onPlayerConnect()
 {
 	self.playerRuns_spawnLinker = spawn("script_origin", (0, 0, 0));
@@ -10,7 +16,7 @@ onPlayerConnect()
 
 onPlayerLogin()
 {
-	self thread _createRunID();
+	self thread _createRunID(true);
 }
 
 onStartDemo()
@@ -27,7 +33,6 @@ onRunFinished(cp)
     {
         return;
     }
-    self.playerRuns_runFinished = true;
     if(!self hasRunID())
     {
         return;
@@ -37,6 +42,7 @@ onRunFinished(cp)
         return;
     }
 
+    self.playerRuns_runFinished = true;
     cpID = openCJ\checkpoints::getCheckpointID(cp);
     if (!isDefined(cpID))
     {
@@ -54,22 +60,19 @@ onRunFinished(cp)
     }
 }
 
-onRunCreated()
-{
-    self.playerRuns_runStarted = false;
-    self.playerRuns_runFinished = false;
-}
-
 onSpawnPlayer()
 {
-    if(!self.playerRuns_runStarted)
+    if (self hasRunID())
     {
-        self.playerRuns_spawnLinker.origin = self.origin;
-        self linkTo(self.playerRuns_spawnLinker);
-    }
-    else
-    {
-        self openCJ\playTime::startTimer();
+        if(!self hasRunStarted())
+        {
+            self.playerRuns_spawnLinker.origin = self.origin;
+            self linkTo(self.playerRuns_spawnLinker);
+        }
+        else if (!self isRunPaused())
+        {
+            self openCJ\playTime::startTimer();
+        }
     }
 }
 
@@ -97,11 +100,11 @@ getRunInstanceNumber()
 
 pauseRun()
 {
-    self unlink(); // May still be linked
     if (self hasRunID())
     {
         self.playerRuns_runPaused = true;
-        self openCJ\playTime::pauseTimer();
+        self openCJ\events\onRunPaused::main();
+        self iPrintLnBold("Run paused. Load back to resume.");
     }
 }
 
@@ -112,31 +115,109 @@ resumeRun()
         self.playerRuns_runPaused = false;
         self.playerRuns_runStarted = true;
         self openCJ\playTime::startTimer();
+        self openCJ\events\onRunResumed::main();
+        self iPrintLnBold("Run resumed");
     }
 }
 
-resetRun()
+stopRun(shouldReset)
 {
+    // Resetting a run will stop the current run, create a new run and respawn the player
+    // When stopping a run normally (such as saving it), 
+
     if(self openCJ\demos::isPlayingDemo())
     {
-        self sendLocalChatMessage("Cannot reset run during demo playback", true);
+        self sendLocalChatMessage("Cannot stop run during demo playback", true);
         return;
     }
-    if(!self hasRunID())
+
+    if (shouldReset)
     {
-        self sendLocalChatMessage("Not in a run, can't reset", true);
-        return;
-    }
-    else
-    {
+        self unlink();
+
         // Archive the current run
         runID = self getRunID();
         archiveRun(self, runID);
 
         // Create a new run
-        self.playerRuns_runID = undefined;
-        self.runInstanceNumber = undefined;
-        self _createRunID();
+        self _createRunID(true);
+    }
+    else if (self hasRunID())
+    {
+        self unlink();
+
+        // Player is no longer in a run
+        _clearRunVars();
+
+        // Inform other scripts that the current run stopped
+        self openCJ\events\onRunStopped::main();
+    }
+    else
+    {
+        self sendLocalChatMessage("Not in a run, can't stop", true);
+    }
+}
+
+saveRun(runLabel)
+{
+    if (!self openCJ\playerRuns::hasRunID())
+    {
+        self sendLocalChatMessage("You're not currently in a run", true);
+        return;
+    }
+    if (!self openCJ\mapID::hasMapID())
+    {
+        self sendLocalChatMessage("Sorry, the current map is not in the database", true);
+        return;
+    }
+
+    if (!self isPlayerReady(false))
+    {
+        self sendLocalChatMessage("You're not logged in or settings haven't loaded yet", true);
+        return;
+    }
+
+    if (self openCJ\demos::isPlayingDemo())
+    {
+        self sendLocalChatMessage("Can't access runs while watching a demo", true);
+        return;
+    }
+
+    maxRunLabelSize = 32;
+    if (runLabel.size > maxRunLabelSize)
+    {
+        self sendLocalChatMessage("Run label can be up to 32 characters", true);
+        return;
+    }
+
+    // Clean the run label, escape it for database and limit it to 32 chars. escapeString might make it slightly larger, so db allows 64.
+    cleanedRunLabel = openCJ\mySQL::escapeString(cleanCharacters(runLabel, level.basicAllowedCharacters, maxRunLabelSize));
+    mapId = self openCJ\mapID::getMapID();
+    runID = self getRunID();
+    runInstanceNumber = self getRunInstanceNumber();
+
+    query = "SELECT saveRun(" + runID + ", " + runInstanceNumber + ", " + dbStr(cleanedRunLabel) + ")";
+    printf("DEBUG: executing saveRun query:\n" + query + "\n");
+
+    rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+    if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]) && (int(rows[0][0]) == runID))
+    {
+        // Successfully saved
+        if (cleanedRunLabel != runLabel)
+        {
+            self sendLocalChatMessage("Run saved successfully, but some characters were replaced");
+        }
+        else
+        {
+            self sendLocalChatMessage("Run saved successfully");
+        }
+
+        // Stop the run but don't archive and don't start a new run
+        stopRun(false);
+    }
+    else
+    {
+        self sendLocalChatMessage("Run could not be saved", true);
     }
 }
 
@@ -198,6 +279,8 @@ restoreRun(runID) // Call this function as a thread
         archiveRun(self, currentRunID);
     }
 
+    self unlink();
+
     self openCJ\historySave::historyLoad(runID); // Sets runID and runInstanceNumber
     if(self openCJ\savePosition::canLoadError(0) == 0)
     {
@@ -209,8 +292,20 @@ restoreRun(runID) // Call this function as a thread
         self openCJ\checkpoints::setCurrentCheckpointID(level.checkpoints_startCheckpoint.id); // To update checkpoint pointers since player can't load
     }
 
+    self.playerRuns_runStarted = true;
+    self.playerRuns_runFinished = false;
     self openCJ\events\onRunRestored::main();
     self iprintln("^2Restored run (" + runID + ")"); // TAS users depend on this message, do not modify
+    self sendLocalChatMessage("Restored run. Be careful: using !rp again will delete this run!");
+}
+
+_clearRunVars()
+{
+    // Clear run variables
+    self.playerRuns_runStarted = false;
+    self.playerRuns_runPaused = false;
+    self.playerRuns_runID = undefined;
+    self.runInstanceNumber = undefined;
 }
 
 startRun()
@@ -238,7 +333,7 @@ printRunIDandInstanceNumber()
 
 isRunFinished()
 {
-	return (self hasRunID() && self.playerRuns_runFinished);
+	return (self hasRunID() && isDefined(self.playerRuns_runFinished) && self.playerRuns_runFinished);
 }
 
 setRunIDAndInstanceNumber(runID, instanceNumber)
@@ -256,6 +351,8 @@ _createRunID()
 
 	self endon("disconnect");
 
+    // Clear run variables
+    _clearRunVars();
 	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunID(" + self openCJ\login::getPlayerID() + ", " + openCJ\mapID::getMapID() + ")");
 
 	if(!rows.size || !isDefined(rows[0][0]))

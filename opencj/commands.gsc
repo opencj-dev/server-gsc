@@ -17,7 +17,11 @@ onInit()
     cmd = openCJ\commands_base::registerCommand("playerid", "View your playerID", ::_onCmdPID, 0, 0, 0);
     openCJ\commands_base::addAlias(cmd, "pid");
 
+    cmd = openCJ\commands_base::registerCommand("saverun", "Save your current run. Usage: !saverun [label]", ::_onCmdSaveRun, 0, 1, 0);
     cmd = openCJ\commands_base::registerCommand("pauserun", "Pause your current run", ::_onCmdPauseRun, 0, 0, 0);
+    openCJ\commands_base::addAlias(cmd, "p");
+    cmd = openCJ\commands_base::registerCommand("resumerun", "Resume your current run", ::_onCmdResumeRun, 0, 0, 0);
+    openCJ\commands_base::addAlias(cmd, "r");
 
     cmd = openCJ\commands_base::registerCommand("restoreposition", "Restore your last used run", ::_onCmdRestorePosition, 0, 0, 0);
     openCJ\commands_base::addAlias(cmd, "restorerun");
@@ -90,7 +94,17 @@ _onCmdPID(args)
 
 _onCommandResetRun(args)
 {
-	self thread openCJ\playerRuns::resetRun();
+	self thread openCJ\playerRuns::stopRun(true);
+}
+
+_onCmdSaveRun(args)
+{
+    runLabel = "";
+    if (args.size > 0)
+    {
+        runLabel = args[0];
+    }
+    self thread openCJ\playerRuns::saveRun(runLabel);
 }
 
 _onCmdPauseRun(args)
@@ -102,6 +116,26 @@ _onCmdPauseRun(args)
     else
     {
         self sendLocalChatMessage("You are not in a run", true);
+    }
+}
+
+_onCmdResumeRun(args)
+{
+    failed = true;
+    cheatingFlag = level.saveFlags[level.saveFlagName_cheating];
+    backwardsCount = self savePosition_selectWithoutFlag(cheatingFlag);
+    if (isDefined(backwardsCount)) // If not defined, could not be found
+    {
+        if (self openCJ\savePosition::canLoadError(backwardsCount) == 0)
+        {
+            self openCJ\events\eventHandler::onLoadPositionRequest(backwardsCount);
+            failed = false;
+        }
+    }
+
+    if (failed)
+    {
+        self sendLocalChatMessage("Could not find last safe position. Consider resetting your run.", true);
     }
 }
 
@@ -169,7 +203,7 @@ _restoreLastRun()
     if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         restoredRunID = int(rows[0][0]);
-        if (restoredRunID != runID)
+        if (!isDefined(runID) || (restoredRunID != runID))
         {
             self openCJ\playerRuns::restoreRun(restoredRunID);
             self sendLocalChatMessage("Restored your latest run");
@@ -188,9 +222,15 @@ _onCmdEntTele(args)
     if (isDefined(args) && (args.size >= 1))
     {
         entArray = getEntArray(args[0], "targetname");
-        if (args.size > 1)
+        sendError = false;
+        if (isDefined(entArray) && (entArray.size > 0))
         {
-            idx = int(args[1]);
+            idx = 0;
+            if (args.size > 1)
+            {
+                idx = int(args[1]);
+            }
+
             if (entArray.size > idx)
             {
                 self setOrigin(entArray[idx].origin);
@@ -204,9 +244,7 @@ _onCmdEntTele(args)
         }
         else
         {
-            self setOrigin(entArray[0].origin);
-            self openCJ\cheating::setCheating(true);
-            self sendLocalChatMessage("Teleported you to entity: " + args[0] + "[" + 0 + "]");
+            self sendLocalChatMessage("Entity not found", true);
         }
     }
 }
@@ -240,14 +278,14 @@ _teleportToPlayer(args, teleToSave)
             shouldTeleToPos = !teleToSave;
             if (teleToSave)
             {
-                playerSave = player openCJ\savePosition::getCurrentSave();
+                playerSave = player openCJ\savePosition::getSavedPosition(0);
                 if (isDefined(playerSave))
                 {
-                    self setOrigin(playerSave.origin);
-                    self setPlayerAngles(playerSave.angles);
-
                     self openCJ\cheating::setCheating(true);
                     self sendLocalChatMessage("Teleported you to target player's save");
+
+                    self setOrigin(playerSave.origin);
+                    self setPlayerAngles(playerSave.angles);
                 }
                 else
                 {

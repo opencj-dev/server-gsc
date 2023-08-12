@@ -18,28 +18,126 @@ onInit()
 
 onStartDemo()
 {
-    self _hideRunInfo();
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideRunIcons();
+        specs[i] _hideRunStatus();
+    }
+}
+
+onRunCreated()
+{
+
 }
 
 onRunStarted()
 {
-    self _showRunInfo(self);
+
 }
+
+onRunStopped()
+{
+
+}
+
+onRunRestored()
+{
+
+}
+
+onRunPaused()
+{
+
+}
+
+onRunResumed()
+{
+    
+}
+
+/*
+onRunCreated()
+{
+    // Don't show icons until player has picked the right settings
+    // But do ensure the "Not in run" HUD is hidden
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideRunIcons();
+        specs[i] _hideRunStatus();
+    }
+}
+
+onRunStarted()
+{
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        specs[i] _showRunIcons(self);
+        specs[i] _hideRunStatus();
+    }
+}
+
+onRunStopped()
+{
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        specs[i] _showRunStatus(self);
+        specs[i] _hideRunIcons();
+    }
+}
+
+onRunRestored()
+{
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        specs[i] _showRunIcons(self);
+        specs[i] _hideRunStatus();
+    }
+}
+
+onRunPaused()
+{
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        specs[i] _showRunStatus(self);
+        specs[i] _showRunIcons(self);
+    }
+}
+
+onRunResumed()
+{
+    specs = self getSpectatorList(true); // true -> self as spectator too
+    for (i = 0; i < specs.size; i++)
+    {
+        self _hideRunStatus();
+        specs[i] _showRunIcons(self);
+    }
+}
+*/
 
 whileAlive()
 {
-    shouldShow = self openCJ\playerRuns::hasRunStarted();
+    shouldShowIcons = (self openCJ\playerRuns::hasRunID()) && (self openCJ\playerRuns::hasRunStarted());
 
     spectators = getSpectatorList(true); // true -> also consider yourself a spectator
     for(i = 0; i < spectators.size; i++)
     {
-        if (shouldShow)
+        // Show run status
+        spectators[i] _showRunStatus(self);
+
+        // Check if icons should be shown
+        if (shouldShowIcons)
         {
-            spectators[i] _showRunInfo(self);
+            spectators[i] _showRunIcons(self);
         }
         else
         {
-            spectators[i] _hideRunInfo();
+            spectators[i] _hideRunIcons();
         }
     }
 }
@@ -48,18 +146,21 @@ onSpectatorClientChanged(newClient)
 {
     if (isDefined(newClient))
     {
-        self _showRunInfo(newClient);
+        self _showRunIcons(newClient);
+        self _showRunStatus(newClient);
     }
 }
 
 onSpawnSpectator()
 {
-    self _hideRunInfo();
+    self _hideRunIcons();
+    self _hideRunStatus();
 }
 
 onSpawnPlayer()
 {
-    self _showRunInfo(self);
+    self _showRunIcons(self);
+    self _showRunStatus(self);
 }
 
 onPlayerConnect()
@@ -72,12 +173,45 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
     spectators = getSpectatorList(false);
     for(i = 0; i < spectators.size; i++)
     {
-        spectators[i] _hideRunInfo();
+        spectators[i] _hideRunIcons();
+        spectators[i] _hideRunStatus();
     }
 }
 
-_showRunInfo(player)
+_showRunStatus(player)
 {
+    // Run status
+    if (player.sessionState == "playing")
+    {
+        if (!player openCJ\playerRuns::hasRunID())
+        {
+            self.hudRunInfo["status"] setText("^1Not in a run");
+            self.hudRunInfo["status"].alpha = 1;
+        }
+        else if (player openCJ\playerRuns::isRunPaused())
+        {
+            self.hudRunInfo["status"] setText("^5Run is paused");
+            self.hudRunInfo["status"].alpha = 1;
+        }
+        else
+        {
+            self.hudRunInfo["status"].alpha = 0;
+        }
+    }
+    else
+    {
+        self.hudRunInfo["status"].alpha = 0;
+    }
+}
+
+_hideRunStatus()
+{
+    self.hudRunInfo["status"].alpha = 0;
+}
+
+_showRunIcons(player)
+{
+    // FPS
     // TODO: CoD2 specific FPS don't have a shader (yet)..
     FPSMode = player openCJ\fps::getCurrentFPSMode();
     if (FPSMode == "hax")
@@ -95,7 +229,8 @@ _showRunInfo(player)
         self.hudRunInfo["fps"] setShader(level.runInfoShader["125"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
-    
+
+    // Ele
     if (player openCJ\elevate::hasEleOverrideEver())
     {
         self.hudRunInfo["ele"].alpha = 1;
@@ -105,6 +240,7 @@ _showRunInfo(player)
         self.hudRunInfo["ele"].alpha = 0.1;
     }
 
+    // Hard TAS
     if (player openCJ\tas::hasHardTAS())
     {
         self.hudRunInfo["hardTAS"].alpha = 1;
@@ -115,7 +251,7 @@ _showRunInfo(player)
     }
 }
 
-_hideRunInfo()
+_hideRunIcons()
 {
     self.hudRunInfo["fps"].alpha = 0;
     self.hudRunInfo["ele"].alpha = 0;
@@ -126,6 +262,21 @@ _createRunInfoHud()
 {
     self.hudRunInfo = [];
 
+    // The following is a HUD in the top of your screen that shows the current run status of the player (Not in a run or Paused. Otherwise nothing is shown)
+    self.hudRunInfo["status"] = newClientHudElem(self);
+    self.hudRunInfo["status"].horzAlign = "center_safearea";
+    self.hudRunInfo["status"].vertAlign = "center_safearea";
+    self.hudRunInfo["status"].alignX = "center";
+    self.hudRunInfo["status"].alignY = "top";
+    self.hudRunInfo["status"].x = 0;
+    self.hudRunInfo["status"].y = -150;
+    self.hudRunInfo["status"].alpha = 0;
+    self.hudRunInfo["status"].archived = false;
+    self.hudRunInfo["status"].fontScale = 1.6;
+    self.hudRunInfo["status"].hideWhenInMenu = true;
+    self.hudRunInfo["status"] setText("");
+
+    // The following are icons in bottom left corner
     firstIconX = 80;
     yAboveProgressBar = 467; // Right above progress bar
     spaceBetweenIcons = 5;

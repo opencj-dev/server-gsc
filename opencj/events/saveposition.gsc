@@ -2,7 +2,7 @@
 
 main() // Not threaded as it returns a result
 {
-    if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
+    if(!self openCJ\login::isLoggedIn())
     {
         return undefined;
     }

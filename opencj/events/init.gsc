@@ -28,6 +28,7 @@ main()
     openCJ\elevate::onInit();
     openCJ\showRecords::onInit();
     openCJ\mapPatches::onInit();
+    openCJ\statistics::onInit();
     openCJ\huds\infiniteHuds::onInit();
     openCJ\huds\hudFps::onInit();
     openCJ\huds\hudFpsHistory::onInit();
@@ -46,6 +47,7 @@ main()
     openCJ\menus\runsBoard::onInit(); // ^ this one too.
     openCJ\menus\ingame::onInit();
     openCJ\tas::onInit();
+    openCJ\playerRuns::onInit();
 
     openCJ\platformDetect::onInit(); //debug file
 

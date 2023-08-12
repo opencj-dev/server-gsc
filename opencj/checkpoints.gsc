@@ -2,18 +2,30 @@
 
 _checkpointPassed(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
 {
+    timePlayed = self openCJ\playTime::getTimePlayed();
     cpID = getCheckpointID(cp);
     if (!isDefined(cpID))
     {
         return;
     }
 
+    // The run may be paused, but at least we want the player to have a run to do anything with the checkpoints
+    // Otherwise they are not even shown visually.
 	if(self openCJ\playerRuns::hasRunID())
 	{
-		runID = self openCJ\playerRuns::getRunID();
-		timePlayed = self openCJ\playTime::getTimePlayed() + tOffset;
-		self thread storeCheckpointPassed(runID, cpID, timePlayed);
-		self thread _notifyCheckpointPassed(runID, cpID, timePlayed);
+        if (!self openCJ\playerRuns::isRunPaused())
+        {
+            cpPassedTime = timePlayed + tOffset;
+            self openCJ\showRecords::onCheckpointPassed(cp, cpPassedTime);
+
+            runID = self openCJ\playerRuns::getRunID();
+            self thread storeCheckpointPassed(runID, cpID, cpPassedTime);
+            self thread _notifyCheckpointPassed(runID, cpID, cpPassedTime);
+        }
+        else
+        {
+            self iprintln("^5You passed a checkpoint, but your run is paused.");
+        }
 	}
 }
 
@@ -54,27 +66,27 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
 	self notify("checkpointNotify");
 	self endon("checkpointNotify");
 
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(cs.timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
-	if(rows.size && isDefined(rows[0][0]))
-	{
-		diff = timePlayed - int(rows[0][0]);
-		if(diff > 0)
-		{
-			self iprintln("You passed a checkpoint ^1+" + formatTimeString(diff, false));
-		}
-		else if( diff < 0)
-		{
-			self iprintln("You passed a checkpoint ^2-" + formatTimeString(-1 * diff, false));
-		}
-		else
-		{
-			self iprintln("You passed a checkpoint, no difference");
-		}
-	}
-	else
-	{
-		self iprintln("You passed a checkpoint");
-	}
+    rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(cs.timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
+    if(rows.size && isDefined(rows[0][0]))
+    {
+        diff = timePlayed - int(rows[0][0]);
+        if(diff > 0)
+        {
+            self iprintln("You passed a checkpoint ^1+" + formatTimeString(diff, false));
+        }
+        else if( diff < 0)
+        {
+            self iprintln("You passed a checkpoint ^2-" + formatTimeString(-1 * diff, false));
+        }
+        else
+        {
+            self iprintln("You passed a checkpoint, no difference");
+        }
+    }
+    else
+    {
+        self iprintln("You passed a checkpoint");
+    }
 }
 
 onStartDemo()
@@ -726,12 +738,10 @@ whileAlive()
 					if(isDefined(cp.bigBrother))
 					{
 						self _checkpointPassed(cp.bigBrother, tOffset);
-						self openCJ\showRecords::onCheckpointPassed(cp.bigBrother, self openCJ\playTime::getTimePlayed() + tOffset);
 					}
 					else
 					{
 						self _checkpointPassed(cp, tOffset);
-						self openCJ\showRecords::onCheckpointPassed(cp, self openCJ\playTime::getTimePlayed() + tOffset);
 					}
 					self openCJ\events\checkpointsChanged::main();
 				}
