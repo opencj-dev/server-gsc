@@ -72,15 +72,16 @@ fetchUpdatedData()
     // - grab up to 10 rows (runsboard pages show 10)
     // the information we need is stored across multiple tables as follows:
     // - checkPointStatistics has explosiveJumps, loadCount, timePlayed, and all filters (any%, ele, tas, fps)
-    // - playerRuns has runID, runLabel, mapID
+    // - playerRuns has runID, mapID
     // - playerRuns has finishTimeStamp which we can use to verify the run isn't finished yet
     // - playerRuns has startTimeStamp which we can use as run date/age
+    // - runLabels contains the run labels
     sortStr = getSortStr(self.currentBoard["sortBy"], self.currentBoard["sort"]);
-    query = "SELECT COUNT(*) OVER() AS totalNr, a.runID, a.runLabel, a.timePlayed, a.explosiveJumps, a.loadCount, a.startTimeStamp, a.FPSMode, a.flags " +
+    query = "SELECT COUNT(*) OVER() AS totalNr, a.runID, rl.runLabel, a.timePlayed, a.explosiveJumps, a.loadCount, a.startTimeStamp, a.FPSMode, a.flags " +
                 "FROM(" + 
                     "SELECT ROW_NUMBER() OVER (PARTITION BY pr.runID ORDER BY saveNumber DESC) AS rn, pr.playerID, pr.finishcpID, pr.archived, pr.finishTimeStamp, pr.mapID, pr.runID, pr.runLabel, pr.timePlayed, ps.explosiveJumps, pr.loadCount, pr.saveCount, pr.startTimeStamp, ps.FPSMode, ps.flags " + 
                     "FROM playerSaves ps INNER JOIN playerRuns AS pr ON pr.runID = ps.runID " + 
-                ") a" + 
+                ") a LEFT JOIN runLabels rl ON a.runID = rl.runID" + 
                 " WHERE a.rn = 1" +
                 " AND a.playerID = " + playerID + 
                 " AND a.finishcpID IS NULL" +
@@ -93,7 +94,6 @@ fetchUpdatedData()
             " ORDER BY " + sortStr +
             " LIMIT " + self.currentBoard["maxEntriesPerPage"] +
             " OFFSET " + openCJ\menus\board_base::getOffsetFromPage(self.currentBoard["page"]["cur"], self.currentBoard["maxEntriesPerPage"]);
-
     // Example output (pretend there are 10 rows instead of 2 though):
     // ----------------------------------------------------------------------------------------------------------------------|
     // | totalNr | runID   | runLabel      | timePlayed | explosiveJumps | loadCount | startTimeStamp      | FPSMode | flags |
@@ -130,7 +130,7 @@ fetchUpdatedData()
         {
             self.currentBoard["cols"][i]["nr"] = int(rows[i][1]);
             name = rows[i][2];
-            if (name == "")
+            if (!isDefined(name) || (name == ""))
             {
                 name = "Unnamed run";
             }

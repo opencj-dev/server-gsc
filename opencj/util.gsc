@@ -404,6 +404,29 @@ stripColors(string)
 	return string;
 }
 
+cleanCharacters(str, allowedChars, maxSize)
+{
+    cleanStr = "";
+    limitedMaxSize = str.size;
+    if (limitedMaxSize > maxSize)
+    {
+        limitedMaxSize = maxSize;
+    }
+    for (i = 0; i < limitedMaxSize; i++)
+    {
+        if (isSubstr(allowedChars, str[i]))
+        {
+            cleanStr += str[i];
+        }
+        else
+        {
+            cleanStr += "?";
+        }
+    }
+
+    return cleanStr;
+}
+
 xOrEmpty(val) // Useful for menus that want to show an empty cell instead of hiding it, when empty
 {
     if (val > 0)

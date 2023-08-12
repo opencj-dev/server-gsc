@@ -5,7 +5,6 @@ main()
     self openCJ\saveposition::onRunCreated();
     self openCJ\tas::onRunCreated();
     self openCJ\weapons::onRunCreated();
-    self openCJ\playerRuns::onRunCreated();
     self openCJ\statistics::onRunCreated();
     self openCJ\healthRegen::onRunCreated();
     self openCJ\shellShock::onRunCreated();
@@ -18,6 +17,8 @@ main()
     self openCJ\elevate::onRunCreated();
     self openCJ\fps::onRunCreated();
     self openCJ\playTime::onRunCreated();
+    self openCJ\huds\hudRunInfo::onRunCreated();
+    self openCJ\huds\hudStatistics::onRunCreated();
 
     self openCJ\events\spawnPlayer::main();
 }

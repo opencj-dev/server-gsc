@@ -10,14 +10,7 @@ main()
     maps\mp\_compass::setupMiniMap("compass_map_mp_atlantis2");
     setdvar("compassmaxrange","5500");
 
-    preCacheShader("atlinfo");	
-    preCacheShader("intropic");
-    preCacheShader("atlend");
-    preCacheShader("trident");
-    preCacheShader("information");
-    preCacheShader("music");
     preCacheShader("flight");
-    preCacheShader("bushik2");
 
      preCacheShader("w1");  
 
@@ -158,10 +151,6 @@ main()
 
     thread dveri9();
 
-    thread atlinfo(); 
-    thread atlend();
-     
-
     thread atlantisdoor();
     thread atlantisdoor2();
     thread atlantisdoor3();
@@ -178,11 +167,6 @@ main()
     thread uspmp();
 
     thread onPlayerConnect();
-    thread trident();
-    thread musicpic();
-    thread flightpic();
-    thread informationpic();
-    thread wormhole();
     thread jumper();
 
 }
@@ -223,38 +207,8 @@ onPlayerSpawned()
     for(;;)
     {
         self waittill( "spawned_player" );
-        self thread the_intropic();
     }
 
-}
-the_intropic()
-{
-                if(isDefined(self.the_intropic))
-		self.the_intropic destroy();
-                wait 7;
-
-                self.the_intropic = newClientHudElem(self);
-			self.the_intropic.alignX = "center";
-			self.the_intropic.alignY = "top";
-			self.the_intropic.horzAlign = "fullscreen";
-			self.the_intropic.vertAlign = "fullscreen";
-			self.the_intropic.x = 310;
-			self.the_intropic.y = -450;
-			self.the_intropic.alpha = 0;
-			self.the_intropic.sort = 1;
-			self.the_intropic.hideWhenInMenu = false;
-			self.the_intropic setShader("intropic", 400, 450);
-			self.the_intropic.alpha = 1;
-
-                self.the_intropic moveOverTime(1);
-                self.the_intropic.y = 20;
-                wait (1.5);
-                self.the_intropic moveOverTime(.5);
-                self.the_intropic.x = 1000;
-                wait (.5);
-                self.the_intropic destroy();
-
-                wait 0.05;
 }
 quake()
 {
@@ -1418,50 +1372,7 @@ move14(other)
 
 
 }
-atlinfo()
-{ 
-	atlinfo    = getent( "picture", "targetname" ); 
-	
-	while(true) 
-	{ 
-         atlinfo waittill("trigger",player);
-     
-      
-          player.atlinfo = true;
-          player thread the_atlinfo();
-          wait (5);
 
-       }
-
-}
-the_atlinfo()
-{
-if(isDefined(self.the_atlinfo))
-		self.the_atlinfo destroy();
-
-self.the_atlinfo = newClientHudElem(self);
-			self.the_atlinfo.alignX = "center";
-			self.the_atlinfo.alignY = "top";
-			self.the_atlinfo.horzAlign = "fullscreen";
-			self.the_atlinfo.vertAlign = "fullscreen";
-			self.the_atlinfo.x = 310;
-			self.the_atlinfo.y = -450;
-			self.the_atlinfo.alpha = 0;
-			self.the_atlinfo.sort = 1;
-			self.the_atlinfo.hideWhenInMenu = false;
-			self.the_atlinfo setShader("atlinfo", 400, 400);
-			self.the_atlinfo.alpha = 1;
-self.the_atlinfo moveOverTime(11);
-self.the_atlinfo.y = 40;
-wait (2);
-self.the_atlinfo moveOverTime(.5);
-self.the_atlinfo.x = 1000;
-wait (.5);
-self.the_atlinfo destroy();
-
-wait 0.05;
-
-}
 //////////////////////////////////////////////////////////////////////////////
 atlantisdoor3()
 {
@@ -1628,52 +1539,6 @@ move16(other)
 
 
 }
-
-//////////////////////////////////////////////////////////////////////
-atlend()
-{ 
-	atlend    = getent( "picture2", "targetname" ); 
-	
-	while(true) 
-	{ 
-         atlend waittill("trigger",player);
-     
-      
-          player.atlend = true;
-          player thread the_atlend();
-          wait (2);
-
-       }
-
-}
-the_atlend()
-{
-if(isDefined(self.the_atlend))
-		self.the_atlend destroy();
-
-self.the_atlend = newClientHudElem(self);
-			self.the_atlend.alignX = "center";
-			self.the_atlend.alignY = "top";
-			self.the_atlend.horzAlign = "fullscreen";
-			self.the_atlend.vertAlign = "fullscreen";
-			self.the_atlend.x = 310;
-			self.the_atlend.y = -700;
-			self.the_atlend.alpha = 0;
-			self.the_atlend.sort = 1;
-			self.the_atlend.hideWhenInMenu = false;
-			self.the_atlend setShader("atlend", 300, 400);
-			self.the_atlend.alpha = 1;
-self.the_atlend moveOverTime(3);
-self.the_atlend.y = 40;
-wait (4.5);
-self.the_atlend moveOverTime(1);
-self.the_atlend.y = 1000;
-wait (1);
-self.the_atlend destroy();
-
-wait 0.05;
-
-}
 //////////////////////////////////////////////////////////////////
 uspmp()
 {
@@ -1712,242 +1577,8 @@ atlantisdoor5()
 		wait 0.05;
 	}
 }
-//////////////////////////////////////////////////////////////////////
-trident()
-{
-    tridentTrigger("");
-    for (i = 2; i < 18; i++)
-    {
-        tridentTrigger(i);
-    }
 
-}
-tridentTrigger(val)
-{
-    trident = getent("hint_act" + val, "targetname"); 
-
-    while(true) 
-    { 
-        trident waittill("trigger", player);
-
-        player.trident = true;
-        player thread the_trident();
-        wait (1);
-    }
-}
-the_trident()
-{
-    if(isDefined(self.the_trident))
-        self.the_trident destroy();
-
-    self.the_trident = newClientHudElem(self);
-    self.the_trident.alignX = "centre";
-    self.the_trident.alignY = "centre";
-
-    self.the_trident.x = 275;
-    self.the_trident.y = 270;
-    self.the_trident.alpha = 0;
-    self.the_trident.sort = 1;
-    self.the_trident.hideWhenInMenu = false;
-    self.the_trident setShader("trident", 60, 60);
-    self.the_trident.alpha = 1;
-
-    wait (1);
-    self.the_trident destroy();
-
-    wait 0.05;
-
-}
-musicpic()
-{ 
-	musicpic    = getent( "hint_act_18", "targetname" ); 
-	
-	while(true) 
-	{ 
-        musicpic waittill("trigger",player);
-
-
-        player.musicpic = true;
-        player thread the_musicpic();
-        wait (1);
-   }
-
-}
-the_musicpic()
-{
-    if(isDefined(self.the_musicpic))
-        self.the_musicpic destroy();
-
-    self.the_musicpic = newClientHudElem(self);
-    self.the_musicpic.alignX = "centre";
-    self.the_musicpic.alignY = "centre";
-
-    self.the_musicpic.x = 275;
-    self.the_musicpic.y = 270;
-    self.the_musicpic.alpha = 0;
-    self.the_musicpic.sort = 1;
-    self.the_musicpic.hideWhenInMenu = false;
-    self.the_musicpic setShader("music", 60, 60);
-    self.the_musicpic.alpha = 1;
-
-    wait (1);
-    self.the_musicpic destroy();
-
-    wait 0.05;
-
-}
-//////////////////////////////////////////////////////////////////////
-flightpic()
-{ 
-	flightpic    = getent( "hint_act_19", "targetname" ); 
-	
-	while(true) 
-	{ 
-         flightpic waittill("trigger",player);
-     
-      
-          player.flightpic = true;
-          player thread the_flightpic();
-          wait (1);
-
-       }
-
-}
-the_flightpic()
-{
-if(isDefined(self.the_flightpic))
-		self.the_flightpic destroy();
-
-          self.the_flightpic = newClientHudElem(self);
-			self.the_flightpic.alignX = "centre";
-			self.the_flightpic.alignY = "centre";
-
-			self.the_flightpic.x = 275;
-			self.the_flightpic.y = 270;
-			self.the_flightpic.alpha = 0;
-			self.the_flightpic.sort = 1;
-			self.the_flightpic.hideWhenInMenu = false;
-			self.the_flightpic setShader("flight", 60, 60);
-			self.the_flightpic.alpha = 1;
-
-                    wait (1);
-                    self.the_flightpic destroy();
-
-                 wait 0.05;
-
-}
-//////////////////////////////////////////////////////////////////////
-informationpic()
-{ 
-	informationpic    = getent( "hint_act_20", "targetname" ); 
-	
-	while(true) 
-	{ 
-         informationpic waittill("trigger",player);
-     
-      
-          player.informationpic = true;
-          player thread the_informationpic();
-          wait (1);
-
-       }
-
-}
-the_informationpic()
-{
-if(isDefined(self.the_informationpic))
-		self.the_informationpic destroy();
-
-          self.the_informationpic = newClientHudElem(self);
-			self.the_informationpic.alignX = "centre";
-			self.the_informationpic.alignY = "centre";
-
-			self.the_informationpic.x = 275;
-			self.the_informationpic.y = 270;
-			self.the_informationpic.alpha = 0;
-			self.the_informationpic.sort = 1;
-			self.the_informationpic.hideWhenInMenu = false;
-			self.the_informationpic setShader("information", 60, 60);
-			self.the_informationpic.alpha = 1;
-
-                    wait (1);
-                    self.the_informationpic destroy();
-
-                 wait 0.05;
-
-}
-//////////////////////////////////////////////////////////////////////
-trident_10()
-{ 
-	trident    = getent( "hint_act_10", "targetname" ); 
-	
-	while(true) 
-	{ 
-         trident waittill("trigger",player);
-     
-      
-          player.trident = true;
-          player thread the_trident();
-          wait (1);
-
-       }
-
-}
-////////////////////////////////////////////////////////////
 the_bushik2()
 {
     self iprintln("Map by Bushido");
-}
-wormhole()
-{ 
-	wormhole    = getent( "picture3", "targetname" ); 
-	
-	while(true) 
-	{ 
-      wormhole waittill("trigger",player);
-     
-      
-      player.wormhole = true;
-      player thread the_wormhole();
-      wait (1);
-
-      }
-}
-
-addShaderHud( who, x, y, alignX, alignY, horiz, vert, sort ) 
-{
-    if (!isPlayer(who))
-    {
-        return;
-    }
-
-	hud = newClientHudElem( who );
-
-	hud.x = x;
-	hud.y = y;
-	hud.alpha = 1;
-	hud.sort = sort;
-	hud.alignX = alignX;
-	hud.alignY = alignY;
-	if(isdefined(vert))
-		hud.vertAlign = vert;
-	if(isdefined(horiz))
-		hud.horzAlign = horiz;		
-	hud.foreground = 1;
-	hud.archived = 0;
-	return hud;
-}
-
-the_wormhole()
-{
-	if (isDefined( self.the_wormhole))
-		self.the_wormhole destroy();
-
-    self disableWeapons();
-    self endon("joined_spectators");
-         
-	worm_shader1 = addShaderHud( self, 0, 0, "middle", "top", "fullscreen", "fullscreen", 9999999 );
-	worm_shader1 setShader( "w1", 640, 480 );	
-	wait 1;
-	worm_shader1 destroy();
 }

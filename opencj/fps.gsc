@@ -162,7 +162,7 @@ _shouldFPSModeChange(currentFPSMode, newFPSMode)
 
 userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
 {
-    if (!self openCJ\playerRuns::hasRunStarted() || self openCJ\playerRuns::isRunPaused())
+    if (!self openCJ\playerRuns::hasRunID() || self openCJ\playerRuns::isRunPaused())
     {
         return false;
     }

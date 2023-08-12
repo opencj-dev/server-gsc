@@ -24,85 +24,109 @@ onInit()
 
 onPlayerConnect()
 {
-	self _hideStatisticsHud(true);
+    self.statisticsHudString = "";
+    self _hideStatisticsHud(true);
 }
 
 onSpawnSpectator()
 {
-	self _hideStatisticsHud(false);
+    self _hideStatisticsHud(false); // Statistics HUD will be shown when spectating a person
 }
 
 onSpectatorClientChanged(newClient)
 {
-	if(!isDefined(newClient))
-	{
-		self _hideStatisticsHud(false);
-	}
+    if (!isDefined(newClient))
+    {
+        self _hideStatisticsHud(false);
+    }
+    else
+    {
+        self _updateStatisticsHud(newClient, undefined); // undefined -> let the function determine the update string
+    }
 }
 
 onStartDemo()
 {
-	specs = self getSpectatorList(true);
-	for(i = 0; i < specs.size; i++)
-	{
-		specs[i] _clearStatisticsHud(false);
-	}
+    specs = self getSpectatorList(true); // true -> includes the player that is the spectator
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideStatisticsHud(false);
+    }
+}
+
+onRunStopped()
+{
+    specs = self getSpectatorList(true); // true -> includes the player that is the spectator
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideStatisticsHud(false);
+    }
+}
+
+onRunCreated()
+{
+    specs = self getSpectatorList(true); // true -> includes the player that is the spectator
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideStatisticsHud(false);
+    }
 }
 
 whileAlive()
 {
-	// Draw statistics HUD for the player and their spectator(s)
-	self _drawHUD();
+    // self = owner of statistics
+
+    if (!self openCJ\playerRuns::hasRunID() || !self openCJ\playerRuns::hasRunStarted())
+    {
+        return;
+    }
+
+    if (!self openCJ\statistics::haveStatisticsChanged())
+    {
+        return;
+    }
+
+    self _updateForSpectators(); // Will mark the statistics as no longer changed
 }
 
-whileSpectating()
+_updateForSpectators() // Function to avoid getting the string multiple times if it remains the same
 {
-	self _drawHUD();
+    newString = self _getStatisticsString();
+    specs = self getSpectatorList(true); // true -> includes the player that is the spectator
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _updateStatisticsHud(self, newString);
+    }
 }
 
-_drawHUD()
+_updateStatisticsHud(playerBeingWatched, newString)
 {
-	// self = owner of statistics
+    // Only update if the player being watched should have their statistics up
+    if (!playerBeingWatched openCJ\playerRuns::hasRunID() || !playerBeingWatched openCJ\playerRuns::hasRunStarted())
+    {
+        return false;
+    }
 
-	if(!self openCJ\statistics::shouldRefreshStatistics())
-	{
-		return;
-	}
+    // It gets provided when doing an update for all spectators at once. Otherwise it is determined here
+    if (!isDefined(newString))
+    {
+        newString = playerBeingWatched _getStatisticsString();
+    }
 
-	// The following is done for the owner of statistics and everyone spectating them
-	playersToUpdateHUDFor = self getSpectatorList(true); // true -> include owner of statistics
-	for(i = 0; i < playersToUpdateHUDFor.size; i++)
-	{
-		// Determine the new HUD string
-		newString = playersToUpdateHUDFor[i] _getHUDString(self);
+    self setClientCvar("openCJ_statistics", newString);
+    self.statisticsHudString = newString;
 
-		// Update the HUD
-		playersToUpdateHUDFor[i] setClientCvar("openCJ_statistics", newstring);
-
-		// Remember string for change tracking and clearing
-		playersToUpdateHUDFor[i].statistics["lastString"] = newString;
-	}
-
-	// Statistics should no longer be marked changed now, because we displayed the most recent changed
-	self openCJ\statistics::updateStatistics();
+    // Statistics should no longer be marked changed now, because we displayed the most recent change
+    self openCJ\statistics::setHasUpdatedStatistics();
 }
 
 _hideStatisticsHud(force)
 {
-	if(force || self.statistics["lastString"] != "")
-	{
-		self.statistics["lastString"] = "";
-		self setClientCvar("openCJ_statistics", "");
-	}
-}
-
-_clearStatisticsHud(force)
-{
-	if(force || (self.statistics["lastString"] != ""))
-	{
-		self.statistics["lastString"] = "";
-		self setClientCvar("openCJ_statistics", "");
-	}
+    if(force || (self.statisticsHudString != ""))
+    {
+        self.statisticsHudString = "";
+        self setClientCvar("openCJ_statistics", "");
+    }
 }
 
 _getStringOrDefault(name)
@@ -130,35 +154,35 @@ _getStringOrDefault(name)
     return str;
 }
 
-_getHUDString(client)
+_getStatisticsString()
 {
     // Time
-    newstring = _getStringOrDefault("timestring") + " " + formatTimeString(client openCJ\playTime::getTimePlayed(), true) + "\n";
+    newstring = _getStringOrDefault("timestring") + " " + formatTimeString(self openCJ\playTime::getTimePlayed(), true) + "\n";
 
     // Loads
-    newstring += _getStringOrDefault("loadsstring") + " " + client openCJ\statistics::getLoadCount() + "\n";
+    newstring += _getStringOrDefault("loadsstring") + " " + self openCJ\statistics::getLoadCount() + "\n";
 
     // CoD specific (nade jumps / rpg)
     if (getCodVersion() == 2)
     {
         // Also only show jumps and saves on CoD2 as this is irrelevant for CoD4
-        newstring += _getStringOrDefault("savesstring") + " " + client openCJ\statistics::getSaveCount() + "\n";
-        newstring += _getStringOrDefault("jumpsstring") + " " + client openCJ\statistics::getJumpCount() + "\n";
-        newstring += _getStringOrDefault("nadejumpsstring") + " " + client openCJ\statistics::getExplosiveJumps() + "\n";
-        newstring += _getStringOrDefault("nadethrowsstring") + " " + client openCJ\statistics::getExplosiveLaunches() + "\n";
+        newstring += _getStringOrDefault("savesstring") + " " + self openCJ\statistics::getSaveCount() + "\n";
+        newstring += _getStringOrDefault("jumpsstring") + " " + self openCJ\statistics::getJumpCount() + "\n";
+        newstring += _getStringOrDefault("nadejumpsstring") + " " + self openCJ\statistics::getExplosiveJumps() + "\n";
+        newstring += _getStringOrDefault("nadethrowsstring") + " " + self openCJ\statistics::getExplosiveLaunches() + "\n";
     }
     else
     {
-        newstring += _getStringOrDefault("rpgjumpsstring") + " " + client openCJ\statistics::getExplosiveJumps() + "\n";
+        newstring += _getStringOrDefault("rpgjumpsstring") + " " + self openCJ\statistics::getExplosiveJumps() + "\n";
         // TMI
-        //newstring += _getStringOrDefault("rpgshotsstring") + " " + client openCJ\statistics::getExplosiveLaunches() + "\n";
-        //newstring += _getStringOrDefault("doublerpgsstring") + " " + client openCJ\statistics::getDoubleExplosives() + "\n";
+        //newstring += _getStringOrDefault("rpgshotsstring") + " " + self openCJ\statistics::getExplosiveLaunches() + "\n";
+        //newstring += _getStringOrDefault("doublerpgsstring") + " " + self openCJ\statistics::getDoubleExplosives() + "\n";
     }
 
     // FPS is already covered by runInfo icons
 
     // Routes & progress
-    newstring += client openCJ\statistics::getRouteAndProgress() + "\n";
+    newstring += self openCJ\statistics::getRouteAndProgress() + "\n";
 
     return newstring;
 }

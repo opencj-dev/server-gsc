@@ -2,7 +2,7 @@
 
 main(atLastSavedPosition)
 {
-    if(!self openCJ\login::isLoggedIn() || !self openCJ\playerRuns::hasRunID())
+    if(!self openCJ\login::isLoggedIn())
     {
         return;
     }

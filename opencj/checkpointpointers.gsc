@@ -47,6 +47,11 @@ onStartDemo()
 
 onRunCreated()
 {
+    self _hideCheckpointPointers(); // Showing them is triggered based on onCheckpointsChanged() instead
+}
+
+onRunStopped()
+{
     self _hideCheckpointPointers();
 }
 

@@ -2,8 +2,8 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("noclip", "Enables/disables noclip. Usage: !noclip [speed]", ::noclip, 0, 1, 0);
-	openCJ\commands_base::addAlias(cmd, "ufo"); // It's not the same, but we don't have ufo anyway so..
+    cmd = openCJ\commands_base::registerCommand("noclip", "Enables/disables noclip. Usage: !noclip [speed]", ::_onCmdNoclip, 0, 1, 0);
+    cmd = openCJ\commands_base::registerCommand("ufo", "Enables/disables noclip with higher speed.", ::_onCmdUfo, 0, 1, 0);
 }
 
 onPlayerConnect()
@@ -22,11 +22,30 @@ onRunRestored()
     self disableNoclip();
 }
 
-noclip(args)
+_onCmdUfo(args)
+{
+    if (args.size == 0)
+    {
+        args = [];
+        args[0] = "40";
+        _onCmdNoclip(args);
+    }
+    else
+    {
+        _onCmdNoclip(args);
+    }
+}
+
+_onCmdNoclip(args)
+{
+    _configureNoclip(args);
+}
+
+_configureNoclip(args)
 {
 	if(self openCJ\demos::isPlayingDemo())
 	{
-		self sendLocalChatMessage("Cannot enable noclip during demo playback", true);
+		self sendLocalChatMessage("Cannot enable noclip/ufo during demo playback", true);
 		return;
 	}
 	wasEverEnabled = self hasNoclip();
@@ -39,9 +58,9 @@ noclip(args)
 	else
 	{
 		speed = int(args[0]);
-		if(speed > 100)
+		if(speed > 120)
 		{
-			speed = 100;
+			speed = 120;
 		}
 		else if(speed < 10)
 		{
@@ -61,10 +80,6 @@ noclip(args)
 	{
 		self disableNoclip();
 		self sendLocalChatMessage("Noclip off");
-		if (wasEverEnabled)
-		{
-			self sendLocalChatMessage("History load back until cheating flag is gone, or !reset");
-		}
 	}
 }
 
@@ -102,7 +117,6 @@ enableNoclip()
 
 	self.noclip = true;
 	self openCJ\cheating::setCheating(true);
-	self openCJ\playerRuns::pauseRun();
 	self.noclip_linkto = spawn("script_origin", self.origin);
 	self.noclip_linkto thread deleteOnEvent("disconnect", self);
 	self linkto(self.noclip_linkto);

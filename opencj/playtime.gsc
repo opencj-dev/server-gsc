@@ -24,11 +24,6 @@ onRunCreated()
 	self setAFK(true);
 }
 
-onRunRestored()
-{
-    
-}
-
 onRunFinished(cp)
 {
 	self pauseTimer();

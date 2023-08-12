@@ -47,9 +47,24 @@ onPlayerConnect()
 	self _createProgressBar();
 }
 
-onCheatStatusChanged(isCheating)
+onRunPaused()
 {
 	self _updateProgressBar();
+}
+
+onRunStopped()
+{
+    self _updateProgressBar();
+}
+
+onRunResumed()
+{
+    self _updateProgressBar();
+}
+
+onRunRestored()
+{
+    self _updateProgressBar();
 }
 
 _createProgressBar()
@@ -76,7 +91,7 @@ _createProgressBar()
 
 _updateProgressBar()
 {
-    if(self openCJ\cheating::isCheating())
+    if(!self openCJ\playerRuns::hasRunID() || self openCJ\playerRuns::isRunPaused() || self openCJ\cheating::isCheating())
     {
         progress = level.progressBarMaxValue; // At this point it's more important showing the player that their run is marked as cheated
         self.progressBar setShader(level.progressBarShader, level.progressBarMaxValue, level.progressBarHeight);

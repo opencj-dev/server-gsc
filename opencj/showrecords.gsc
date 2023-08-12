@@ -6,6 +6,26 @@ onInit()
 	precacheShader(level.showRecordsHighlightShader);
 }
 
+onPlayerConnect()
+{
+    self.showRecords_nameString = "";
+    self.showRecords_timeString = "";
+
+    self.showRecordsHighlight = newClientHudElem(self);
+    self.showRecordsHighlight.horzAlign = "right";
+    self.showRecordsHighlight.vertAlign = "top";
+    self.showRecordsHighlight.alignX = "left";
+    self.showRecordsHighlight.alignY = "bottom";
+    self.showRecordsHighlight.x = -202;
+    self.showRecordsHighlight.y = 50;
+    self.showRecordsHighlight.archived = false;
+    self.showRecordsHighlight.sort = -98;
+    self.showRecordsHighlight.color = (0.75, 0.75, 0.75);
+    self.showRecordsHighlight.hideWhenInMenu = true;
+    self.showRecordsHighlight setShader(level.showRecordsHighlightShader, 195, 11);
+    self _hideRecords(true);
+}
+
 onCheckpointsChanged()
 {
 	self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), false);
@@ -20,11 +40,49 @@ onCheckpointPassed(cp, timems)
 
 onStartDemo()
 {
-	specs = self getSpectatorList(true);
-	for(i = 0; i < specs.size; i++)
-	{
-		specs[i] _hideRecords(true);
-	}
+    specs = self getSpectatorList(true);
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideRecords(true);
+    }
+}
+
+onRunRestored()
+{
+    self _runChanged();
+}
+
+onRunStarted()
+{
+    self _runChanged();
+}
+
+onRunCreated()
+{
+    specs = self getSpectatorList(true); // true -> include self as spectator
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideRecords(true);
+    }
+}
+
+onRunStopped()
+{
+    specs = self getSpectatorList(true); // true -> include self as spectator
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _hideRecords(true);
+    }
+}
+
+onSpawnSpectator()
+{
+	self _hideRecords(true);
+}
+
+onSpawnPlayer()
+{
+	self.nextUpdate = 0;
 }
 
 onRunFinished(cp)
@@ -35,31 +93,11 @@ onRunFinished(cp)
 	self thread _getRecords(cps, 2, timems);
 }
 
-onPlayerConnect()
-{
-	self.showRecords_nameString = "";
-	self.showRecords_timeString = "";
-
-	self.showRecordsHighlight = newClientHudElem(self);
-	self.showRecordsHighlight.horzAlign = "right";
-	self.showRecordsHighlight.vertAlign = "top";
-	self.showRecordsHighlight.alignX = "left";
-	self.showRecordsHighlight.alignY = "bottom";
-	self.showRecordsHighlight.x = -202;
-	self.showRecordsHighlight.y = 50;
-	self.showRecordsHighlight.archived = false;
-	self.showRecordsHighlight.sort = -98;
-	self.showRecordsHighlight.color = (0.75, 0.75, 0.75);
-    self.showRecordsHighlight.hideWhenInMenu = true;
-	self.showRecordsHighlight setShader(level.showRecordsHighlightShader, 195, 11);
-	self _hideRecords(true);
-}
-
 onSpectatorClientChanged(newClient)
 {
 	if(!isDefined(newClient))
 	{
-		self _hideRecords(false);
+		self _hideRecords(true);
 	}
 	else
 	{
@@ -72,7 +110,7 @@ onSpectatorClientChanged(newClient)
 			timems = newClient openCJ\playTime::getTimePlayed();
 			self _updateRecords(newClient, newClient.showRecords_rows, timems, true);
 		}
-		else
+		else if (newClient openCJ\playerRuns::hasRunID())
 		{
 			self _updateRecords(newClient, newClient.showRecords_rows, undefined, true);
 		}
@@ -92,26 +130,6 @@ _runChanged()
     self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), 0);
 }
 
-onRunCreated()
-{
-    _runChanged();
-}
-
-onRunRestored()
-{
-    _runChanged();
-}
-
-onSpawnSpectator()
-{
-	self _hideRecords(false);
-}
-
-onSpawnPlayer()
-{
-	self.nextUpdate = 0;
-}
-
 _hideRecords(force)
 {
 	if(force || self.showRecords_nameString != "")
@@ -129,8 +147,11 @@ _hideRecords(force)
 
 _getRecords(checkpoints, persist, timems)
 {
-	
-	self endon("disconnect");
+    self endon("disconnect");
+	if (!self openCJ\playerRuns::hasRunID())
+    {
+        return;
+    }
 
 	if(persist != 1)
 	{
@@ -212,14 +233,14 @@ _getRecords(checkpoints, persist, timems)
 
 _updateRecords(client, rows, overrideTime, force)
 {
-	if(!force && (!isDefined(overrideTime) && isDefined(client.showRecords_persistTime) && client.showRecords_persistTime > getTime()))
-	{
-		return;
-	}
-	if(client.sessionState != "playing")
-	{
-		return;
-	}
+    if(!force && (!isDefined(overrideTime) && isDefined(client.showRecords_persistTime) && client.showRecords_persistTime > getTime()))
+    {
+        return;
+    }
+    if(client.sessionState != "playing")
+    {
+        return;
+    }
 
 	nameString = "";
 	timeString = "";
@@ -277,12 +298,22 @@ _updateRecords(client, rows, overrideTime, force)
 
 whileAlive()
 {
-	if(!self openCJ\playerRuns::isRunFinished() && !self openCJ\demos::isPlayingDemo())
-	{
-		specs = self getSpectatorList(true);
-		for(i = 0; i < specs.size; i++)
-		{
-			specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
-		}
-	}
+    if (self openCJ\demos::isPlayingDemo())
+    {
+        return;
+    }
+    if (self openCJ\playerRuns::isRunFinished() || !self openCJ\playerRuns::hasRunID() || !self openCJ\playerRuns::hasRunStarted())
+    {
+        return;
+    }
+    if (!isDefined(self.showRecords_rows))
+    {
+        return;
+    }
+
+    specs = self getSpectatorList(true);
+    for(i = 0; i < specs.size; i++)
+    {
+        specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
+    }
 }
