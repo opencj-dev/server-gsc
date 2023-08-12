@@ -254,15 +254,19 @@ _updateRecords(client, rows, overrideTime, force)
 		timePlayed = overrideTime;
 	}
 
-	for(i = 0; i < rows.size; i++)
+	i = 0;
+	if(isDefined(rows))
 	{
-		if(int(rows[i][1]) > timePlayed)
+		for(; i < rows.size; i++)
 		{
-			for(j = rows.size; j > i; j--)
+			if(int(rows[i][1]) > timePlayed)
 			{
-				rows[j] = rows[j - 1];
+				for(j = rows.size; j > i; j--)
+				{
+					rows[j] = rows[j - 1];
+				}
+				break;
 			}
-			break;
 		}
 	}
 
