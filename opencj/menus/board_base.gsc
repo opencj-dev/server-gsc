@@ -535,7 +535,7 @@ handleFilterChange(button)
         // Filter: toggle allow any % (cuts)
         // Filter: toggle allow TAS (Tool Assisted Speedrun)
         self.currentBoard["filter"][button] = !self.currentBoard["filter"][button];
-        self openCJ\settings::setSetting(self.currentBoard["filterNames"][button], self.currentBoard["filter"][button]);
+        self openCJ\settings::setSettingByScript(self.currentBoard["filterNames"][button], self.currentBoard["filter"][button]);
         self setClientCvar(level.boardsDvarPrefix + button + "_allow", self.currentBoard["filter"][button]);
     }
     else if (isSubStr(button, "fps_"))
@@ -566,7 +566,7 @@ handleFilterChange(button)
                 }
             }
 
-            self openCJ\settings::setSetting(self.currentBoard["filterNames"]["fps"], self.currentBoard["filter"]["fps"]);
+            self openCJ\settings::setSettingByScript(self.currentBoard["filterNames"]["fps"], self.currentBoard["filter"]["fps"]);
         }
     }
 

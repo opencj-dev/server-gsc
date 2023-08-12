@@ -161,7 +161,7 @@ _onCmdRuns(args) // TODO: support self-named runs
     }
 }
 
-_restoreLastRun()
+_restoreLastRun(runID)
 {
     if (!self openCJ\mapID::hasMapID())
     {
@@ -183,10 +183,16 @@ _restoreLastRun()
 
     mapId = self openCJ\mapID::getMapID();
     runSqlStr = " ";
-    runID = undefined;
-    if (self openCJ\playerRuns::hasRunID())
+    if (!isDefined(runID))
     {
-        runID = self openCJ\playerRuns::getRunID();
+        if (self openCJ\playerRuns::hasRunID())
+        {
+            runID = self openCJ\playerRuns::getRunID();
+        }
+    }
+
+    if (isDefined(runID))
+    {
         runSqlStr += "AND runID != " + runID + " ";
         hasRunID = true;
     }
@@ -278,7 +284,7 @@ _teleportToPlayer(args, teleToSave)
             shouldTeleToPos = !teleToSave;
             if (teleToSave)
             {
-                playerSave = player openCJ\savePosition::getSavedPosition(0);
+                playerSave = player openCJ\savePosition::getSavedPosition(player openCJ\savePosition::getBackwardsCount());
                 if (isDefined(playerSave))
                 {
                     self openCJ\cheating::setCheating(true);

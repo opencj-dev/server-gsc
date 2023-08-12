@@ -8,7 +8,8 @@ onInit()
     openCJ\commands_base::addAlias(cmd, "restartmap");
 
     level.vote = undefined; // Will be filled in with spawnStruct
-    thread loop();
+    level.autoExtendThreshold = (5 * 60); // 5 minutes
+    thread _autoExtendTimeLoop();
 }
 
 onCmdRestartMap(args)
@@ -16,18 +17,28 @@ onCmdRestartMap(args)
     _changeMap(getCvar("mapname"));
 }
 
-loop()
+onRemainingTimeIncreased() // Also called when end map vote changes remaining time, so be wary
 {
+    if (level.remainingTimeSeconds >= level.autoExtendThreshold)
+    {
+        // Time *increased* to above the auto extend threshold, so reset variable
+        level.hasRequestedAutoExtend = false;
+    }
+}
+
+_autoExtendTimeLoop() // For auto extend time
+{
+    level endon("map_ended");
+    level endon("game_ended");
+
+    level.hasRequestedAutoExtend = false;
     while (1)
     {
-        if (isDefined(level.isAutoExtendQueued) && level.isAutoExtendQueued && !isDefined(level.hasAutoExtended))
+        if (!level.hasRequestedAutoExtend && (level.remainingTimeSeconds < level.autoExtendThreshold))
         {
-            if (!isDefined(level.vote))
-            {
-                level.isAutoExtendQueued = false;
-                level.hasAutoExtended = true;
-                _setupVote(undefined, "Vote: extend time (30m)", undefined);
-            }
+            // Always call an auto extend vote when the time is low enough
+            _setupVote(undefined, "Vote: extend time (30m)", undefined);
+            level.hasRequestedAutoExtend = true;
         }
         wait .1;
     }
@@ -532,9 +543,7 @@ _changeMap(map)
     }
 
     wait 5;
-    openCJ\events\eventHandler::onMapChanging();
-    setCvar("sv_maprotation", "map " + map);
-    exitLevel(false);
+    self openCJ\menus\endMapVote::changeMap(map);
 }
 
 _extendTime(minutes)

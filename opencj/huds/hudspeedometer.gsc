@@ -8,11 +8,9 @@ onInit()
 
 _onCommandSpeedometer(newVal)
 {
-    self notify("disable_speedometer");
     if (newVal)
     {
         self.showSpeedometer = true;
-        self thread _speedoMeter();
     }
     else
     {
@@ -24,8 +22,7 @@ _onCommandSpeedometer(newVal)
 onPlayerConnect()
 {
     self.showSpeedometer = false;
-    self.maxSpeed = 0.0;
-    self.currSpeed = 0.0;
+    self _resetSpeed();
     if (!isDefined(self.hudSpeed))
     {
         self.hudSpeed = [];
@@ -36,23 +33,25 @@ onPlayerConnect()
 
 onStartDemo()
 {
-    self.hudSpeed["curr"].alpha = 0;
-    self.hudSpeed["max"].alpha = 0;
+    self _hideSpeedometer();
 }
 
 onSpawnPlayer()
 {
-    self notify("disable_speedometer");
-    self thread _speedoMeter();
+    self _resetSpeed();
 }
 
 onLoadPosition()
 {
-    self.maxSpeed = 0;
-    self.currSpeed = 0;
+    self _resetSpeed();
 }
 
 onSavePosition()
+{
+    self _resetSpeed();
+}
+
+_resetSpeed()
 {
     self.maxSpeed = 0.0;
     self.currSpeed = 0.0;
@@ -70,53 +69,35 @@ _showSpeedometer()
     self.hudSpeed["max"].alpha = 1;
 }
 
-_speedoMeter()
+whileAlive()
 {
-    level endon("map_ended");
-    self endon("disconnect");
-    self endon("disable_speedometer");
-
+    // If player doesn't have speedometer enabled, don't show it to them *or* their spectators
     if (!self.showSpeedometer)
     {
+        spectatorsAndSelf = getSpectatorList(true); //  true -> include self
+        for (i = 0; i < spectatorsAndSelf.size; i++)
+        {
+            player = spectatorsAndSelf[i];
+            player _hideSpeedometer();
+        }
+
         return;
     }
 
-    self.currSpeed = 0;
-    self.maxSpeed = 0;
-    self.hudSpeed["curr"] setValue(0);
-    self.hudSpeed["max"] setValue(0);
-    self _showSpeedometer();
-
-    while(1)
+    self.currSpeed = self _calc2DSpeed();
+    if (self.currSpeed > self.maxSpeed)
     {
-        if (!self isSpectator())
-        {
-            self.currSpeed = self _calc2DSpeed();
-        }
-        else
-        {
-            spectatorClient = self getSpectatorClient();
-            if (isDefined(spectatorClient))
-            {
-                // Spectating someone (still calculate because they may have speedometer disabled and thus this thread won't run)
-                self.currSpeed = spectatorClient _calc2DSpeed();
-                self _showSpeedometer();
-            }
-            else
-            {
-                // Not spectating anyone
-                self _hideSpeedometer();
-            }
-        }
+        self.maxSpeed = self.currSpeed;
+    }
 
-        if (self.currSpeed > self.maxSpeed)
-        {
-            self.maxSpeed = self.currSpeed;
-        }
+    spectatorsAndSelf = getSpectatorList(true); //  true -> include self
+    for (i = 0; i < spectatorsAndSelf.size; i++)
+    {
+        player = spectatorsAndSelf[i];
 
-        self.hudSpeed["curr"] setValue(self.currSpeed);
-        self.hudSpeed["max"] setValue(self.maxSpeed);
-        wait .05;
+        player.hudSpeed["curr"] setValue(self.currSpeed);
+        player.hudSpeed["max"] setValue(self.maxSpeed);
+        player _showSpeedometer();
     }
 }
 

@@ -99,6 +99,18 @@ onPlayerDisconnect()
     }
 }
 
+changeMap(mapName)
+{
+    // Let other scripts know map is changing
+    level openCJ\events\eventHandler::onMapChanging();
+
+    // FIXME: Idk wtf is going on, but calling map() will simply result in SV_MapExists returning false because fs_searchpaths are being weird.
+    // Whatever, the following seems to work for now.
+    //map(level.endVote["maps"][winnerIdx]);
+    setCvar("nextmap", "map " + mapName);
+    exitLevel(false);
+}
+
 onTimeLimitReached() // Called multiple times due to map vote
 {
     level.endVote["status"]++;
@@ -122,11 +134,7 @@ onTimeLimitReached() // Called multiple times due to map vote
             winnerIdx = randomIntRange(0, level.endVote["nrMaps"]);
         }
 
-        // FIXME: Idk wtf is going on, but calling map() will simply result in SV_MapExists returning false because fs_searchpaths are being weird.
-        // Whatever, the following seems to work for now.
-        //map(level.endVote["maps"][winnerIdx]);
-        setCvar("nextmap", "map " + level.endVote["maps"][winnerIdx]);
-        exitLevel();
+        changeMap(level.endVote["maps"][winnerIdx]);
     }
 
     // Set the players' dvars and open menu if needed
