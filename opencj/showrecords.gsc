@@ -59,7 +59,7 @@ onRunStarted()
 
 onRunCreated()
 {
-    specs = self getSpectatorList(true); // true -> include self as spectator
+	specs = self getSpectatorList(true); // true -> include self as spectator
     for(i = 0; i < specs.size; i++)
     {
         specs[i] _hideRecords(true);
@@ -82,7 +82,19 @@ onSpawnSpectator()
 
 onSpawnPlayer()
 {
-	self.nextUpdate = 0;
+	specs = self getSpectatorList(true);
+	for(i = 0; i < specs.size; i++)
+	{
+		if(self openCJ\playerRuns::isRunFinished())
+		{
+			timems = self openCJ\playTime::getTimePlayed();
+			specs[i] _updateRecords(self, self.showRecords_rows, timems, false);
+		}
+		else
+		{
+			specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
+		}
+	}
 }
 
 onRunFinished(cp)
@@ -124,7 +136,6 @@ onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, 
 
 _runChanged()
 {
-    self.nextUpdate = 0;
     self _hideRecords(false);
     self.showRecords_rows = [];
     self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), 0);
@@ -268,6 +279,11 @@ _updateRecords(client, rows, overrideTime, force)
 				break;
 			}
 		}
+	}
+	else
+	{
+		rows = [];
+		rows[0] = [];
 	}
 
 	ownNum = i;

@@ -17,6 +17,7 @@ main(atLastSavedPosition)
     self.psOffsetTime = 0;
     self.pers["team"] = "allies";
     spawnpoint = self openCJ\spawnpoints::getPlayerSpawnpoint();
+    self unlink();
     self spawn(spawnpoint.origin, spawnpoint.angles);
 
     self openCJ\savePosition::onSpawnPlayer();
