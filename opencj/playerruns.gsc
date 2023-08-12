@@ -10,21 +10,21 @@ onInit()
 
 onPlayerConnect()
 {
-	self.playerRuns_spawnLinker = spawn("script_origin", (0, 0, 0));
+    self.playerRuns_spawnLinker = spawn("script_origin", (0, 0, 0));
     self.playerRuns_runPaused = false;
 }
 
 onPlayerLogin()
 {
-	self thread _createRunID();
+    self thread _createRunID();
 }
 
 onStartDemo()
 {
-	if(!self.playerRuns_runStarted)
-	{
-		self unlink();
-	}
+    if(!self.playerRuns_runStarted)
+    {
+        self unlink();
+    }
 }
 
 onRunFinished(cp)
@@ -85,17 +85,17 @@ onSpawnSpectator()
 
 hasRunID()
 {
-	return isDefined(self.playerRuns_runID) && isDefined(self.runInstanceNumber);
+    return isDefined(self.playerRuns_runID) && isDefined(self.runInstanceNumber);
 }
 
 getRunID()
 {
-	return self.playerRuns_runID;
+    return self.playerRuns_runID;
 }
 
 getRunInstanceNumber()
 {
-	return self.runInstanceNumber;
+    return self.runInstanceNumber;
 }
 
 pauseRun()
@@ -137,7 +137,7 @@ stopRun(shouldReset)
 
         // Archive the current run
         runID = self getRunID();
-        archiveRun(self, runID);
+        self thread archiveRun(runID);
 
         // Create a new run
         self _createRunID();
@@ -221,14 +221,14 @@ saveRun(runLabel)
     }
 }
 
-archiveRun(player, runID)
+archiveRun(runID)
 {
     if (isDefined(runID))
     {
         playerIDSqlStr = " ";
-        if (isDefined(player))
+        if (isDefined(self))
         {
-            playerIDSqlStr += "AND playerID = " + player openCJ\login::getPlayerID() + " ";
+            playerIDSqlStr += "AND playerID = " + self openCJ\login::getPlayerID() + " ";
         }
         query = "UPDATE playerRuns SET archived = True" + 
                 " WHERE runID = " + runID +
@@ -236,9 +236,9 @@ archiveRun(player, runID)
         printf("DEBUG: executing archiveRun query:\n" + query + "\n");
 
         level thread openCJ\mySQL::mysqlAsyncQueryNosave(query);
-        if (isDefined(player))
+        if (isDefined(self))
         {
-            player iprintln("^5Archived ^7run (" + runID + ")");
+            self iprintln("^5Archived ^7run (" + runID + ")");
         }
     }
 }
@@ -263,37 +263,46 @@ restoreRun(runID) // Call this function as a thread
         return;
     }
 
-    // Check if this is the player's run
-    query = "SELECT runID FROM playerRuns WHERE playerID = " + self openCJ\login::getPlayerID() + " AND runID = " + runID;
-    rows = self openCJ\mySQL::mysqlAsyncQuery(query);
-    if (!isDefined(rows) || !isDefined(rows[0]) || !isDefined(rows[0][0]))
-    {
-        self sendLocalChatMessage("Run " + runID + " was not found for your playerID");
-        return;
-    }
-
     // First archive the user's current run, since it's typically a newly created run that will remain unused and clutter up the runs menu
+    oldRunID = undefined;
     if (self hasRunID())
     {
-        currentRunID = self getRunID();
-        archiveRun(self, currentRunID);
+        oldRunID = self getRunID();
     }
-
-    self unlink();
-
-    self openCJ\historySave::historyLoad(runID); // Sets runID and runInstanceNumber
-    if(self openCJ\savePosition::canLoadError(0) == 0)
+    if(self openCJ\historySave::historyLoad(runID)) // Sets runID and runInstanceNumber
     {
-        self thread openCJ\events\loadPosition::main(0);
+        self.playerRuns_runStarted = true;
+        self.playerRuns_runPaused = false;
+        self.playerRuns_runFinished = false;
+        self openCJ\noclip::disableNoclip();
+        error = self openCJ\savePosition::canLoadError(0);
+        if(isDefined(oldRunID))
+        {
+            self thread archiveRun(oldRunID);
+        }
+
+        if(error == 0)
+        {
+
+            self thread openCJ\events\loadPosition::main(0);
+        }
+        else
+        {
+            self openCJ\savePosition::printCanLoadError(error);
+            self openCJ\cheating::setCheating(true);
+        }
     }
     else
     {
+        //todo: prevent loading of runs without saves
+        self.playerRuns_runStarted = true;
+        self.playerRuns_runPaused = false;
+        self.playerRuns_runFinished = false;
         self iprintlnbold("Run has no save. Starting at spawn.");
-        self openCJ\checkpoints::setCurrentCheckpointID(level.checkpoints_startCheckpoint.id); // To update checkpoint pointers since player can't load
+        self openCJ\checkpoints::resetPlayerCheckpointsToStart();
+        self openCJ\events\spawnPlayer::main(false);
     }
 
-    self.playerRuns_runStarted = true;
-    self.playerRuns_runFinished = false;
     self openCJ\events\onRunRestored::main();
     self iprintln("^2Restored run (" + runID + ")"); // TAS users depend on this message, do not modify
     self sendLocalChatMessage("Restored run. Be careful: using !rp again will delete this run!");
@@ -304,6 +313,7 @@ _clearRunVars()
     // Clear run variables
     self.playerRuns_runStarted = false;
     self.playerRuns_runPaused = false;
+    self.playerRuns_runFinished = false;
     self.playerRuns_runID = undefined;
     self.runInstanceNumber = undefined;
 }
@@ -327,60 +337,60 @@ hasJumpSlowdown()
 
 printRunIDandInstanceNumber()
 {
-	self iprintln("runid: " + self.playerRuns_runID);
-	self iprintln("runinstance: " + self.runInstanceNumber);
+    self iprintln("runid: " + self.playerRuns_runID);
+    self iprintln("runinstance: " + self.runInstanceNumber);
 }
 
 isRunFinished()
 {
-	return (self hasRunID() && isDefined(self.playerRuns_runFinished) && self.playerRuns_runFinished);
+    return (self hasRunID() && isDefined(self.playerRuns_runFinished) && self.playerRuns_runFinished);
 }
 
 setRunIDAndInstanceNumber(runID, instanceNumber)
 {
-	self.playerRuns_runID = runID;
-	self.runInstanceNumber = instanceNumber;
+    self.playerRuns_runID = runID;
+    self.runInstanceNumber = instanceNumber;
 }
 
 _createRunID()
 {
-	if(!self openCJ\login::IsLoggedIn())
-	{
-		return;
-	}
+    if(!self openCJ\login::IsLoggedIn())
+    {
+        return;
+    }
 
-	self endon("disconnect");
+    self endon("disconnect");
 
     // Clear run variables
     _clearRunVars();
-	rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunID(" + self openCJ\login::getPlayerID() + ", " + openCJ\mapID::getMapID() + ")");
+    rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunID(" + self openCJ\login::getPlayerID() + ", " + openCJ\mapID::getMapID() + ")");
 
-	if(!rows.size || !isDefined(rows[0][0]))
-	{
-		self iprintlnbold("Could not create runID. Please reconnect");
-	}
-	else
-	{
-		self.playerRuns_runID = int(rows[0][0]);
+    if(!rows.size || !isDefined(rows[0][0]))
+    {
+        self iprintlnbold("Could not create runID. Please reconnect");
+    }
+    else
+    {
+        self.playerRuns_runID = int(rows[0][0]);
 
-		self iprintln("^5Created ^7new run (" + self.playerRuns_runID + ")");
+        self iprintln("^5Created ^7new run (" + self.playerRuns_runID + ")");
 
-		rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
-		if(rows.size && isDefined(rows[0][0]))
-		{
-			self.runInstanceNumber = int(rows[0][0]);
-			self openCJ\events\onRunCreated::main();
-		}
-		else
-		{
-			self iprintlnbold("Could not set run instance number. Please reconnect");
-		}
-	}
+        rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
+        if(rows.size && isDefined(rows[0][0]))
+        {
+            self.runInstanceNumber = int(rows[0][0]);
+            self openCJ\events\onRunCreated::main();
+        }
+        else
+        {
+            self iprintlnbold("Could not set run instance number. Please reconnect");
+        }
+    }
 }
 
 hasRunStarted()
 {
-	return (isDefined(self.playerRuns_runStarted) && self.playerRuns_runStarted);
+    return (isDefined(self.playerRuns_runStarted) && self.playerRuns_runStarted);
 }
 
 isRunPaused()

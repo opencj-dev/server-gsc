@@ -40,6 +40,7 @@ main(backwardsCount)
 	}
 
     // Spawn the player
+	self unlink();
 	self spawn(save.origin, save.angles);
 
 	self openCJ\statistics::setExplosiveJumps(save.explosiveJumps);

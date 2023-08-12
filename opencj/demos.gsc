@@ -33,7 +33,7 @@ _onCommandPlayback(args)
 	else
 	{
 		self iprintln("^1Stopped ^7playback");
-		self thread doNextFrame(::_stopDemo);
+		self thread doNextFrame(::stopDemo);
 	}
 }
 
@@ -105,6 +105,7 @@ startDemo(demoID)
 	self openCJ\events\onDemoStarted::main();
 	self.demoID = demoID;
 	self.playingDemo = true;
+	self openCJ\cheating::setCheating(true);
 	self unlink();
 	self linkto(self.demoLinker, "", (0, 0, 0), (0, 0, 0));
 	self selectPlaybackDemo(demoID);
@@ -386,10 +387,10 @@ _endOfDemo()
 		self skipPlaybackFrames(-1 * (numberOfDemoFrames(self.demoID) - 1));
 		return;
 	}
-	self _stopDemo();
+	self stopDemo();
 }
 
-_stopDemo()
+stopDemo()
 {
 	self.playingDemo = false;
 	self.demoID = undefined;

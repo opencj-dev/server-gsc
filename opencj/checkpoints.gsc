@@ -652,6 +652,11 @@ onRunCreated()
     self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
 }
 
+resetPlayerCheckpointsToStart()
+{
+    self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
+}
+
 onLoadPosition()
 {
 	self.previousOrigin = self.origin;

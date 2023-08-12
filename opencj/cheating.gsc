@@ -12,11 +12,6 @@ onRunCreated()
     self.cheating = false;
 }
 
-onRunRestored()
-{
-    self.cheating = false;
-}
-
 isCheating()
 {
 	return self.cheating;

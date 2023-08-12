@@ -5,11 +5,6 @@ onInit()
     openCJ\menus\board_base::initBoard("rn", "runsboard", "opencj_runsboard", ::fetchUpdatedData);
 }
 
-archiveRun(runId)
-{
-    // TODO
-}
-
 handleRestoreRun(str)
 {
     // str example: name1 (when clicking on the first run)

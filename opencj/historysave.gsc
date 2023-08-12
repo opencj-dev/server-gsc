@@ -15,10 +15,12 @@ historyLoad(runID)
         self savePosition_initClient();
 	    self openCJ\savePosition::resetBackwardsCount();
 		self _loadSavesFromDatabase(runID, instanceNumber);
+		return true;
 	}
 	else
 	{
 		self iprintlnbold("^1Failed loading history for run: " + runID);
+		return false;
 	}
 }
 
