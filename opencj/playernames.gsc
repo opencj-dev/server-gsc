@@ -3,7 +3,7 @@
 onInit()
 {
 	setClientNameMode("auto_change"); //allow renaming during round
-	openCJ\commands_base::registerCommand("frename", "Force a name on a player. Usage: !frename [player] [newname]", ::_onFRenameCommand, 1, undefined, 0);
+	openCJ\commands_base::registerCommand("frename", "Force a name on a player. Usage: !frename [player] [newname]", ::_onFRenameCommand, 1, undefined, 90);
 }
 
 _onFRenameCommand(args)

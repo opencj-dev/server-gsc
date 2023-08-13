@@ -42,9 +42,9 @@ storeCheckpointPassed(runID, cpID, timePlayed)
 	explosiveLaunches = self openCJ\statistics::getExplosiveLaunches(); // RPG launch / nade throw
     doubleExplosives = self openCJ\statistics::getDoubleExplosives(); // Double RPGs
     FPSMode = self openCJ\statistics::getFPSMode();
-    usedEle = self openCJ\statistics::getUsedEle();
     usedAnyPct = self openCJ\statistics::getUsedAnyPct();
-    usedTAS = self openCJ\statistics::getUsedTAS();
+    usedEle = self openCJ\elevate::hasEleOverrideEver();
+    usedTAS = self openCJ\tas::hasHardTAS();
 
     // This is a store procedure in SQL database
     filterStr = "'" + FPSMode + "'" + ", " + usedEle + ", " + usedAnyPct + ", " + usedTAS;

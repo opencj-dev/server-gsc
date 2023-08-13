@@ -60,8 +60,8 @@ onRunCreated()
     self.hardTAS = false;
 }
 
-onRunFinished(cp)
+onRunRestored()
 {
-    // Run is finished, so not in run... allow TAS
+    // Restored run, TAS will be set when loading a position with TAS enabled
     self.hardTAS = false;
 }

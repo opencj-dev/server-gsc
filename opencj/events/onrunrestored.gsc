@@ -8,6 +8,7 @@ main()
     self openCJ\showRecords::onRunRestored();
     self openCJ\speedMode::onRunRestored();
     self openCJ\noclip::onRunRestored();
+    self openCJ\tas::onRunRestored();
     self openCJ\fps::onRunRestored(); // Set hax/mix settings
     self openCJ\huds\hudRunInfo::onRunRestored();
     self openCJ\huds\hudProgressBar::onRunRestored();
