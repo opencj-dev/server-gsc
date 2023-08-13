@@ -295,6 +295,7 @@ _teleportToPlayer(args, teleToSave)
                 }
                 else
                 {
+                    self openCJ\cheating::setCheating(true);
                     self sendLocalChatMessage("Target player save not available, teleporting to position", true);
                     shouldTeleToPos = true;
                 }
