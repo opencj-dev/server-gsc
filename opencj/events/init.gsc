@@ -56,9 +56,9 @@ main()
 
 _everyFrame()
 {
-	while(true)
-	{
-		openCJ\events\onFrame::main();
-		wait 0.05;
-	}
+    while(true)
+    {
+        openCJ\events\onFrame::main();
+        wait 0.05;
+    }
 }

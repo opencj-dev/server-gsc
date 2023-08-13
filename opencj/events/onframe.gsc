@@ -2,5 +2,5 @@
 
 main()
 {
-	openCJ\playerCollision::onFrame();
+    openCJ\playerCollision::onFrame();
 }

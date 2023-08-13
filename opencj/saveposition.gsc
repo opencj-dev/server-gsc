@@ -28,12 +28,12 @@ onInit()
 
 getFlagEleOverrideNow(save)
 {
-	return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideNow]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideNow]) != 0;
 }
 
 getFlagEleOverrideEver(save)
 {
-	return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideEver]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideEver]) != 0;
 }
 
 getUsedAnyPctNow(save)
@@ -53,51 +53,51 @@ getUsedHardTAS(save)
 
 isCheating(save)
 {
-	return (save.flags & level.saveFlags[level.saveFlagName_cheating]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_cheating]) != 0;
 }
 
 hasSpeedModeNow(save)
 {
-	return (save.flags & level.saveFlags[level.saveFlagName_speedModeNow]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_speedModeNow]) != 0;
 }
 
 hasSpeedModeEver(save)
 {
-	return (save.flags & level.saveFlags[level.saveFlagName_speedModeEver]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_speedModeEver]) != 0;
 }
 
 hasRPG(save)
 {
-	return (save.flags & level.saveFlags[level.saveFlagName_hasRPG]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_hasRPG]) != 0;
 }
 
 createFlags()
 {
-	flags = 0;
-	if(self openCJ\cheating::isCheating())
-	{
-		flags |= level.saveFlags[level.saveFlagName_cheating];
-	}
-	if(self openCJ\speedMode::hasSpeedMode())
-	{
-		flags |= level.saveFlags[level.saveFlagName_speedModeNow];
-	}
-	if(self openCJ\speedMode::hasSpeedModeEver())
-	{
-		flags |= level.saveFlags[level.saveFlagName_speedModeEver];
-	}
-	if(openCJ\weapons::isRPG(self getCurrentWeapon()))
-	{
-		flags |= level.saveFlags[level.saveFlagName_hasRPG];
-	}
-	if(openCJ\elevate::hasEleOverrideNow())
-	{
-		flags |= level.saveFlags[level.saveFlagName_eleOverrideNow];
-	}
-	if(openCJ\elevate::hasEleOverrideEver())
-	{
-		flags |= level.saveFlags[level.saveFlagName_eleOverrideEver];
-	}
+    flags = 0;
+    if(self openCJ\cheating::isCheating())
+    {
+        flags |= level.saveFlags[level.saveFlagName_cheating];
+    }
+    if(self openCJ\speedMode::hasSpeedMode())
+    {
+        flags |= level.saveFlags[level.saveFlagName_speedModeNow];
+    }
+    if(self openCJ\speedMode::hasSpeedModeEver())
+    {
+        flags |= level.saveFlags[level.saveFlagName_speedModeEver];
+    }
+    if(openCJ\weapons::isRPG(self getCurrentWeapon()))
+    {
+        flags |= level.saveFlags[level.saveFlagName_hasRPG];
+    }
+    if(openCJ\elevate::hasEleOverrideNow())
+    {
+        flags |= level.saveFlags[level.saveFlagName_eleOverrideNow];
+    }
+    if(openCJ\elevate::hasEleOverrideEver())
+    {
+        flags |= level.saveFlags[level.saveFlagName_eleOverrideEver];
+    }
     if(openCJ\tas::hasHardTAS())
     {
         flags |= level.saveFlags[level.saveFlagName_hardTAS];
@@ -105,7 +105,7 @@ createFlags()
 
     // TODO: implement any %
 
-	return flags;
+    return flags;
 }
 
 onRunCreated()
@@ -116,56 +116,56 @@ onRunCreated()
 
 canSaveError()
 {
-	if(self.sessionState != "playing")
-	{
-		return 1;
-	}
+    if(self.sessionState != "playing")
+    {
+        return 1;
+    }
 
-	if(!self isOnGround())
-	{
-		return 2;
-	}
+    if(!self isOnGround())
+    {
+        return 2;
+    }
 
-	groundEntity = self getGroundEntity();
+    groundEntity = self getGroundEntity();
 
-	if(isDefined(groundEntity) && !isDefined(groundEntity.canSaveOn) && false)
-	{
-		return 3;
-	}
+    if(isDefined(groundEntity) && !isDefined(groundEntity.canSaveOn) && false)
+    {
+        return 3;
+    }
 
-	return 0;
+    return 0;
 }
 
 printCanSaveError(error)
 {
-	switch(error)
-	{
-		case 2:
-		{
-			self iprintln("^1Cannot save in air");
-			break;
-		}
-		case 3:
-		{
-			self iprintln("^1Cannot save on this object");
-			break;
-		}
-	}
+    switch(error)
+    {
+        case 2:
+        {
+            self iprintln("^1Cannot save in air");
+            break;
+        }
+        case 3:
+        {
+            self iprintln("^1Cannot save on this object");
+            break;
+        }
+    }
 }
 
 printSaveSuccess()
 {
-	self iprintln("^2Position saved");
+    self iprintln("^2Position saved");
 }
 
 printLoadSuccess()
 {
-	self iPrintln("^2Position loaded");
+    self iPrintln("^2Position loaded");
 }
 
 onSpawnPlayer()
 {
-	self resetBackwardsCount();
+    self resetBackwardsCount();
 }
 
 canLoadError(backwardsCount)
@@ -193,70 +193,70 @@ canLoadError(backwardsCount)
 
 printCanLoadError(error)
 {
-	switch(error)
-	{
-		case 1:
-		{
-			self iprintln("^1No save available");
-			break;
-		}
-		case 2:
-		{
-			self iprintln("^1Failed loading secondary position");
-			break;
-		}
-	}
+    switch(error)
+    {
+        case 1:
+        {
+            self iprintln("^1No save available");
+            break;
+        }
+        case 2:
+        {
+            self iprintln("^1Failed loading secondary position");
+            break;
+        }
+    }
 }
 
 _findNumOfEnt(ent)
 {
-	ents = getEntArray(ent.targetName, "targetname");
-	for(i = 0; i < ents.size; i++)
-	{
-		if(ents[i] == ent)
-		{
-			return i;
-		}
-	}
-	return undefined;
+    ents = getEntArray(ent.targetName, "targetname");
+    for(i = 0; i < ents.size; i++)
+    {
+        if(ents[i] == ent)
+        {
+            return i;
+        }
+    }
+    return undefined;
 }
 
 setSavedPosition()
 {
-	groundEntity = self getGroundEntity();
-	origin = self getOrigin();
-	angles = self getPlayerAngles();
-	if(isDefined(groundEntity) && isDefined(groundEntity.targetName))
-	{
-		diff = origin - groundEntity.origin;
-		x = vectorDot(anglesToForward(groundEntity.angles), diff);
-		y = vectorDot(anglesToRight(groundEntity.angles), diff);
-		z = vectorDot(anglesToUp(groundEntity.angles), diff);
-		origin = (x, y, z);
-		angles = angles - (0, groundEntity.angles[1], 0);
-		entNum = groundEntity getEntityNumber();
-		entTargetName = groundEntity.targetName;
-		numOfEnt = _findNumOfEnt(groundEntity);
-	}
-	else
-	{
-		entNum = undefined;
-		entTargetName = undefined;
-		numOfEnt = undefined;
-	}
-	flags = self createFlags();
-	FPSModeStr = self openCJ\fps::getCurrentFPSMode();
+    groundEntity = self getGroundEntity();
+    origin = self getOrigin();
+    angles = self getPlayerAngles();
+    if(isDefined(groundEntity) && isDefined(groundEntity.targetName))
+    {
+        diff = origin - groundEntity.origin;
+        x = vectorDot(anglesToForward(groundEntity.angles), diff);
+        y = vectorDot(anglesToRight(groundEntity.angles), diff);
+        z = vectorDot(anglesToUp(groundEntity.angles), diff);
+        origin = (x, y, z);
+        angles = angles - (0, groundEntity.angles[1], 0);
+        entNum = groundEntity getEntityNumber();
+        entTargetName = groundEntity.targetName;
+        numOfEnt = _findNumOfEnt(groundEntity);
+    }
+    else
+    {
+        entNum = undefined;
+        entTargetName = undefined;
+        numOfEnt = undefined;
+    }
+    flags = self createFlags();
+    FPSModeStr = self openCJ\fps::getCurrentFPSMode();
     FPSModeNum = self openCJ\fps::FPSModeToInt(FPSModeStr);
-	saveNum = self openCJ\statistics::increaseAndGetSaveCount();
+    saveNum = self openCJ\statistics::increaseAndGetSaveCount();
 
-	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeStr, flags);
-	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeNum, flags, saveNum);
-	return saveNum;
+    self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeStr, flags);
+    self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeNum, flags, saveNum);
+    return saveNum;
 }
 
 getSavedPosition(backwardsCount)
 {
-	error = self savePosition_selectSave(backwardsCount);
+    error = self savePosition_selectSave(backwardsCount);
     if (error == 0) // No error
     {
         save = spawnStruct();
@@ -288,68 +288,68 @@ getSavedPosition(backwardsCount)
 
 incrementBackwardsCount(amount)
 {
-	if(amount == 0)
-	{
-		return self resetBackwardsCount();
-	}
-	else
-	{
-		self.savePosition_backwardsCount += amount;
-	}
-	return self.savePosition_backwardsCount;
+    if(amount == 0)
+    {
+        return self resetBackwardsCount();
+    }
+    else
+    {
+        self.savePosition_backwardsCount += amount;
+    }
+    return self.savePosition_backwardsCount;
 }
 
 resetBackwardsCount()
 {
-	self.savePosition_backwardsCount = 0;
-	return 0;
+    self.savePosition_backwardsCount = 0;
+    return 0;
 }
 
 getBackwardsCount()
 {
-	return self.savePosition_backwardsCount;
+    return self.savePosition_backwardsCount;
 }
 
 onPlayerCommand(args)
 {
-	switch(args[0])
-	{
-		case "save":
-		{
-			self openCJ\events\eventHandler::onSavePositionRequest();
-			return true;
-		}
-		case "load":
-		{
-			self openCJ\events\eventHandler::onLoadPositionRequest(0);
-			return true;
-		}
-		case "loadsecondary":
-		{
-			self openCJ\events\eventHandler::onLoadPositionRequest(1);
-			return true;
-		}
-		case "mr":
-		{
-			if(isDefined(args[3]))
-			{
-				if(args[3] == "load")
-				{
-					self openCJ\events\eventHandler::onLoadPositionRequest(0);
-					return true;
-				}
-				else if(args[3] == "save")
-				{
-					self openCJ\events\eventHandler::onSavePositionRequest();
-					return true;
-				}
-				else if(args[3] == "loadsecondary")
-				{
-					self openCJ\events\eventHandler::onLoadPositionRequest(1);
-					return true;
-				}
-			}
-		}
-	}
-	return false;
+    switch(args[0])
+    {
+        case "save":
+        {
+            self openCJ\events\eventHandler::onSavePositionRequest();
+            return true;
+        }
+        case "load":
+        {
+            self openCJ\events\eventHandler::onLoadPositionRequest(0);
+            return true;
+        }
+        case "loadsecondary":
+        {
+            self openCJ\events\eventHandler::onLoadPositionRequest(1);
+            return true;
+        }
+        case "mr":
+        {
+            if(isDefined(args[3]))
+            {
+                if(args[3] == "load")
+                {
+                    self openCJ\events\eventHandler::onLoadPositionRequest(0);
+                    return true;
+                }
+                else if(args[3] == "save")
+                {
+                    self openCJ\events\eventHandler::onSavePositionRequest();
+                    return true;
+                }
+                else if(args[3] == "loadsecondary")
+                {
+                    self openCJ\events\eventHandler::onLoadPositionRequest(1);
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }

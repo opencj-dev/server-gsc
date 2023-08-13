@@ -1,150 +1,150 @@
 onPlayerConnect()
 {
-	self.isAFK = true;
+    self.isAFK = true;
 }
 
 whileAlive()
 {
-	if(self.AFKOrigin != self.origin)
-	{
-		self setAFK(false);
-	}
-	else if(self.AFKTimer < getTime())
-	{
-		self setAFK(true);
-	}
+    if(self.AFKOrigin != self.origin)
+    {
+        self setAFK(false);
+    }
+    else if(self.AFKTimer < getTime())
+    {
+        self setAFK(true);
+    }
 }
 
 onRunCreated()
 {
-	self.startTime = getTime();
-	self.stopTime = getTime();
+    self.startTime = getTime();
+    self.stopTime = getTime();
 
-	// Start AFK to prevent exploits with lag scripts
-	self setAFK(true);
+    // Start AFK to prevent exploits with lag scripts
+    self setAFK(true);
 }
 
 onRunFinished(cp)
 {
-	self pauseTimer();
+    self pauseTimer();
 }
 
 isAFK()
 {
-	return self.isAFK;
+    return self.isAFK;
 }
 
 setAFK(value)
 {
-	self.isAFK = value;
-	if(value)
-	{
-		self pauseTimer();
-	}
-	else
-	{
-		self.AFKTimer = getTime() + 5000;
-		self.AFKOrigin = self.origin;
-		if(self openCJ\playerRuns::hasRunStarted() && !self openCJ\playerRuns::isRunPaused())
-		{
-			self startTimer();
-		}
-	}
+    self.isAFK = value;
+    if(value)
+    {
+        self pauseTimer();
+    }
+    else
+    {
+        self.AFKTimer = getTime() + 5000;
+        self.AFKOrigin = self.origin;
+        if(self openCJ\playerRuns::hasRunStarted() && !self openCJ\playerRuns::isRunPaused())
+        {
+            self startTimer();
+        }
+    }
 }
 
 startTimer()
 {
-	if(self openCJ\playerRuns::isRunFinished())
+    if(self openCJ\playerRuns::isRunFinished())
     {
-		return;
+        return;
     }
 
-	if(isDefined(self.stopTime))
-	{
-		self.startTime += getTime() - self.stopTime;
-		self.stopTime = undefined;
-	}
+    if(isDefined(self.stopTime))
+    {
+        self.startTime += getTime() - self.stopTime;
+        self.stopTime = undefined;
+    }
 }
 
 pauseTimer()
 {
-	if(!isDefined(self.stopTime))
-	{
-		self.stopTime = getTime();
-	}
+    if(!isDefined(self.stopTime))
+    {
+        self.stopTime = getTime();
+    }
 }
 
 setTimePlayed(value) // Called when restoring a run
 {
-	if(isDefined(self.stopTime))
+    if(isDefined(self.stopTime))
     {
-		self.startTime = self.stopTime - value;
+        self.startTime = self.stopTime - value;
     }
-	else
+    else
     {
-		self.startTime = getTime() - value;
+        self.startTime = getTime() - value;
     }
 }
 
 getTimePlayed()
 {
-	if(isDefined(self.stopTime))
-	{
-		return (self.stopTime - self.startTime);
-	}
-	else
-	{
-		return (getTime() - self.startTime);
-	}
+    if(isDefined(self.stopTime))
+    {
+        return (self.stopTime - self.startTime);
+    }
+    else
+    {
+        return (getTime() - self.startTime);
+    }
 }
 
 getSecondsPlayed()
 {
-	timeMs = getTimePlayed();
-	return int(timeMs / 1000);
+    timeMs = getTimePlayed();
+    return int(timeMs / 1000);
 }
 
 getFrameNumber()
 {
-	return (self openCJ\playTime::getTimePlayed() / 50);
+    return (self openCJ\playTime::getTimePlayed() / 50);
 }
 
 _resetAddTimeUntil()
 {
-	self endon("disconnect");
-	self notify("resetAddTimeUntil");
-	self endon("resetAddTimeUntil");
-	waittillframeend;
-	self.addTimeUntil = undefined;
+    self endon("disconnect");
+    self notify("resetAddTimeUntil");
+    self endon("resetAddTimeUntil");
+    waittillframeend;
+    self.addTimeUntil = undefined;
 }
 
 addTimeUntil(newtime)
 {
-	if(self openCJ\playerRuns::isRunFinished())
-	{
-		return;
-	}
-	if(!isDefined(newtime))
-	{
-		return;
-	}
-	if(!self openCJ\playerRuns::hasRunStarted())
-	{
-		return;
-	}
+    if(self openCJ\playerRuns::isRunFinished())
+    {
+        return;
+    }
+    if(!isDefined(newtime))
+    {
+        return;
+    }
+    if(!self openCJ\playerRuns::hasRunStarted())
+    {
+        return;
+    }
 
-	// Some slightly complex logic here: we don't want time to be applied if we're still in the state that caused us to add time
-	// For example: new shellshock during shellshock should not add the same duration again, but rather only the extra time
-	if(!isDefined(self.addTimeUntil) && (newtime > getTime()))
-	{
-		self.startTime -= newtime - getTime();
-		self.addTimeUntil = newtime;
-	}
-	else if(isDefined(self.addTimeUntil) && (newtime > self.addTimeUntil))
-	{
-		self.startTime -= newtime - self.addTimeUntil;
-		self.addTimeUntil = newtime;
-	}
+    // Some slightly complex logic here: we don't want time to be applied if we're still in the state that caused us to add time
+    // For example: new shellshock during shellshock should not add the same duration again, but rather only the extra time
+    if(!isDefined(self.addTimeUntil) && (newtime > getTime()))
+    {
+        self.startTime -= newtime - getTime();
+        self.addTimeUntil = newtime;
+    }
+    else if(isDefined(self.addTimeUntil) && (newtime > self.addTimeUntil))
+    {
+        self.startTime -= newtime - self.addTimeUntil;
+        self.addTimeUntil = newtime;
+    }
 
-	self thread _resetAddTimeUntil();
+    self thread _resetAddTimeUntil();
 }

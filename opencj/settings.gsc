@@ -7,7 +7,7 @@ onInit()
 
 areSettingsLoaded()
 {
-	return self.settingsLoaded;
+    return self.settingsLoaded;
 }
 
 onPlayerConnect()
@@ -76,13 +76,13 @@ loadSettingsFromDatabase()
 
 onNewAccount()
 {
-	self.settingsLoaded = true;
-	self openCJ\events\playerLogin::main();
+    self.settingsLoaded = true;
+    self openCJ\events\playerLogin::main();
 }
 
 _clearSetting(name)
 {
-	self thread openCJ\mySQL::mysqlAsyncQueryNosave("DELETE FROM playerSettings WHERE playerID = " + self openCJ\login::getPlayerID() + " AND settingID = (SELECT settingID FROM settings WHERE setting = " + openCJ\mySQL::escapeString(name) + ")");
+    self thread openCJ\mySQL::mysqlAsyncQueryNosave("DELETE FROM playerSettings WHERE playerID = " + self openCJ\login::getPlayerID() + " AND settingID = (SELECT settingID FROM settings WHERE setting = " + openCJ\mySQL::escapeString(name) + ")");
 }
 
 setSetting(name, val)
@@ -115,59 +115,59 @@ getSetting(name)
 
 parseSettingValue(setting, value)
 {
-	if(!isDefined(value))
-	{
-		return undefined;
-	}
+    if(!isDefined(value))
+    {
+        return undefined;
+    }
 
-	switch(setting.type)
-	{
-		case "string":
-		{
-			if((value.size < setting.minLen) || (value.size > setting.maxLen))
-			{
-				return undefined;
-			}
-			return value;
-		}
-		case "int":
-		{
-			if(!isValidInt(value))
-			{
-				return undefined;
-			}
+    switch(setting.type)
+    {
+        case "string":
+        {
+            if((value.size < setting.minLen) || (value.size > setting.maxLen))
+            {
+                return undefined;
+            }
+            return value;
+        }
+        case "int":
+        {
+            if(!isValidInt(value))
+            {
+                return undefined;
+            }
 
-			value = int(value);
-			if((value < setting.minVal) || (value > setting.maxVal))
-			{
-				return undefined;
-			}
-			return value;
-		}
-		case "bool":
-		{
-			if(!isValidBool(value))
-			{
-				return undefined;
-			}
-			return strToBool(value);
-		}
-		case "float":
-		{
-			if(!isValidFloat(value))
-			{
-				return undefined;
-			}
+            value = int(value);
+            if((value < setting.minVal) || (value > setting.maxVal))
+            {
+                return undefined;
+            }
+            return value;
+        }
+        case "bool":
+        {
+            if(!isValidBool(value))
+            {
+                return undefined;
+            }
+            return strToBool(value);
+        }
+        case "float":
+        {
+            if(!isValidFloat(value))
+            {
+                return undefined;
+            }
 
-			value = float(value);
-			if((value < setting.minVal) || (value > setting.maxVal))
-			{
-				return undefined;
-			}
-			return value;
-		}
-	}
-	return undefined;
+            value = float(value);
+            if((value < setting.minVal) || (value > setting.maxVal))
+            {
+                return undefined;
+            }
+            return value;
+        }
+    }
+    return undefined;
 }
 
 onSetting(name, args, changedByScript)
@@ -380,15 +380,15 @@ _createSetting(name, defaultVal, help, updateFunc, typeStr)
     cmd = openCJ\commands_base::registerCommand(name, help, undefined, minArgs, maxArgs, minAdminLevel, name);
     if(!isDefined(cmd))
     {
-		level.settings[name] = undefined;
-	}
+        level.settings[name] = undefined;
+    }
     
     return cmd; // Return underlying command which contains the setting
 }
 
 writePlayerSettingToDb(setting, value)
 {
-	query = "CALL setPlayerSetting(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(setting) + "', '" + openCJ\mySQL::escapeString(value + "") + "')";
-	printf("setPlayerSetting query:\n" + query + "\n"); // Debug
-	self thread openCJ\mySQL::mysqlAsyncQueryNosave(query);
+    query = "CALL setPlayerSetting(" + self openCJ\login::getPlayerID() + ", '" + openCJ\mySQL::escapeString(setting) + "', '" + openCJ\mySQL::escapeString(value + "") + "')";
+    printf("setPlayerSetting query:\n" + query + "\n"); // Debug
+    self thread openCJ\mySQL::mysqlAsyncQueryNosave(query);
 }

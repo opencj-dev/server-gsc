@@ -223,10 +223,10 @@ userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
 
 setSafeFPS()
 {
-	// Attempt to force user's FPS to 125 (safe value)
-	self setClientCvar("com_maxfps", 125);
+    // Attempt to force user's FPS to 125 (safe value)
+    self setClientCvar("com_maxfps", 125);
     self clearFPSFilter(); // No sampling over this value
-	self onFPSChange(125);
+    self onFPSChange(125);
 }
 
 getCurrentFPS()

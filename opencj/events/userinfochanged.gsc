@@ -2,7 +2,7 @@
 
 main()
 {
-	self openCJ\playerNames::onUserInfoChanged();
-	self openCJ\events\fpsChange::onUserInfoChanged();
-	self clientUserInfoChanged();
+    self openCJ\playerNames::onUserInfoChanged();
+    self openCJ\events\fpsChange::onUserInfoChanged();
+    self clientUserInfoChanged();
 }
