@@ -21,7 +21,6 @@ main(cp, tOffset) //tOffset = -50 to 0, offset when cp was actually passed
     }
 	self thread openCJ\playerRuns::onRunFinished(cp);
 	self openCJ\checkpointPointers::onRunFinished(cp);
-    self openCJ\tas::onRunFinished();
 	self openCJ\showRecords::onRunFinished(cp);
 	self openCJ\huds\hudProgressBar::onRunFinished(cp);
 	self openCJ\elevate::onRunFinished(cp);

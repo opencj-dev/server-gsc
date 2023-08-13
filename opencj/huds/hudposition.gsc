@@ -12,6 +12,7 @@ onPlayerConnect()
         self _initPosHud("x", rgb, startX);
         self _initPosHud("y", rgb, startX + spaceBetween);
         self _initPosHud("z", rgb, startX + (2 * spaceBetween));
+        self _initPosHud("angle", rgb, startX + (3 * spaceBetween));
     }
 }
 
@@ -52,8 +53,7 @@ _updatePosHudValues()
     {
         // Remove the actual coordinates, for elevating just need the decimals
         // If we don't do this, then the decimals don't always show up when calling setValue
-        // ..and round to max. 4 decimals
-        org = fixDecimals(org, 4, false);
+        org = fixDecimals(org, 7, false);
     }
     else
     {
@@ -62,6 +62,7 @@ _updatePosHudValues()
     self.hudPos["x"] setValue(org[0]);
     self.hudPos["y"] setValue(org[1]);
     self.hudPos["z"] setValue(org[2]);
+    self.hudPos["angle"] setValue(self getPlayerAngles()[1]);
 }
 
 _setPosHudAlpha(val)
@@ -69,6 +70,7 @@ _setPosHudAlpha(val)
     self.hudPos["x"].alpha = val;
     self.hudPos["y"].alpha = val;
     self.hudPos["z"].alpha = val;
+    self.hudPos["angle"].alpha = val;
 }
 
 _initPosHud(name, colors, yOffset)
