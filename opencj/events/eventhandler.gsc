@@ -122,7 +122,13 @@ whileAlive()
 		if(isDefined(self.eventQueue["load"]))
 		{
 			error = self openCJ\savePosition::canLoadError(self openCJ\savePosition::getBackwardsCount());
-			if(error != 0)
+            if(error == 1) // No saves
+            {
+                // Reset current run
+                // TODO: nice feature, but needs some work for no-save attempts
+                self thread openCJ\playerRuns::stopRun(true);
+            }
+			else if(error != 0)
 			{
 				self openCJ\savePosition::printCanLoadError(error);
 				eventsCreateQuery += "NULL";

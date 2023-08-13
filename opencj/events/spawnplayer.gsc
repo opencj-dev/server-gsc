@@ -7,6 +7,8 @@ main(atLastSavedPosition)
         return;
     }
 
+    self openCJ\noclip::disableNoclip();
+
     self notify("spawned");
 
     resetTimeout();
@@ -70,7 +72,6 @@ setSharedSpawnVars(giveRPG)
         self setPerk("specialty_longersprint");
     }
     self jumpClearStateExtended();
-    self openCJ\noclip::disableNoclip();
     self openCJ\speedMode::applySpeedMode();
     self openCJ\elevate::updateServerEleOverride();
     self openCJ\huds\hudFpsHistory::hideAndClearFPSHistory();

@@ -179,10 +179,6 @@ canLoadError(backwardsCount)
     {
         error = 998;
     }
-    else if(self openCJ\noclip::hasNoclip())
-    {
-        error = 4;
-    }
     else if (isDefined(backwardsCount)) // Sometimes we don't want to select any save
     {
         error = self savePosition_selectSave(backwardsCount);
@@ -201,17 +197,12 @@ printCanLoadError(error)
 	{
 		case 1:
 		{
-			self iprintln("^1Failed loading position");
+			self iprintln("^1No save available");
 			break;
 		}
 		case 2:
 		{
 			self iprintln("^1Failed loading secondary position");
-			break;
-		}
-		case 4:
-		{
-			self iprintln("^1Cannot load during noclip");
 			break;
 		}
 	}

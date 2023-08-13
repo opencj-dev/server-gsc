@@ -274,7 +274,6 @@ restoreRun(runID) // Call this function as a thread
         self.playerRuns_runStarted = true;
         self.playerRuns_runPaused = false;
         self.playerRuns_runFinished = false;
-        self openCJ\noclip::disableNoclip();
         error = self openCJ\savePosition::canLoadError(0);
         if(isDefined(oldRunID))
         {

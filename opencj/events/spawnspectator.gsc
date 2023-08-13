@@ -7,6 +7,7 @@ main()
         return;
     }
 
+    self openCJ\noclip::disableNoclip();
     self unlink(); // Before run is started, player is linked to stay in place. Remove this link when going to spectator.
 
     self notify("spawned_spectator");
@@ -28,7 +29,6 @@ main()
     self openCJ\playerRuns::onSpawnSpectator();
     self openCJ\showRecords::onSpawnSpectator();
     self openCJ\checkpointPointers::onSpawnSpectator();
-    self openCJ\noclip::disableNoclip();
     self openCJ\huds\hudProgressBar::onSpawnSpectator();
     self openCJ\huds\hudOnScreenKeyboard::onSpawnSpectator();
     self openCJ\huds\hudJumpSlowdown::onSpawnSpectator();
