@@ -59,7 +59,12 @@ _loadSavesFromDatabase(runID, instanceNumber)
 	for(i = rowsSaves.size - 1; i >= 0; i--)
 	{
         numOfThisSave = int(rowsRun[0][1]) - i;
-        org = (int(rowsSaves[i][0]), int(rowsSaves[i][1]), int(rowsSaves[i][2]));
+
+        x = strToPreciseFloat(rowsSaves[i][0]);
+        y = strToPreciseFloat(rowsSaves[i][1]);
+        z = strToPreciseFloat(rowsSaves[i][2]) + 0.01; // Better be safe than sorry, never put them in the ground
+        org = (x, y, z);
+
         angles = (int(rowsSaves[i][3]), int(rowsSaves[i][4]), int(rowsSaves[i][5]));
         explosiveJumps = int(rowsSaves[i][6]);
         doubleExplosives = int(rowsSaves[i][7]);
@@ -141,9 +146,10 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, explosiveJumps, doubleEx
 	{
 		checkpointID = "NULL";
 	}
-	x = int(origin[0]);
-	y = int(origin[1]);
-	z = int(origin[2]) + 1;
+	x = preciseFloatToStr(origin[0]);
+	y = preciseFloatToStr(origin[1]);
+	z = preciseFloatToStr(origin[2]);
+
 	alpha = int(angles[0]);
 	beta = int(angles[1]);
 	gamma = int(angles[2]);

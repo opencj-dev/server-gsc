@@ -1,3 +1,5 @@
+#include openCJ\util;
+
 onPlayerConnect()
 {
     if (!isDefined(self.hudPos))
@@ -43,30 +45,15 @@ _updatePos()
     }
 }
 
-_fixDecimals(org)
-{
-    fixedOrg = [];
-    scale = 10000;
-    for(i = 0; i < 3; i++)
-    {
-        // Remove the actual coordinates, for elevating just need the decimals
-        // If we don't do this, then the decimals don't always show up when calling setValue
-        fixedOrg[i] = abs(org[i] - int(org[i]));
-
-        // Round to 4 decimals
-        tmp = int(fixedOrg[i] * scale);
-        fixedOrg[i] = float(tmp) / scale;
-    }
-
-    return fixedOrg;
-}
-
 _updatePosHudValues()
 {
     org = self getOrigin();
     if (getCodVersion() == 4) // For CoD4 elevators we want a more accurate position
     {
-        org = _fixDecimals(org);
+        // Remove the actual coordinates, for elevating just need the decimals
+        // If we don't do this, then the decimals don't always show up when calling setValue
+        // ..and round to max. 4 decimals
+        org = fixDecimals(org, 4, false);
     }
     else
     {

@@ -441,3 +441,65 @@ dbStr(str)
 {
     return "'" + str + "'";
 }
+
+removeIntegerPart(vec3) // Remove part before the dot
+{
+    modified3 = [];
+    for(i = 0; i < 3; i++)
+    {
+        modified3[i] = abs(vec3[i] - int(vec3[i]));
+    }
+
+    return (modified3[0], modified3[1], modified3[2]);
+}
+
+fixDecimals(org, maxNrDecimals, withIntegerPart) // Float position to float with limited decimals
+{
+    fixedOrg = [];
+    orgOnlyDecimals = removeIntegerPart(org); // Prevent overflows when multiplying
+    scale = pow(10, maxNrDecimals);
+    for(i = 0; i < 3; i++)
+    {
+        fixedOrg[i] = orgOnlyDecimals[i];
+        // Round to n decimals
+        tmp = int(fixedOrg[i] * scale);
+        fixedOrg[i] = float(tmp) / scale;
+
+        if (withIntegerPart)
+        {
+            fixedOrg[i] += int(org[i]);
+        }
+    }
+
+    return (fixedOrg[0], fixedOrg[1], fixedOrg[2]);
+}
+
+preciseFloatToStr(val)
+{
+    // This function is needed because when converting floats to str and back, CoD will perform excessive rounding
+    // More precision than that is needed to restore a player's position without putting them in the wall
+    rounded = int(val);
+    return rounded + getSubStr(abs(val - rounded), 1); // 1 -> skip the 0 before the dot
+}
+
+strToPreciseFloat(str)
+{
+    // This function is needed because when converting floats to str and back, CoD will perform excessive rounding
+    // More precision than that is needed to restore a player's position without putting them in the wall
+    if (isSubStr(str, "."))
+    {
+        twoParts = strTok(str, ".");
+        intPart = float(twoParts[0]);
+        floatPart = float("0." + twoParts[1]);
+
+        if (intPart < 0)
+        {
+            return float(float(intPart) - float(floatPart));
+        }
+        else
+        {
+            return float(float(intPart) + float(floatPart));
+        }
+    }
+    return float(str); // No decimals?
+}

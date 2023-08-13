@@ -233,22 +233,22 @@ _findNumOfEnt(ent)
 setSavedPosition()
 {
 	groundEntity = self getGroundEntity();
+	origin = self getOrigin();
+	angles = self getPlayerAngles();
 	if(isDefined(groundEntity) && isDefined(groundEntity.targetName))
 	{
-		diff = self.origin - groundEntity.origin;
+		diff = origin - groundEntity.origin;
 		x = vectorDot(anglesToForward(groundEntity.angles), diff);
 		y = vectorDot(anglesToRight(groundEntity.angles), diff);
 		z = vectorDot(anglesToUp(groundEntity.angles), diff);
 		origin = (x, y, z);
-		angles = self getPlayerAngles() - (0, groundEntity.angles[1], 0);
+		angles = angles - (0, groundEntity.angles[1], 0);
 		entNum = groundEntity getEntityNumber();
 		entTargetName = groundEntity.targetName;
 		numOfEnt = _findNumOfEnt(groundEntity);
 	}
 	else
 	{
-		origin = self.origin;
-		angles = self getPlayerAngles();
 		entNum = undefined;
 		entTargetName = undefined;
 		numOfEnt = undefined;
@@ -257,6 +257,7 @@ setSavedPosition()
 	FPSModeStr = self openCJ\fps::getCurrentFPSMode();
     FPSModeNum = self openCJ\fps::FPSModeToInt(FPSModeStr);
 	saveNum = self openCJ\statistics::increaseAndGetSaveCount();
+
 	self thread openCJ\historySave::saveToDatabase(origin, angles, entTargetName, numOfEnt, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeStr, flags);
 	self savePosition_save(origin, angles, entNum, self openCJ\statistics::getExplosiveJumps(), self openCJ\statistics::getDoubleExplosives(), self openCJ\checkpoints::getCurrentCheckpointID(), FPSModeNum, flags, saveNum);
 	return saveNum;
