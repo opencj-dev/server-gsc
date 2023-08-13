@@ -254,7 +254,8 @@ onRPGFired(rpg, name)
             (self.statistics[level.statisticsStrings_lastExplosiveFiredTime] >= self.statistics[level.statisticsStrings_lastJumpTime]))
         {
             self.statistics[level.statisticsStrings_doubleExplosives]++;
-            self iprintln("^1Double rpg detected");
+            self iprintlnbold("^1Double rpg detected");
+            self openCJ\cheating::setCheating(true);
         }
 
         // We aren't on ground, so this counts as an RPG jump
