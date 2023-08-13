@@ -11,18 +11,18 @@ isHUDEnabled(name)
 
 enableHUD(name)
 {
-	if(isDefined(self.hud[name]))
-	{
-		self.hud[name].alpha = 1;
-	}
+    if(isDefined(self.hud[name]))
+    {
+        self.hud[name].alpha = 1;
+    }
 }
 
 disableHUD(name)
 {
-	if(isDefined(self.hud[name]))
-	{
-		self.hud[name].alpha = 0;
-	}
+    if(isDefined(self.hud[name]))
+    {
+        self.hud[name].alpha = 0;
+    }
 }
 
 // Valid options
@@ -33,23 +33,23 @@ disableHUD(name)
 
 initInfiniteHUD(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha)
 {
-	if(isDefined(self.hud[name]))
-	{
-		return;
-	}
-	self.hud[name] = self openCJ\huds\infiniteHuds::createInfiniteStringHud(name);
-	self _initHUDBase(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha);
+    if(isDefined(self.hud[name]))
+    {
+        return;
+    }
+    self.hud[name] = self openCJ\huds\infiniteHuds::createInfiniteStringHud(name);
+    self _initHUDBase(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha);
 }
 
 initRegularHUD(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha)
 {
-	if(isDefined(self.hud[name]))
-	{
-		return;
-	}
+    if(isDefined(self.hud[name]))
+    {
+        return;
+    }
 
     self.hud[name] = newClientHudElem(self);
-	self _initHUDBase(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha);
+    self _initHUDBase(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha);
 }
 
 _initHUDBase(name, x, y, alignX, alignY, hAlign, vAlign, foreground, font, hideInMenu, color, glowColor, glowAlpha, fontScale, archived, alpha)

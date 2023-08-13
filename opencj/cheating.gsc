@@ -14,7 +14,7 @@ onRunCreated()
 
 isCheating()
 {
-	return self.cheating;
+    return self.cheating;
 }
 
 setCheating(isCheating)

@@ -2,8 +2,8 @@
 
 onInit()
 {
-	level.showRecordsHighlightShader = "white";
-	precacheShader(level.showRecordsHighlightShader);
+    level.showRecordsHighlightShader = "white";
+    precacheShader(level.showRecordsHighlightShader);
 }
 
 onPlayerConnect()
@@ -28,14 +28,14 @@ onPlayerConnect()
 
 onCheckpointsChanged()
 {
-	self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), false);
+    self thread _getRecords(self openCJ\checkpoints::getCurrentChildCheckpoints(), false);
 }
 
 onCheckpointPassed(cp, timems)
 {
-	cps = [];
-	cps[0] = cp;
-	self thread _getRecords(cps, 1, timems);
+    cps = [];
+    cps[0] = cp;
+    self thread _getRecords(cps, 1, timems);
 }
 
 onStartDemo()
@@ -59,7 +59,7 @@ onRunStarted()
 
 onRunCreated()
 {
-	specs = self getSpectatorList(true); // true -> include self as spectator
+    specs = self getSpectatorList(true); // true -> include self as spectator
     for(i = 0; i < specs.size; i++)
     {
         specs[i] _hideRecords(true);
@@ -77,61 +77,61 @@ onRunStopped()
 
 onSpawnSpectator()
 {
-	self _hideRecords(true);
+    self _hideRecords(true);
 }
 
 onSpawnPlayer()
 {
-	specs = self getSpectatorList(true);
-	for(i = 0; i < specs.size; i++)
-	{
-		if(self openCJ\playerRuns::isRunFinished())
-		{
-			timems = self openCJ\playTime::getTimePlayed();
-			specs[i] _updateRecords(self, self.showRecords_rows, timems, false);
-		}
-		else
-		{
-			specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
-		}
-	}
+    specs = self getSpectatorList(true);
+    for(i = 0; i < specs.size; i++)
+    {
+        if(self openCJ\playerRuns::isRunFinished())
+        {
+            timems = self openCJ\playTime::getTimePlayed();
+            specs[i] _updateRecords(self, self.showRecords_rows, timems, false);
+        }
+        else
+        {
+            specs[i] _updateRecords(self, self.showRecords_rows, undefined, false);
+        }
+    }
 }
 
 onRunFinished(cp)
 {
-	cps = [];
-	cps[0] = cp;
-	timems = self openCJ\playTime::getTimePlayed();
-	self thread _getRecords(cps, 2, timems);
+    cps = [];
+    cps[0] = cp;
+    timems = self openCJ\playTime::getTimePlayed();
+    self thread _getRecords(cps, 2, timems);
 }
 
 onSpectatorClientChanged(newClient)
 {
-	if(!isDefined(newClient))
-	{
-		self _hideRecords(true);
-	}
-	else
-	{
-		if(newClient openCJ\demos::isPlayingDemo())
-		{
-			self _hideRecords(true);
-		}
-		else if(newClient openCJ\playerRuns::isRunFinished())
-		{
-			timems = newClient openCJ\playTime::getTimePlayed();
-			self _updateRecords(newClient, newClient.showRecords_rows, timems, true);
-		}
-		else if (newClient openCJ\playerRuns::hasRunID())
-		{
-			self _updateRecords(newClient, newClient.showRecords_rows, undefined, true);
-		}
-	}
+    if(!isDefined(newClient))
+    {
+        self _hideRecords(true);
+    }
+    else
+    {
+        if(newClient openCJ\demos::isPlayingDemo())
+        {
+            self _hideRecords(true);
+        }
+        else if(newClient openCJ\playerRuns::isRunFinished())
+        {
+            timems = newClient openCJ\playTime::getTimePlayed();
+            self _updateRecords(newClient, newClient.showRecords_rows, timems, true);
+        }
+        else if (newClient openCJ\playerRuns::hasRunID())
+        {
+            self _updateRecords(newClient, newClient.showRecords_rows, undefined, true);
+        }
+    }
 }
 
 onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration)
 {
-	self _hideRecords(false);
+    self _hideRecords(false);
 }
 
 _runChanged()
@@ -143,44 +143,44 @@ _runChanged()
 
 _hideRecords(force)
 {
-	if(force || self.showRecords_nameString != "")
-	{
-		self setClientCvar("openCJ_records_names", "");
-	}
-	if(force || self.showRecords_timeString != "")
-	{
-		self setClientCvar("openCJ_records_times", "");
-	}
-	self.showRecords_nameString = "";
-	self.showRecords_timeString = "";
-	self.showRecordsHighlight.alpha = 0;
+    if(force || self.showRecords_nameString != "")
+    {
+        self setClientCvar("openCJ_records_names", "");
+    }
+    if(force || self.showRecords_timeString != "")
+    {
+        self setClientCvar("openCJ_records_times", "");
+    }
+    self.showRecords_nameString = "";
+    self.showRecords_timeString = "";
+    self.showRecordsHighlight.alpha = 0;
 }
 
 _getRecords(checkpoints, persist, timems)
 {
     self endon("disconnect");
-	if (!self openCJ\playerRuns::hasRunID())
+    if (!self openCJ\playerRuns::hasRunID())
     {
         return;
     }
 
-	if(persist != 1)
-	{
-		self notify("writeRecordsRunning");
-		self endon("writeRecordsRunning");
-	}
+    if(persist != 1)
+    {
+        self notify("writeRecordsRunning");
+        self endon("writeRecordsRunning");
+    }
 
-	checkpointString = "(NULL";
-	checkpoints = openCJ\checkpoints::filterOutBrothers(checkpoints);
-	for(i = 0; i < checkpoints.size; i++)
-	{
+    checkpointString = "(NULL";
+    checkpoints = openCJ\checkpoints::filterOutBrothers(checkpoints);
+    for(i = 0; i < checkpoints.size; i++)
+    {
         cpID = openCJ\checkpoints::getCheckpointID(checkpoints[i]);
         if (isDefined(cpID))
         {
             checkpointString += ", " + cpID;
         }
-	}
-	checkpointString += ")";
+    }
+    checkpointString += ")";
 
     // TODO after alpha: make configurable so that it's not always based on time but based on player's current run type (defaults to time, but can be low RPG, ...)
 
@@ -194,7 +194,7 @@ _getRecords(checkpoints, persist, timems)
 
     // TODO: Declaring user variables in expressions like this is deprecated. Should be replaced with updated query, like the one leaderboard is using.
 
-	query = "SELECT c.playerName, b.timePlayed FROM (" +
+    query = "SELECT c.playerName, b.timePlayed FROM (" +
                 "SELECT timePlayed, runID, playerID FROM (SELECT  @prev := '') init JOIN (" + 
                     "SELECT playerID != @prev AS first, @prev := playerID, timePlayed, runID, playerID FROM (" + 
                         "SELECT cs.timePlayed, pr.runID, pr.playerID " +
@@ -210,36 +210,36 @@ _getRecords(checkpoints, persist, timems)
     
     printf("getRecords query:\n" + query + "\n"); // Debug
 
-	rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+    rows = self openCJ\mySQL::mysqlAsyncQuery(query);
 
-	if(!self openCJ\playerRuns::isRunFinished())
-	{
-		if(persist == 0)
-		{
-			self.showRecords_rows = rows;
-		}
-		else if(persist == 1)
-		{
-			self.showRecords_persistTime = getTime() + 2000;
-		}
-		else
-		{
-			return;
-		}
-	}
-	else if(persist == 2)
-		self.showRecords_rows = rows;
-	else
-		return;
+    if(!self openCJ\playerRuns::isRunFinished())
+    {
+        if(persist == 0)
+        {
+            self.showRecords_rows = rows;
+        }
+        else if(persist == 1)
+        {
+            self.showRecords_persistTime = getTime() + 2000;
+        }
+        else
+        {
+            return;
+        }
+    }
+    else if(persist == 2)
+        self.showRecords_rows = rows;
+    else
+        return;
 
-	if(persist)
-	{
-		specs = self getSpectatorList(true);
-		for(i = 0; i < specs.size; i++)
-		{
-			specs[i] _updateRecords(self, rows, timems, false);
-		}
-	}
+    if(persist)
+    {
+        specs = self getSpectatorList(true);
+        for(i = 0; i < specs.size; i++)
+        {
+            specs[i] _updateRecords(self, rows, timems, false);
+        }
+    }
 }
 
 _updateRecords(client, rows, overrideTime, force)
@@ -253,79 +253,79 @@ _updateRecords(client, rows, overrideTime, force)
         return;
     }
 
-	nameString = "";
-	timeString = "";
+    nameString = "";
+    timeString = "";
 
-	if(!isDefined(overrideTime))
-	{
-		timePlayed = client openCJ\playTime::getTimePlayed();
-	}
-	else
-	{
-		timePlayed = overrideTime;
-	}
+    if(!isDefined(overrideTime))
+    {
+        timePlayed = client openCJ\playTime::getTimePlayed();
+    }
+    else
+    {
+        timePlayed = overrideTime;
+    }
 
-	i = 0;
-	if(isDefined(rows))
-	{
-		for(; i < rows.size; i++)
-		{
-			if(int(rows[i][1]) > timePlayed)
-			{
-				for(j = rows.size; j > i; j--)
-				{
-					rows[j] = rows[j - 1];
-				}
-				break;
-			}
-		}
-	}
-	else
-	{
-		rows = [];
-		rows[0] = [];
-	}
+    i = 0;
+    if(isDefined(rows))
+    {
+        for(; i < rows.size; i++)
+        {
+            if(int(rows[i][1]) > timePlayed)
+            {
+                for(j = rows.size; j > i; j--)
+                {
+                    rows[j] = rows[j - 1];
+                }
+                break;
+            }
+        }
+    }
+    else
+    {
+        rows = [];
+        rows[0] = [];
+    }
 
-	ownNum = i;
-	rows[i][0] = client.name;
-	rows[i][1] = timePlayed;
-	self.showRecordsHighlight.y = 50 + 12 * ownNum;
-	self.showRecordsHighlight.alpha = 0.75;
+    ownNum = i;
+    rows[i][0] = client.name;
+    rows[i][1] = timePlayed;
+    self.showRecordsHighlight.y = 50 + 12 * ownNum;
+    self.showRecordsHighlight.alpha = 0.75;
 
-	if(rows.size > 10 && ownNum < 10)
-	{
-		rows[10] = undefined;
-	}
-	for(i = 0; i < rows.size; i++)
-	{
-		if(i == ownNum && i == 10)
-		{
-			nameString += "??. ";
-		}
-		else
-		{
-			nameString += (i + 1) + ". ";
-		}
-		nameString += rows[i][0] + "\n";
-		if(ownNum == i && !isDefined(overrideTime))
-		{
-			timeString += formatTimeString(int(rows[i][1]), true) + "\n";
-		}
-		else
-		{
-			timeString += formatTimeString(int(rows[i][1]), false) + "\n";
-		}
-	}
-	if(self.showRecords_nameString != nameString)
-	{
-		self setClientCvar("openCJ_records_names", nameString);
-		self.showRecords_nameString = nameString;
-	}
-	if(self.showRecords_timeString != timeString)
-	{
-		self setClientCvar("openCJ_records_times", timeString);
-		self.showRecords_timeString = timeString;
-	}
+    if(rows.size > 10 && ownNum < 10)
+    {
+        rows[10] = undefined;
+    }
+    for(i = 0; i < rows.size; i++)
+    {
+        if(i == ownNum && i == 10)
+        {
+            nameString += "??. ";
+        }
+        else
+        {
+            nameString += (i + 1) + ". ";
+        }
+        nameString += rows[i][0] + "\n";
+        if(ownNum == i && !isDefined(overrideTime))
+        {
+            timeString += formatTimeString(int(rows[i][1]), true) + "\n";
+        }
+        else
+        {
+            timeString += formatTimeString(int(rows[i][1]), false) + "\n";
+        }
+    }
+    if(self.showRecords_nameString != nameString)
+    {
+        self setClientCvar("openCJ_records_names", nameString);
+        self.showRecords_nameString = nameString;
+    }
+    if(self.showRecords_timeString != timeString)
+    {
+        self setClientCvar("openCJ_records_times", timeString);
+        self.showRecords_timeString = timeString;
+    }
 }
 
 whileAlive()

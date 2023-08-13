@@ -2,8 +2,8 @@
 
 main(isAllowedToEle)
 {
-	if (!isAllowedToEle)
-	{
-		self openCJ\elevate::onElevate();
-	}
+    if (!isAllowedToEle)
+    {
+        self openCJ\elevate::onElevate();
+    }
 }

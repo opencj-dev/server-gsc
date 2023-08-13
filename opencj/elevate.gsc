@@ -2,47 +2,47 @@
 
 onInit()
 {
-	cmd = openCJ\commands_base::registerCommand("ele", "Used to (dis)allow elevators in current run. Usage: !ele [on/off]", ::_onCommandEleOverride, 0, 1, 0);
-	openCJ\commands_base::addAlias(cmd, "eleoverride");
-	openCJ\commands_base::addAlias(cmd, "elevateoverride");
+    cmd = openCJ\commands_base::registerCommand("ele", "Used to (dis)allow elevators in current run. Usage: !ele [on/off]", ::_onCommandEleOverride, 0, 1, 0);
+    openCJ\commands_base::addAlias(cmd, "eleoverride");
+    openCJ\commands_base::addAlias(cmd, "elevateoverride");
 }
 
 _onCommandEleOverride(args)
 {
-	wasEverEnabled = self hasEleOverrideEver();
-	wasEnabled = self hasEleOverrideNow();
-	shouldEnable = false;
-	if(!isDefined(args) || (args.size == 0))
-	{
-		shouldEnable = !wasEnabled;
-	}
-	else
-	{
-		if(!isValidBool(args[0]))
-		{
-			self sendLocalChatMessage("Argument " + args[0] + " is not a bool", true);
-			return;
-		}
-		shouldEnable = strToBool(args[0]);
-	}
+    wasEverEnabled = self hasEleOverrideEver();
+    wasEnabled = self hasEleOverrideNow();
+    shouldEnable = false;
+    if(!isDefined(args) || (args.size == 0))
+    {
+        shouldEnable = !wasEnabled;
+    }
+    else
+    {
+        if(!isValidBool(args[0]))
+        {
+            self sendLocalChatMessage("Argument " + args[0] + " is not a bool", true);
+            return;
+        }
+        shouldEnable = strToBool(args[0]);
+    }
 
-	if(shouldEnable && !wasEnabled)
-	{
-		self setEleOverrideNow(true);
-		self updateServerEleOverride();
-		self sendLocalChatMessage("Your run now allows elevators. If you don't want this, load back to before you enabled elevators.");
-	}
-	else if(!shouldEnable && wasEnabled)
-	{
-		self setEleOverrideNow(false);
-		self updateServerEleOverride();
-		self sendLocalChatMessage("Elevators have been turned off.");
-		if (wasEverEnabled)
-		{
-			self sendLocalChatMessage("However, your run is still marked as elevators allowed due to one of your previous saves.");
-			self sendLocalChatMessage("If you don't want this, use !eleload to load back to before elevators were allowed, or !reset to start a new run.");
-		}
-	}
+    if(shouldEnable && !wasEnabled)
+    {
+        self setEleOverrideNow(true);
+        self updateServerEleOverride();
+        self sendLocalChatMessage("Your run now allows elevators. If you don't want this, load back to before you enabled elevators.");
+    }
+    else if(!shouldEnable && wasEnabled)
+    {
+        self setEleOverrideNow(false);
+        self updateServerEleOverride();
+        self sendLocalChatMessage("Elevators have been turned off.");
+        if (wasEverEnabled)
+        {
+            self sendLocalChatMessage("However, your run is still marked as elevators allowed due to one of your previous saves.");
+            self sendLocalChatMessage("If you don't want this, use !eleload to load back to before elevators were allowed, or !reset to start a new run.");
+        }
+    }
 }
 
 onRunCreated()
@@ -55,69 +55,69 @@ onRunCreated()
 
 onRunFinished(cp)
 {
-	// Run is finished, so not in run... allow elevators
-	self updateServerEleOverride();
+    // Run is finished, so not in run... allow elevators
+    self updateServerEleOverride();
 }
 
 onCheckpointsChanged()
 {
-	// Checkpoint changed, maybe the next one allows an elevator to be used
-	self updateServerEleOverride();
+    // Checkpoint changed, maybe the next one allows an elevator to be used
+    self updateServerEleOverride();
 }
 
 setEleOverrideEver(value)
 {
-	self.eleOverrideEver = value;
+    self.eleOverrideEver = value;
 }
 
 setEleOverrideNow(value)
 {
-	// If value is already the same, we're done here
-	if(isDefined(self.eleOverrideNow) && (value == self.eleOverrideNow))
-	{
-		return;
-	}
+    // If value is already the same, we're done here
+    if(isDefined(self.eleOverrideNow) && (value == self.eleOverrideNow))
+    {
+        return;
+    }
 
-	self.eleOverrideNow = value;
+    self.eleOverrideNow = value;
 
-	if(self.eleOverrideNow)
-	{
-		self.eleOverrideEver = true;
-	}
+    if(self.eleOverrideNow)
+    {
+        self.eleOverrideEver = true;
+    }
 }
 
 hasEleOverrideNow()
 {
-	return self.eleOverrideNow;
+    return self.eleOverrideNow;
 }
 
 hasEleOverrideEver()
 {
-	return self.eleOverrideEver;
+    return self.eleOverrideEver;
 }
 
 updateServerEleOverride() // Send allowElevate status to server code
 {
-	if(self.eleOverrideNow)
-	{
-		// Eles are enabled for this save
-		self allowElevate(true);
-	}
-	else if(self openCJ\playerRuns::isRunFinished())
-	{
-		// Not in a run anymore, so allow elevators
-		self allowElevate(true);
-	}
-	else if(self _isEleAllowedThisCheckpoint())
-	{
-		// This checkpoint allows elevators to be used to reach it
-		self allowElevate(true);
-	}
-	else
-	{
-		// Elevators are not allowed
-		self allowElevate(false);
-	}
+    if(self.eleOverrideNow)
+    {
+        // Eles are enabled for this save
+        self allowElevate(true);
+    }
+    else if(self openCJ\playerRuns::isRunFinished())
+    {
+        // Not in a run anymore, so allow elevators
+        self allowElevate(true);
+    }
+    else if(self _isEleAllowedThisCheckpoint())
+    {
+        // This checkpoint allows elevators to be used to reach it
+        self allowElevate(true);
+    }
+    else
+    {
+        // Elevators are not allowed
+        self allowElevate(false);
+    }
 }
 
 onElevate()
@@ -127,17 +127,17 @@ onElevate()
         // No problem if player is not in a run or has their run paused/finished
         return;
     }
-	if(self.eleOverrideNow || self _isEleAllowedThisCheckpoint() || self openCJ\demos::isPlayingDemo())
-	{
-		// This elevator is allowed
-		return;
-	}
+    if(self.eleOverrideNow || self _isEleAllowedThisCheckpoint() || self openCJ\demos::isPlayingDemo())
+    {
+        // This elevator is allowed
+        return;
+    }
 
-	self iprintlnbold("Elevator detected, but your run doesn't allow them");
-	self iprintlnbold("Load back, or use !ele and save to allow elevators");
+    self iprintlnbold("Elevator detected, but your run doesn't allow them");
+    self iprintlnbold("Load back, or use !ele and save to allow elevators");
 }
 
 _isEleAllowedThisCheckpoint()
 {
-	return (isDefined(self openCJ\checkpoints::getCurrentCheckpoint()) && openCJ\checkpoints::isEleAllowed(self openCJ\checkpoints::getCurrentCheckpoint()));
+    return (isDefined(self openCJ\checkpoints::getCurrentCheckpoint()) && openCJ\checkpoints::isEleAllowed(self openCJ\checkpoints::getCurrentCheckpoint()));
 }
