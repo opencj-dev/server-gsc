@@ -80,7 +80,6 @@ onPlayerCommand(fullArgs)
 	if(self.adminLevel < cmd.minAdminLevel)
 	{
 		self sendLocalChatMessage("You do not have sufficient permissions to execute this command", true);
-		iprintln("admin levl required: " + cmd.minAdminLevel + " yours: " + self.adminLevel);
 		return true; // It was a command, but permissions were incorrect. Don't interpret this as a chat message anymore.
 	}
 
