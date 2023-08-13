@@ -291,9 +291,21 @@ _updateRecords(client, rows, overrideTime, force)
 	rows[i][1] = timePlayed;
 	self.showRecordsHighlight.y = 50 + 12 * ownNum;
 	self.showRecordsHighlight.alpha = 0.75;
-			
+
+	if(rows.size > 10 && ownNum < 10)
+	{
+		rows[10] = undefined;
+	}
 	for(i = 0; i < rows.size; i++)
 	{
+		if(i == ownNum && i == 10)
+		{
+			nameString += "??. ";
+		}
+		else
+		{
+			nameString += (i + 1) + ". ";
+		}
 		nameString += rows[i][0] + "\n";
 		if(ownNum == i && !isDefined(overrideTime))
 		{
