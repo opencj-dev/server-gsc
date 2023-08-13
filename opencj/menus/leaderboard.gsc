@@ -84,11 +84,12 @@ fetchUpdatedData()
     }
 
     // Now that the data is there, we need to fill in the values into the local variables
+    firstItemOnPage = openCJ\menus\board_base::getAbsFirstItemNrCurrentPage(self.currentBoard["page"]["cur"], self.currentBoard["maxEntriesPerPage"]);
     for (i = 0; i < self.currentBoard["maxEntriesPerPage"]; i++)
     {
         if (i < self.currentBoard["nrEntriesThisPage"])
         {
-            self.currentBoard["cols"][i]["nr"] = (i + 1);
+            self.currentBoard["cols"][i]["nr"] = (i + firstItemOnPage);
             self.currentBoard["cols"][i]["name"] = rows[i][1]; // playerName
             self.currentBoard["cols"][i]["time"] = int(rows[i][2]);
             self.currentBoard["cols"][i]["rpgs"] = int(rows[i][3]);
@@ -101,7 +102,7 @@ fetchUpdatedData()
         }
         else
         {
-            self.currentBoard["cols"][i]["nr"] = 0;
+            self.currentBoard["cols"][i]["nr"] = -1;
             self.currentBoard["cols"][i]["name"] = "";
             self.currentBoard["cols"][i]["time"] = 0;
             self.currentBoard["cols"][i]["rpgs"] = 0;

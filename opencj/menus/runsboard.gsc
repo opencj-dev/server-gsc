@@ -16,9 +16,14 @@ handleRestoreRun(str)
             return;
         }
 
-        runIDStr = self.currentBoard["cols"][nrPressed-1]["nr"];
-        runID = int(runIDStr);
-        if ((runID == 0) && (runIDStr[0] != "0")) // Int parse validation before adding it to query
+        idx = nrPressed -1;
+        if (!isDefined(self.currentBoard) || !isDefined(self.currentBoard["cols"]) || !isDefined(self.currentBoard["cols"][idx]))
+        {
+            return;
+        }
+
+        runID = self.currentBoard["cols"][idx]["nr"];
+        if (runID < 0) // Initialized to -1 when it doesn't contain a value
         {
             return;
         }
@@ -145,7 +150,7 @@ fetchUpdatedData()
         }
         else
         {
-            self.currentBoard["cols"][i]["nr"] = 0;
+            self.currentBoard["cols"][i]["nr"] = -1;
             self.currentBoard["cols"][i]["name"] = "";
             self.currentBoard["cols"][i]["time"] = 0;
             self.currentBoard["cols"][i]["rpgs"] = 0;
