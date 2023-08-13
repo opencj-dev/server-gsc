@@ -281,13 +281,14 @@ _teleportToPlayer(args, teleToSave)
         }
         else if(player != self)
         {
+            self openCJ\cheating::setCheating(true);
             shouldTeleToPos = !teleToSave;
             if (teleToSave)
             {
                 playerSave = player openCJ\savePosition::getSavedPosition(player openCJ\savePosition::getBackwardsCount());
                 if (isDefined(playerSave))
                 {
-                    self openCJ\cheating::setCheating(true);
+                    
                     self sendLocalChatMessage("Teleported you to target player's save");
 
                     self setOrigin(playerSave.origin);
@@ -295,7 +296,6 @@ _teleportToPlayer(args, teleToSave)
                 }
                 else
                 {
-                    self openCJ\cheating::setCheating(true);
                     self sendLocalChatMessage("Target player save not available, teleporting to position", true);
                     shouldTeleToPos = true;
                 }
