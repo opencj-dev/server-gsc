@@ -95,7 +95,7 @@ fetchUpdatedData()
             self.currentBoard["cols"][i]["rpgs"] = int(rows[i][3]);
             self.currentBoard["cols"][i]["loads"] = int(rows[i][4]);
             self.currentBoard["cols"][i]["date"] = rows[i][5];
-            self.currentBoard["cols"][i]["fps"] = rows[i][6];
+            self.currentBoard["cols"][i]["fps"] = openCJ\menus\board_base::dbFPSToFullName(rows[i][6]);
             self.currentBoard["cols"][i]["ele"] = xOrEmpty(int(rows[i][7]));
             self.currentBoard["cols"][i]["any"] = xOrEmpty(int(rows[i][8]));
             self.currentBoard["cols"][i]["tas"] = xOrEmpty(int(rows[i][9]));

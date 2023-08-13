@@ -38,7 +38,7 @@ initBoard(shortName, fullName, menuName, fetchDataFunc)
     openCJ\settings::addSettingBool(level.boards[shortName]["filterNames"]["ele"], false, "Set " + fullName + " ele filter", ::_onEleFilterSet);
     openCJ\settings::addSettingBool(level.boards[shortName]["filterNames"]["any"], false, "Set " + fullName + " shortcuts filter", ::_onAnyPctFilterSet);
     openCJ\settings::addSettingBool(level.boards[shortName]["filterNames"]["tas"], false, "Set " + fullName + " TAS filter", ::_onTASFilterSet);
-    openCJ\settings::addSettingString(level.boards[shortName]["filterNames"]["fps"], 3, 8, "mix", "Set " + fullName + " FPS filter", ::_onFPSFilterChange); // min len 3: 125, mix, hax
+    openCJ\settings::addSettingString(level.boards[shortName]["filterNames"]["fps"], 3, 8, "any", "Set " + fullName + " FPS filter", ::_onFPSFilterChange); // min len 3: 125, mix, hax
 }
 
 _onEleFilterSet(newVal)
@@ -158,6 +158,9 @@ onBoardOpen(shortName)
         }
         self setClientCvar(level.boardsDvarPrefix + keys[i] + "_allow", self.currentBoard["filter"][keys[i]]);
     }
+
+    // Set currently selected FPS filter
+    self setClientCvar(level.boardsDvarPrefix + "fpsselected", dbFPSToFullName(self.currentBoard["filter"]["fps"]));
 
     // Fill in the routes
     self updateRoutes();
@@ -399,7 +402,7 @@ getFPSModeStr(fpsFilter)
         } // Fallthrough
         case "mix":
         {
-            allowedFpsEntries += dbStr("mix") + ", "; // Standard mode on CoD4 is called mix
+            allowedFpsEntries += dbStr("mix") + ", "; // Standard mode on CoD4 is called mix in db
         } // Fallthrough
         case "125":
         {
@@ -527,6 +530,17 @@ handlePageChange(button)
     }
 }
 
+dbFPSToFullName(dbFPSName)
+{
+    switch(dbFPSName)
+    {
+        case "125": return "Classic";
+        case "mix": return "Standard";
+        case "hax": // Fallthrough
+        default:    return "Any";
+    }
+}
+
 handleFilterChange(button)
 {
     if ((button == "ele") || (button == "any") || (button == "tas"))
@@ -544,6 +558,8 @@ handleFilterChange(button)
         if (fpsTokens.size > 1)
         {
             fpsFilter = toLower(fpsTokens[1]);
+
+            // We map it to db names
             switch(fpsFilter)
             {
                 case "125":
@@ -553,8 +569,9 @@ handleFilterChange(button)
                 case "standard": // Fallthrough
                 case "mix":
                 {
-                    self.currentBoard["filter"]["fps"] = "mix"; // We map it to db names
+                    self.currentBoard["filter"]["fps"] = "mix";
                 } break;
+                case "any": // Fallthrough
                 case "all": // Fallthrough
                 case "hax":
                 {
@@ -567,6 +584,7 @@ handleFilterChange(button)
             }
 
             self openCJ\settings::setSettingByScript(self.currentBoard["filterNames"]["fps"], self.currentBoard["filter"]["fps"]);
+            self setClientCvar(level.boardsDvarPrefix + "fpsselected", dbFPSToFullName(self.currentBoard["filter"]["fps"]));
         }
     }
 

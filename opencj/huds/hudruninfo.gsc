@@ -2,16 +2,16 @@
 
 onInit()
 {
-    level.runInfoShader["hax"] = "opencj_icon_fpshax";
-    level.runInfoShader["mix"] = "opencj_icon_fpsmix";
-    level.runInfoShader["125"] = "opencj_icon_fps125";
+    level.runInfoShader["any"] = "opencj_icon_fps_any";
+    level.runInfoShader["classic125"] = "opencj_icon_fps_classic125";
+    level.runInfoShader["standard"] = "opencj_icon_fps_standard";
     level.runInfoShader["ele"] = "opencj_icon_ele";
     level.runInfoShader["hardTAS"] = "opencj_icon_tas";
     level.iconWidth = 16;
     level.iconHeight = 20;
-    precacheShader(level.runInfoShader["hax"]);
-    precacheShader(level.runInfoShader["mix"]);
-    precacheShader(level.runInfoShader["125"]);
+    precacheShader(level.runInfoShader["any"]);
+    precacheShader(level.runInfoShader["classic125"]);
+    precacheShader(level.runInfoShader["standard"]);
     precacheShader(level.runInfoShader["ele"]);
     precacheShader(level.runInfoShader["hardTAS"]);
 }
@@ -149,6 +149,11 @@ onSpectatorClientChanged(newClient)
         self _showRunIcons(newClient);
         self _showRunStatus(newClient);
     }
+    else
+    {
+        self _hideRunStatus();
+        self _hideRunIcons();
+    }
 }
 
 onSpawnSpectator()
@@ -216,17 +221,17 @@ _showRunIcons(player)
     FPSMode = player openCJ\fps::getCurrentFPSMode();
     if (FPSMode == "hax")
     {
-        self.hudRunInfo["fps"] setShader(level.runInfoShader["hax"], level.iconWidth, level.iconHeight);
+        self.hudRunInfo["fps"] setShader(level.runInfoShader["any"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
     else if (FPSMode == "mix")
     {
-        self.hudRunInfo["fps"] setShader(level.runInfoShader["mix"], level.iconWidth, level.iconHeight);
+        self.hudRunInfo["fps"] setShader(level.runInfoShader["standard"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
     else if (FPSMode == "125")
     {
-        self.hudRunInfo["fps"] setShader(level.runInfoShader["125"], level.iconWidth, level.iconHeight);
+        self.hudRunInfo["fps"] setShader(level.runInfoShader["classic125"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
 
@@ -290,7 +295,7 @@ _createRunInfoHud()
     self.hudRunInfo["fps"].alpha = 0;
     self.hudRunInfo["fps"].archived = false;
     self.hudRunInfo["fps"].hideWhenInMenu = true;
-    self.hudRunInfo["fps"] setShader(level.runInfoShader["125"], level.iconWidth, level.iconHeight);
+    self.hudRunInfo["fps"] setShader(level.runInfoShader["classic125"], level.iconWidth, level.iconHeight);
 
     self.hudRunInfo["ele"] = newClientHudElem(self);
     self.hudRunInfo["ele"].horzAlign = "fullscreen";
