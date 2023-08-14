@@ -10,7 +10,6 @@ main()
     self openCJ\country::onPlayerConnect();
     self openCJ\noclip::onPlayerConnect();
     self openCJ\huds\base::onPlayerConnect();
-    self openCJ\huds\hudStatistics::onPlayerConnect(); // Needs to be after statistics
     self openCJ\huds\hudOnScreenKeyboard::onPlayerConnect();
     self openCJ\huds\hudGrenadeTimers::onPlayerConnect();
     self openCJ\huds\hudFps::onPlayerConnect();

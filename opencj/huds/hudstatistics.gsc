@@ -22,7 +22,7 @@ onInit()
     }
 }
 
-onPlayerConnect()
+onPlayerConnected()
 {
     self.statisticsHudString = "";
     self _hideStatisticsHud(true);
