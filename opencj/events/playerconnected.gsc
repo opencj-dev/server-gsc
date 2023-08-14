@@ -8,6 +8,7 @@ main()
     self openCJ\graphics::onPlayerConnected();
     self openCJ\menus\endMapVote::onPlayerConnected();
     self openCJ\menus\board_base::onPlayerConnected();
+    self openCJ\huds\hudStatistics::onPlayerConnected();
 
     self openCJ\events\spawnSpectator::main();
 }
