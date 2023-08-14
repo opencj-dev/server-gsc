@@ -9,4 +9,5 @@ main(newClient)
     self openCJ\huds\hudFpsHistory::onSpectatorClientChanged(newClient);
     self openCJ\huds\hudFps::onSpectatorClientChanged(newClient);
     self openCJ\huds\hudRunInfo::onSpectatorClientChanged(newClient);
+    self openCJ\huds\hudSpeedOMeter::onSpectatorClientChanged(newClient);
 }

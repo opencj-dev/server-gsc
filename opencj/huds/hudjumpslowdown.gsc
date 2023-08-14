@@ -1,5 +1,5 @@
 #include openCJ\util;
-
+//todo: add setting to set this
 onPlayerConnect()
 {
     self.jumpSlowDownHudName = "jumpSlowDownTimer";

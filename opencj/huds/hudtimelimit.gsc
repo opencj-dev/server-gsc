@@ -69,10 +69,11 @@ _updateTimer()
     {
         self.hudTimeLimit setTimer(secondsLeft);
         self _setTimerColor();
+        self.hudTimeLimit.alpha = 1;
     }
     else
     {
-        self.hudTimeLimit setText("");
+        self.hudTimeLimit.alpha = 0;
     }
 }
 

@@ -28,6 +28,7 @@ main()
                 self openCJ\huds\hudSpeedometer::whileAlive();
                 self openCJ\playerNames::whileAlive();
                 self openCJ\playTime::whileAlive();
+                self openCJ\huds\hudPosition::whileAlive();
 
                 self openCJ\platformDetect::whileAlive(); //debug file
                 self openCJ\events\eventHandler::whileAlive();

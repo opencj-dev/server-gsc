@@ -23,7 +23,7 @@ onStartDemo()
 
 onSpawnPlayer()
 {
-    self thread _updatePos();
+    self _setPosHudAlpha(1);
 }
 
 onSpawnSpectator()
@@ -31,19 +31,9 @@ onSpawnSpectator()
     self _setPosHudAlpha(0);
 }
 
-_updatePos()
+whileAlive()
 {
-    level endon("map_ended");
-    self endon("disconnect");
-    self endon("joined_spectators");
-
-    self _setPosHudAlpha(1);
-
-    while(1)
-    {
-        self _updatePosHudValues();
-        wait .05;
-    }
+    self _updatePosHudValues();
 }
 
 _updatePosHudValues()

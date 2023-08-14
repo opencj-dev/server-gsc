@@ -34,13 +34,12 @@ onSpectatorClientChanged(newClient)
     if(isDefined(newClient))
     {
         currentFPSText = "" + newClient openCJ\fps::getCurrentFPS();
-        self.hud[self.fpsHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(currentFPSText, self, false);
     }
-    else
+    else //free spec
     {
         currentFPSText = "" + self openCJ\fps::getCurrentFPS();
-        self.hud[self.fpsHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(currentFPSText, self, false);
     }
+    self.hud[self.fpsHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(currentFPSText, self, false);
 }
 
 onSpawnPlayer()
@@ -52,11 +51,6 @@ onSpawnPlayer()
 _onFPSHudSetting(newVal)
 {
     shouldEnable = (newVal > 0);
-    isEnabled = openCJ\huds\base::isHUDEnabled(self.fpsHudName);
-    if(shouldEnable == isEnabled)
-    {
-        return;
-    }
 
     if(shouldEnable)
     {

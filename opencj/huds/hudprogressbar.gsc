@@ -14,17 +14,17 @@ onInit()
 
 onCheckpointsChanged()
 {
-    self _updateProgressBar();
+    self _updateProgressBar(false);
 }
 
 onStartDemo()
 {
-    self _hideProgressBar();
+    self _hideProgressBar(false);
 }
 
 onSpawnPlayer()
 {
-    self _updateProgressBar();
+    self _updateProgressBar(false);
 }
 
 onSpawnSpectator()
@@ -35,11 +35,12 @@ onSpawnSpectator()
 onPlayerKilled(inflictor, attacker, damage, meansOfDeath, weapon, vDir, hitLoc, psOffsetTime, deathAnimDuration)
 {
     self _hideProgressBar();
+    //todo: hide for spectating clients too
 }
 
 onRunFinished(cp)
 {
-    self _updateProgressBar();
+    self _updateProgressBar(true);
 }
 
 onPlayerConnect()
@@ -49,26 +50,27 @@ onPlayerConnect()
 
 onRunPaused()
 {
-    self _updateProgressBar();
+    self _updateProgressBar(false);
 }
 
 onRunStopped()
 {
-    self _updateProgressBar();
+    self _updateProgressBar(false);
 }
 
 onRunResumed()
 {
-    self _updateProgressBar();
+    self _updateProgressBar(false);
 }
 
 onRunRestored()
 {
-    self _updateProgressBar();
+    self _updateProgressBar(false);
 }
 
 _createProgressBar()
 {
+    //todo: prevProgress is not initialized at every correct point.
     self.progressBar = newClientHudElem(self);
     self.progressBar.horzAlign = "fullscreen";
     self.progressBar.vertAlign = "fullscreen";
@@ -86,10 +88,9 @@ _createProgressBar()
     self.progressBar.hideWhenInMenu = true;
     self.progressBar.shader = level.progressBarShader;
     self.prevProgress = 0;
-    self.prevRunFinished = false;
 }
 
-_updateProgressBar()
+_updateProgressBar(onFinish)
 {
     if(!self openCJ\playerRuns::hasRunID() || self openCJ\playerRuns::isRunPaused() || self openCJ\cheating::isCheating())
     {
@@ -106,11 +107,10 @@ _updateProgressBar()
 
         progress = level.progressBarMaxValue; // Progress bar should now be full
         self _showProgressBar();
-        if (!self.prevRunFinished) // Wasn't finished last check
+        if(onFinish)
         {
             self.progressBar setShader(level.progressBarShader, self.prevProgress, level.progressBarHeight);
             self.progressBar scaleOverTime(level.progressBarScaleDuration, progress, level.progressBarHeight);
-            self.prevRunFinished = true;
         }
         else // Was already finished
         {
@@ -127,7 +127,7 @@ _updateProgressBar()
             passed = openCJ\checkpoints::getPassedCheckpointCount(checkpoint);
             remaining = openCJ\checkpoints::getRemainingCheckpointCount(checkpoint);
             total = passed + remaining;
-            if((total == 0) || (passed == 0))
+            if(total == 0)
             {
                 progress = 0;
                 self _hideProgressBar();
@@ -135,17 +135,24 @@ _updateProgressBar()
             else
             {
                 progress = int((passed / total) * level.progressBarMaxValue);
-                if (self.prevProgress == 0)
+                if(progress == 0)
                 {
-                    // Otherwise the first update of progress bar will go from its normal size to smaller
-                    self.progressBar setShader(level.progressBarShader, level.progressBarMinWidth, level.progressBarHeight);
+                    self _hideProgressBar();
                 }
                 else
                 {
-                    self.progressBar setShader(level.progressBarShader, self.prevProgress, level.progressBarHeight);
+                    if (self.prevProgress == 0)
+                    {
+                        // Otherwise the first update of progress bar will go from its normal size to smaller
+                        self.progressBar setShader(level.progressBarShader, level.progressBarMinWidth, level.progressBarHeight);
+                    }
+                    else
+                    {
+                        self.progressBar setShader(level.progressBarShader, self.prevProgress, level.progressBarHeight);
+                    }
+                    self _showProgressBar();
+                    self.progressBar scaleOverTime(level.progressBarScaleDuration, progress, level.progressBarHeight);
                 }
-                self _showProgressBar();
-                self.progressBar scaleOverTime(level.progressBarScaleDuration, progress, level.progressBarHeight);
             }
         }
         else // Hasn't passed the first checkpoint yet
