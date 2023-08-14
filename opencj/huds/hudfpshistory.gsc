@@ -26,6 +26,7 @@ onSpectatorClientChanged(newClient)
     {
         // Not spectating anyone anymore
         self hideAndClearFPSHistory();
+        //todo: show demo also to this client? So, show demo fpshistory also to this client?
     }
     else
     {
@@ -129,16 +130,15 @@ _onOnGroundThread(isOnGround)
     }
     else
     {
-        if(self openCJ\events\onGroundChanged::getLastGroundEnterTime() < getTime() - 500)
+        if(self openCJ\events\onGroundChanged::getLastGroundEnterTime() < getTime() - 250)
         {
-            self _clearFPSHistory();
+            // No longer onGround, so show the initial FPS
+            self _setFPSHistory(openCJ\fps::getShortFPS(self openCJ\fps::getCurrentFPS()));
         }
         else
         {
             self _onBhopThread();
         }
-        // No longer onGround, so show the initial FPS
-        self _setFPSHistory(openCJ\fps::getShortFPS(self openCJ\fps::getCurrentFPS()));
     }
 }
 

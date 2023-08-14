@@ -19,16 +19,25 @@ _onCommandSpeedometer(newVal)
     }
 }
 
+onSpectatorClientChanged(newClient)
+{
+    if(!isDefined(newClient))
+    {
+        self _hideSpeedometer();
+    }
+    else
+    {
+        //do we need to do anything here? Thing is updated every frame
+    }
+}
+
 onPlayerConnect()
 {
     self.showSpeedometer = false;
     self _resetSpeed();
-    if (!isDefined(self.hudSpeed))
-    {
-        self.hudSpeed = [];
-        self _initSpeedHud("curr", (1.0, 1.0, 1.0), -80);
-        self _initSpeedHud("max", (1.0, 0.3, 0.3), -60); // Has to be above progress bar and time limit
-    }
+    self.hudSpeed = [];
+    self _initSpeedHud("curr", (1.0, 1.0, 1.0), -80);
+    self _initSpeedHud("max", (1.0, 0.3, 0.3), -60); // Has to be above progress bar and time limit
 }
 
 onStartDemo()
@@ -39,6 +48,11 @@ onStartDemo()
 onSpawnPlayer()
 {
     self _resetSpeed();
+}
+
+onSpawnSpectator()
+{
+    self _hideSpeedometer();
 }
 
 onLoadPosition()
@@ -74,6 +88,7 @@ whileAlive()
     // If player doesn't have speedometer enabled, don't show it to them *or* their spectators
     if (!self.showSpeedometer)
     {
+        //todo: this gets called too often
         spectatorsAndSelf = getSpectatorList(true); //  true -> include self
         for (i = 0; i < spectatorsAndSelf.size; i++)
         {

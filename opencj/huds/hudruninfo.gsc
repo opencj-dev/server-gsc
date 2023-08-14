@@ -9,6 +9,8 @@ onInit()
     level.runInfoShader["hardTAS"] = "opencj_icon_tas";
     level.iconWidth = 16;
     level.iconHeight = 20;
+    level.firstIconX = 80;
+    level.spaceBetweenIcons = 5;
     precacheShader(level.runInfoShader["any"]);
     precacheShader(level.runInfoShader["classic125"]);
     precacheShader(level.runInfoShader["standard"]);
@@ -229,30 +231,35 @@ _showRunIcons(player)
         self.hudRunInfo["fps"] setShader(level.runInfoShader["standard"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
-    else if (FPSMode == "125")
+    else //todo: cod2 fpsses
     {
         self.hudRunInfo["fps"] setShader(level.runInfoShader["classic125"], level.iconWidth, level.iconHeight);
         self.hudRunInfo["fps"].alpha = 1;
     }
 
+    iconCount = 1;
+
     // Ele
     if (player openCJ\elevate::hasEleOverrideEver())
     {
+        self.hudRunInfo["ele"].x = level.firstIconX + (level.spaceBetweenIcons + level.iconWidth) * iconCount;
         self.hudRunInfo["ele"].alpha = 1;
+        iconCount++;
     }
     else
     {
-        self.hudRunInfo["ele"].alpha = 0.1;
+        self.hudRunInfo["ele"].alpha = 0;
     }
 
     // Hard TAS
     if (player openCJ\tas::hasHardTAS())
     {
+        self.hudRunInfo["hardTAS"].x = level.firstIconX + (level.spaceBetweenIcons + level.iconWidth) * iconCount;
         self.hudRunInfo["hardTAS"].alpha = 1;
     }
     else
     {
-        self.hudRunInfo["hardTAS"].alpha = 0.1;
+        self.hudRunInfo["hardTAS"].alpha = 0;
     }
 }
 
@@ -279,18 +286,16 @@ _createRunInfoHud()
     self.hudRunInfo["status"].archived = false;
     self.hudRunInfo["status"].fontScale = 1.6;
     self.hudRunInfo["status"].hideWhenInMenu = true;
-    self.hudRunInfo["status"] setText("");
 
     // The following are icons in bottom left corner
-    firstIconX = 80;
+    
     yAboveProgressBar = 467; // Right above progress bar
-    spaceBetweenIcons = 5;
     self.hudRunInfo["fps"] = newClientHudElem(self);
     self.hudRunInfo["fps"].horzAlign = "fullscreen";
     self.hudRunInfo["fps"].vertAlign = "fullscreen";
     self.hudRunInfo["fps"].alignX = "left";
     self.hudRunInfo["fps"].alignY = "bottom";
-    self.hudRunInfo["fps"].x = firstIconX;
+    self.hudRunInfo["fps"].x = level.firstIconX;
     self.hudRunInfo["fps"].y = yAboveProgressBar;
     self.hudRunInfo["fps"].alpha = 0;
     self.hudRunInfo["fps"].archived = false;
@@ -302,7 +307,7 @@ _createRunInfoHud()
     self.hudRunInfo["ele"].vertAlign = "fullscreen";
     self.hudRunInfo["ele"].alignX = "left";
     self.hudRunInfo["ele"].alignY = "bottom";
-    self.hudRunInfo["ele"].x = firstIconX + spaceBetweenIcons + level.iconWidth;
+    self.hudRunInfo["ele"].x = level.firstIconX + level.spaceBetweenIcons + level.iconWidth;
     self.hudRunInfo["ele"].y = yAboveProgressBar;
     self.hudRunInfo["ele"].alpha = 0;
     self.hudRunInfo["ele"].archived = false;
@@ -314,7 +319,7 @@ _createRunInfoHud()
     self.hudRunInfo["hardTAS"].vertAlign = "fullscreen";
     self.hudRunInfo["hardTAS"].alignX = "left";
     self.hudRunInfo["hardTAS"].alignY = "bottom";
-    self.hudRunInfo["hardTAS"].x = firstIconX + (2 * (spaceBetweenIcons + level.iconWidth));
+    self.hudRunInfo["hardTAS"].x = level.firstIconX + (2 * (level.spaceBetweenIcons + level.iconWidth));
     self.hudRunInfo["hardTAS"].y = yAboveProgressBar;
     self.hudRunInfo["hardTAS"].alpha = 0;
     self.hudRunInfo["hardTAS"].archived = false;

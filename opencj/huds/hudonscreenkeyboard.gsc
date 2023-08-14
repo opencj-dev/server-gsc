@@ -36,7 +36,10 @@ whileAlive()
 onSpectatorClientChanged(newClient) //can be undefined for free spec
 {
     // It will be shown again on next update
-    self _hideKeyboard();
+    if(!isDefined(newClient))
+    {
+        self _hideKeyboard();
+    }
 }
 
 onSpawnSpectator()

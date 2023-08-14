@@ -104,7 +104,8 @@ _updateStatisticsHud(playerBeingWatched, newString)
     // Only update if the player being watched should have their statistics up
     if (!playerBeingWatched openCJ\playerRuns::hasRunID() || !playerBeingWatched openCJ\playerRuns::hasRunStarted())
     {
-        return false;
+        self _hideStatisticsHud(false);
+        return;
     }
 
     // It gets provided when doing an update for all spectators at once. Otherwise it is determined here
