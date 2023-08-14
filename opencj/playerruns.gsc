@@ -200,6 +200,8 @@ saveRun(runLabel)
     printf("DEBUG: executing saveRun query:\n" + query + "\n");
 
     rows = self openCJ\mySQL::mysqlAsyncQuery(query);
+    if(!isDefined(self))
+        return; //player disconnected during save command
     if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]) && (int(rows[0][0]) == runID))
     {
         // Successfully saved
