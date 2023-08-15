@@ -120,6 +120,10 @@ canSaveError()
     {
         return 1;
     }
+    if(!self openCJ\playerRuns::hasRunStarted())
+    {
+        return 4;
+    }
 
     if(!self isOnGround())
     {
@@ -148,6 +152,11 @@ printCanSaveError(error)
         case 3:
         {
             self iprintln("^1Cannot save on this object");
+            break;
+        }
+        case 4:
+        {
+            self iprintln("^1Cannot save while run has not started");
             break;
         }
     }
