@@ -3,7 +3,6 @@ onPlayerConnect()
     if (!isDefined(self.hudTimeLimit))
     {
         self.hudTimeLimit = newClientHudElem(self);
-        self.hudTimeLimit.alpha = 0;
         self.hudTimeLimit.foreground = true;
         self.hudTimeLimit.alignx = "center";
         self.hudTimeLimit.aligny = "bottom";
@@ -16,16 +15,13 @@ onPlayerConnect()
         self.hudTimeLimit.archived = false;
 
         // The HUD itself is just a timer counting down the level time
-        self _updateTimer();
-
-        self.hudTimeLimit.alpha = 1;
+        self _updateTimer(); //sets alpha too
     }
 }
 
 whileAlive()
 {
     // If time gets low, make timer more red and play a sound
-    lowTimeThresholdSeconds = 60.0;
     if (level.remainingTimeSeconds <= 0)
     {
         self _updateTimer(); // Will hide the timer

@@ -159,7 +159,7 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, explosiveJumps, doubleEx
     printf("savePosition query:\n" + query + "\n"); // Debug
     
     rows = openCJ\mySQL::mysqlAsyncQuery(query);
-    if(!isDefined(rows[0][0]))
+    if(!isdefined(rows) || !isDefined(rows[0]) || !isDefined(rows[0][0]))
     {
         //run has been loaded by another instance
         self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");

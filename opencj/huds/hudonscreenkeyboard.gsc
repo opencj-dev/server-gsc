@@ -38,6 +38,7 @@ onSpectatorClientChanged(newClient) //can be undefined for free spec
     // It will be shown again on next update
     if(!isDefined(newClient))
     {
+        //free spec
         self _hideKeyboard();
     }
 }
