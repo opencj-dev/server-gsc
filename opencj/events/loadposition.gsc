@@ -73,7 +73,6 @@ main(backwardsCount)
     // TODO: implement any%
 
     self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
-    self openCJ\savePosition::printLoadSuccess();
     
     self openCJ\huds\hudFpsHistory::onLoaded();
     return save.saveNum;
