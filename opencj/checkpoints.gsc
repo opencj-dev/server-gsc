@@ -53,7 +53,7 @@ storeCheckpointPassed(runID, cpID, timePlayed)
     printf("Executing checkpointPassed query:\n" + query + "\n");  // Debug
 
     rows = self openCJ\mySQL::mysqlAsyncQuery(query);
-    if(!isDefined(rows[0][0]))
+    if(!isDefined(rows) || !isDefined(rows[0]) || !isDefined(rows[0][0]))
     {
         self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
         self openCJ\playerRuns::printRunIDandInstanceNumber();
@@ -67,7 +67,7 @@ _notifyCheckpointPassed(runID, cpID, timePlayed)
     self endon("checkpointNotify");
 
     rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT MIN(cs.timePlayed) FROM checkpointStatistics cs INNER JOIN playerRuns pr ON pr.runID = cs.runID WHERE cs.cpID = " + cpID + " AND pr.runID != " + runID + " AND pr.finishcpID IS NOT NULL");
-    if(rows.size && isDefined(rows[0][0]))
+    if(isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         diff = timePlayed - int(rows[0][0]);
         if(diff > 0)

@@ -31,7 +31,7 @@ fetchRandomMaps()
     // For now no limit
     query = "SELECT mapname FROM mapids WHERE inRotation = '1' AND mapName != '" + getCvar("mapname") + "' ORDER BY RAND()";
     rows = opencj\mysql::mysqlAsyncQuery(query);
-    if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
+    if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         maxVal = rows.size;
         if (rows.size > level.endVote["nrMaps"])

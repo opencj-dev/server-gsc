@@ -6,10 +6,32 @@ onInit()
 {
     level.allowHaxStr = "allowhax";
     level.allowMixStr = "allowmix";
-    underlyingCmd = openCJ\settings::addSettingBool(level.allowHaxStr, false, "Set whether hax fps is allowed in current run. Usage: !hax [on/off]");
+    underlyingCmd = openCJ\settings::addSettingBool(level.allowHaxStr, false, "Set whether hax fps is allowed. Usage: !hax [on/off]", ::_onSettingAllowHax);
     openCJ\commands_base::addAlias(underlyingCmd, "hax");
-    underlyingCmd = openCJ\settings::addSettingBool(level.allowMixStr, true, "Set whether mix fps is allowed in current run. Usage: !mix [on/off]");
+    underlyingCmd = openCJ\settings::addSettingBool(level.allowMixStr, true, "Set whether mix fps is allowed. Usage: !mix [on/off]", ::_onSettingAllowMix);
     openCJ\commands_base::addAlias(underlyingCmd, "mix");
+}
+
+onPlayerConnect()
+{
+    self.allowMix = false;
+    self.allowHax = false;
+}
+
+_onSettingAllowHax(newVal)
+{
+    if (newVal)
+    {
+        self.allowHax = true;
+    }
+}
+
+_onSettingAllowMix(newVal)
+{
+    if (newVal)
+    {
+        self.allowMix = true;
+    }
 }
 
 onStopDemo()
@@ -19,19 +41,45 @@ onStopDemo()
 
 onRunStarted()
 {
+    // Start by forcing the most basic FPS, and 'upgrade' it when the user's current FPS is not allowed according to the mode
+    self forceFPSMode("125");
+    // Start with the player's setting. This may be updated based on their current FPS
+    self.allowHax = self openCJ\settings::getSetting(level.allowHaxStr);
+    self.allowMix = self openCJ\settings::getSetting(level.allowMixStr);
+
     // Initialize the player's FPS mode
     fps = self _getFPSFromUserInfo();
     if(!isDefined(fps))
     {
         fps = 1000;
-        self forceFPSMode("hax"); // No FPS available, play it safe
+        self setFPSMode("hax"); // No FPS available, play it safe
     }
     else
     {
-        self forceFPSMode(self getNewFPSModeStrByFPS(undefined, fps));
+        self setFPSMode(self getNewFPSModeStrByFPS(undefined, fps));
     }
 
     self.FPS = fps;
+}
+
+onRunRestored()
+{
+    currentFPSMode = self getCurrentFPSMode();
+    isHax = (currentFPSMode == "hax");
+    isMix = (currentFPSMode == "mix");
+    self.allowHax = self openCJ\settings::getSetting(level.allowHaxStr);
+    self.allowMix = self openCJ\settings::getSetting(level.allowMixStr);
+
+    if (isHax && !self.allowHax)
+    {
+        self openCJ\settings::setSetting(level.allowHaxStr, true);
+        self.allowHax = true;
+    }
+    if ((isHax || isMix) && !self.allowMix)
+    {
+        self openCJ\settings::setSetting(level.allowMixStr, true);
+        self.allowMix = true;
+    }
 }
 
 _getFPSFromUserInfo()
@@ -59,22 +107,6 @@ onFPSChange(newFPS) // Not called with undefined FPS
 
     // Update the FPS mode. This may be accepted or prevented based on user settings.
     self setFPSMode(self getNewFPSModeStrByFPS(self getCurrentFPSMode(), newFPS));
-}
-
-onRunCreated()
-{
-    // Update user FPS preferences. By default, allow mix but not hax
-    self openCJ\settings::setSettingByScript(level.allowHaxStr, false);
-    self openCJ\settings::setSettingByScript(level.allowMixStr, true);
-}
-
-onRunRestored()
-{
-    currentFPSMode = self getCurrentFPSMode();
-    isHax = (currentFPSMode == "hax");
-    isMix = (currentFPSMode == "mix");
-    self openCJ\settings::setSettingByScript(level.allowHaxStr, isHax);
-    self openCJ\settings::setSettingByScript(level.allowMixStr, (isMix || isHax));
 }
 
 forceFPSMode(newFPSMode) // For example called when restoring a previous load or when FPS is not present in UserInfo
@@ -114,6 +146,25 @@ _setFPSMode(newFPSMode, forced)
                 return;
             }
         }
+    }
+
+    // Update this run's allowed FPS settings
+    if (newFPSMode == "hax")
+    {
+        self.allowHax = true;
+        self.allowMix = true;
+    }
+    else if (newFPSMode == "mix")
+    {
+        // Occurs for example on restoring position that did not allow hax. At that point it depends on user settings whether it is allowed or not
+        self.allowHax = self openCJ\settings::getSetting(level.allowHaxStr);
+        self.allowMix = true;
+    }
+    else
+    {
+        // Occurs for example on restoring position that did not allow hax. At that point it depends on user settings whether it is allowed or not
+        self.allowHax = self openCJ\settings::getSetting(level.allowHaxStr);
+        self.allowMix = self openCJ\settings::getSetting(level.allowMixStr);
     }
 
     self.FPSMode = newFPSMode;
@@ -162,7 +213,7 @@ _shouldFPSModeChange(currentFPSMode, newFPSMode)
 
 userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
 {
-    if (!self openCJ\playerRuns::hasRunID() || self openCJ\playerRuns::isRunPaused())
+    if (!self openCJ\playerRuns::hasRunID() || self openCJ\playerRuns::isRunPaused() || self openCJ\playerRuns::isRunFinished())
     {
         return false;
     }
@@ -190,10 +241,21 @@ userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
     {
         fpsTypeStr = "mix";
     }
-    if(!self openCJ\settings::getSetting("allow" + fpsTypeStr))
+
+    allowThisFPSMode = undefined;
+    if (fpsTypeStr == "hax")
+    {
+        allowThisFPSMode = self.allowHax;
+    }
+    else
+    {
+        allowThisFPSMode = self.allowMix;
+    }
+
+    if(!allowThisFPSMode)
     {
         // Load back upon hax/mix detection when the user doesn't allow it
-        if(!self openCJ\savePosition::canLoadError(0))
+        if(self openCJ\savePosition::canLoadError(0) == 0)
         {
             self iprintln("^5Prevented " + fpsTypeStr + " fps based on your settings");
             self setSafeFPS();
@@ -205,15 +267,7 @@ userSettingsPreventFPSMode(currentFPSMode, newFPSMode)
         }
         else
         {
-            // Allow for this run because we have no other option
-            if (fpsTypeStr == "hax")
-            {
-                self openCJ\settings::setSettingByScript(level.allowHaxStr, true);
-            }
-            else
-            {
-                self openCJ\settings::setSettingByScript(level.allowMixStr, true);
-            }
+            // Allow because we have no other option
             self iprintlnbold("^1Detected " + fpsTypeStr + " fps, but failed to load back. Reset your run to clear!");
         }
     }

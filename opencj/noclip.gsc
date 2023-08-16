@@ -27,7 +27,10 @@ _onCmdUfo(args)
     if (args.size == 0)
     {
         args = [];
-        args[0] = "40";
+        if (!self openCJ\noclip::hasNoClip())
+        {
+            args[0] = "40";
+        }
         _onCmdNoclip(args);
     }
     else

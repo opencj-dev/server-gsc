@@ -8,11 +8,11 @@ onPlayerConnect()
 
         rgb = (0.8, 0.8, 0.8);
         spaceBetween = 20;
-        startX = 6;
-        self _initPosHud("x", rgb, startX);
-        self _initPosHud("y", rgb, startX + spaceBetween);
-        self _initPosHud("z", rgb, startX + (2 * spaceBetween));
-        self _initPosHud("angle", rgb, startX + (3 * spaceBetween));
+        startY = 6;
+        self _initPosHud("x", rgb, startY);
+        self _initPosHud("y", rgb, startY + spaceBetween);
+        self _initPosHud("z", rgb, startY + (2 * spaceBetween));
+        self _initPosHud("angle", rgb, startY + (3 * spaceBetween));
     }
 }
 

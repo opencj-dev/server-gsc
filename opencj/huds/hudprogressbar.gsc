@@ -7,6 +7,10 @@ onInit()
     level.progressBarMinWidth = 1; // Lower than this and it will default to its normal size
     level.progressBarOffsetX = 0;
     level.progressBarOffsetY = 482; // Needs a +2 otherwise there is a gap under it, for whatever reason
+    if (getCodVersion() == 2)
+    {
+        level.progressBarOffsetY += 5;
+    }
     level.progressBarMaxValue = (640 - level.progressBarOffsetX);
     level.progressBarScaleDuration = 0.25;
     precacheShader(level.progressBarShader);
@@ -78,10 +82,6 @@ _createProgressBar()
     self.progressBar.alignY = "bottom";
     self.progressBar.x = level.progressBarOffsetX;
     self.progressBar.y = level.progressBarOffsetY;
-    if (getCodVersion() == 2)
-    {
-        self.progressBar.y += 5;
-    }
     self.progressBar.alpha = 0;
     self.progressBar.color = (1, 1, 1);
     self.progressBar.archived = true;
