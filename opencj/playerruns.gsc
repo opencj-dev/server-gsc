@@ -49,14 +49,11 @@ onRunFinished(cp)
         return;
     }
 
-    if (self hasRunID())
+    runID = self getRunID();
+    rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT runFinished(" + runID + ", " + cpID + ", " + self getRunInstanceNumber() + ")");
+    if(!isDefined(rows) || !isDefined(rows[0]) || !isDefined(rows[0][0]))
     {
-        runID = self getRunID();
-        rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT runFinished(" + runID + ", " + cpID + ", " + self getRunInstanceNumber() + ")");
-        if(!isDefined(rows[0][0]))
-        {
-            self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
-        }
+        self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");
     }
 }
 
@@ -366,7 +363,7 @@ _createRunID()
     _clearRunVars();
     rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunID(" + self openCJ\login::getPlayerID() + ", " + openCJ\mapID::getMapID() + ")");
 
-    if(!rows.size || !isDefined(rows[0][0]))
+    if(!isDefined(rows) || !isDefined(rows[0]) || !isDefined(rows[0][0]))
     {
         self iprintlnbold("Could not create runID. Please reconnect");
     }
@@ -377,7 +374,7 @@ _createRunID()
         self iprintln("^5Created ^7new run (" + self.playerRuns_runID + ")");
 
         rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT createRunInstance(" + self.playerRuns_runID + ")");
-        if(rows.size && isDefined(rows[0][0]))
+        if(isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
         {
             self.runInstanceNumber = int(rows[0][0]);
             self openCJ\events\onRunCreated::main();

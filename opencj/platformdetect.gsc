@@ -2,7 +2,7 @@
 
 onInit()
 {
-    openCJ\commands_base::registerCommand("detectplat", "Tries to detect the platform you're on", ::_onPlatDetect, 0, 0, 0);
+    openCJ\commands_base::registerCommand("detectplat", "Tries to detect the platform you're on", ::_onPlatDetect, 0, 0, 60);
     openCj\commands_base::registerCommand("org", "Shows or", ::_org, 0, 0, 0);
 }
 

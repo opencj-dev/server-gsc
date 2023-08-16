@@ -11,10 +11,8 @@ onInit()
     cmd = openCJ\commands_base::registerCommand("ignore", "Temporarily ignore a specific player until map change. Usage: !ignore <playerName|playerId>", ::_onCommandIgnore, 1, 1, 0);
     openCJ\commands_base::addAlias(cmd, "tignore");
     cmd = openCJ\commands_base::registerCommand("pignore", "Permanently ignore a specific player. Usage: !pignore <playerName|playerId>", ::_onCommandPermIgnore, 1, 1, 0);
-    openCJ\commands_base::addAlias(cmd, "pignore");
 
     cmd = openCJ\commands_base::registerCommand("unignore", "Unignore a player, regardless of whether the ignore was temporary or permanent. Usage: !unignore <playerName|playerId>", ::_onCommandUnIgnore, 1, 1, 0);
-    openCJ\commands_base::addAlias(cmd, "tignore");
 }
 
 _onCommandIgnore(args)
@@ -275,7 +273,7 @@ _getMessages(previousMessageID) // CSC: Get player messages from servers that ar
     {
         // Initially, function is called without argument, so obtain last messageID
         rows = openCJ\mySQL::mysqlAsyncQuery("SELECT MAX(messageID) FROM messages");
-        if(isDefined(rows[0][0]))
+        if(isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
         {
             previousMessageID = rows[0][0];
         }

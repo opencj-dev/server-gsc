@@ -30,7 +30,7 @@ handleRestoreRun(str)
 
         query = "SELECT * FROM playerRuns WHERE runID = " + runID + " AND playerID = " + openCJ\login::getPlayerID();
         rows = self openCJ\mySQL::mysqlAsyncQuery(query);
-        if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
+        if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
         {
             // Run is indeed by player, we can safely restore run if he's logged in
             if(self isPlayerReady(false))
@@ -112,7 +112,7 @@ fetchUpdatedData()
 
     self.currentBoard["cols"] = []; // Hope this clears the previously used memory
 
-    if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
+    if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         self.currentBoard["nrTotalEntries"] = int(rows[0][0]); // totalNr
         self.currentBoard["nrEntriesThisPage"] = rows.size;

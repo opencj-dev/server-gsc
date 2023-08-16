@@ -30,6 +30,7 @@ main()
     self openCJ\playTime::onPlayerConnect();
     self openCJ\events\eventHandler::onConnect();
     self openCJ\menus\ingame::onPlayerConnect();
+    self openCJ\fps::onPlayerConnect();
 
     self player_onconnect();
 

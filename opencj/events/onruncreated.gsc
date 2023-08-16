@@ -15,7 +15,6 @@ main()
     self openCJ\speedMode::onRunCreated();
     self openCJ\noclip::onRunCreated();
     self openCJ\elevate::onRunCreated();
-    self openCJ\fps::onRunCreated();
     self openCJ\playTime::onRunCreated();
     self openCJ\huds\hudRunInfo::onRunCreated();
     self openCJ\huds\hudStatistics::onRunCreated();

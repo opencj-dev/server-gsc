@@ -9,7 +9,7 @@ historyLoad(runID)
 {
     self endon("disconnect");
     rows = self openCJ\mySQL::mysqlAsyncQuery("SELECT historyLoad(" + openCJ\mapID::getMapID() + ", " + self openCJ\login::getPlayerID() + ", " + runID + ")");
-    if(isDefined(rows[0][0]))
+    if(isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         instanceNumber = int(rows[0][0]);
         self savePosition_initClient();
@@ -159,7 +159,7 @@ saveToDatabase(origin, angles, entTargetName, numOfEnt, explosiveJumps, doubleEx
     printf("savePosition query:\n" + query + "\n"); // Debug
     
     rows = openCJ\mySQL::mysqlAsyncQuery(query);
-    if(!isDefined(rows[0][0]))
+    if(!isDefined(rows) || !isDefined(rows[0]) || !isDefined(rows[0][0]))
     {
         //run has been loaded by another instance
         self iPrintLnBold("This run was loaded by another instance of your account. Please reset. All progress will not be saved");

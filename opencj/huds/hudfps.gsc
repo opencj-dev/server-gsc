@@ -3,7 +3,7 @@
 onInit()
 {
     // TODO: expand command so each HUD can be enabled/disabled
-    underlyingCmd = openCJ\settings::addSettingBool("fpshud", true, "Turn on/off FPS hud. Usage: !fpshud [on/off]", ::_onFPSHudSetting);
+    underlyingCmd = openCJ\settings::addSettingBool("fpshud", false, "Turn on/off FPS hud. Usage: !fpshud [on/off]", ::_onFPSHudSetting);
     openCJ\huds\infiniteHuds::initInfiniteHud("fps");
 }
 
@@ -18,14 +18,18 @@ onPlayerConnect()
 
 onFPSChanged(newFPS)
 {
+    newFPSText = "" + newFPS;
     if (self.sessionState == "playing")
     {
-        newFPSText = "" + newFPS;
         specsAndSelf = self getSpectatorList(true);
         for(i = 0; i < specsAndSelf.size; i++)
         {
             specsAndSelf[i].hud[specsAndSelf[i].fpsHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(newFPSText, specsAndSelf[i], false);
         }
+    }
+    else if (self.classname == "player") // Gets called early, need to check before setting the text otherwise it won't show by the time you spawn in
+    {
+        self.hud[self.fpsHudName] openCJ\huds\infiniteHuds::setInfiniteHudText(newFPSText, self, false);
     }
 }
 

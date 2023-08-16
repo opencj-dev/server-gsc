@@ -25,9 +25,6 @@ _showNadeTimer()
     self endon("disconnect");
     self endon("stopNadeTimer");
 
-    newIdx = self.grenadeTimers.size;
-    name = "grenadeTimer" + newIdx;
-
     nadeTimer = newClientHudElem(self);
     nadeTimer.horzAlign = "left";
     nadeTimer.vertAlign = "top";

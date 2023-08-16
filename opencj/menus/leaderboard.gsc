@@ -72,7 +72,7 @@ fetchUpdatedData()
 
     self.currentBoard["cols"] = []; // Hope this clears the previously used memory
 
-    if (isDefined(rows) && (rows.size > 0) && isDefined(rows[0][0]))
+    if (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         self.currentBoard["nrTotalEntries"] = int(rows[0][0]); // totalNr
         self.currentBoard["nrEntriesThisPage"] = rows.size;
