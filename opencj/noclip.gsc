@@ -150,11 +150,11 @@ whileAlive()
     }
     if(self leanRightButtonPressed())
     {
-        dir += anglesToUp(self getPlayerAngles());
+        dir += (0, 0, 1);
     }
     if(self leanLeftButtonPressed())
     {
-        dir -= anglesToUp(self getPlayerAngles());
+        dir -= (0, 0, 1);
     }
     scale = self.noclip_speed;
     if(self issprinting())
