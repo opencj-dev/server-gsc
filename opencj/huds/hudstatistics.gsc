@@ -33,6 +33,11 @@ onSpawnSpectator()
     self _hideStatisticsHud(false); // Statistics HUD will be shown when spectating a person
 }
 
+onSpawnPlayer()
+{
+    self _updateForSpectators();
+}
+
 onSpectatorClientChanged(newClient)
 {
     if (!isDefined(newClient))
