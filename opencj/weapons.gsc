@@ -220,12 +220,5 @@ _onSettingSmallCrosshair(value)
 
 setWeaponSpread() 
 {
-    if(self openCJ\settings::getSetting("smallcrosshair"))
-    {
-        self SetSpreadOverride(1);
-    }
-    else
-    {
-        self ResetSpreadOverride();
-    }
+    _onSettingSmallCrosshair(self openCJ\settings::getSetting("smallcrosshair"));
 }
