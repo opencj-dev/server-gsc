@@ -5,6 +5,15 @@ execClientCmd(cmd)
     self closeMenu();
 }
 
+iprintlnSpectators(str)
+{
+	specs = self getSpectatorList(true);
+	for(i = 0; i < specs.size; i++)
+	{
+		specs[i] iprintln(str);
+	}
+}
+
 short2angle(vec)
 {
     return ((vec[0] * 360 / 65536), (vec[1] * 360 / 65536), (vec[2] * 360 / 65536));
