@@ -37,6 +37,7 @@ main(atLastSavedPosition)
     self openCJ\huds\hudRunInfo::onSpawnPlayer();
     self openCJ\events\eventHandler::onSpawnPlayer();
     self openCJ\statistics::onSpawnPlayer();
+    self openCJ\huds\hudStatistics::onSpawnPlayer();
 
     self setSharedSpawnVars();
     self thread openCJ\events\whileAlive::main();

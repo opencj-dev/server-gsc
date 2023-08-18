@@ -2,60 +2,41 @@
 
 onInit()
 {
-    cmd = openCJ\commands_base::registerCommand("ele", "Used to (dis)allow elevators in current run. Usage: !ele [on/off]", ::_onCommandEleOverride, 0, 1, 0);
-    openCJ\commands_base::addAlias(cmd, "eleoverride");
-    openCJ\commands_base::addAlias(cmd, "elevateoverride");
+    underlyingCmd = openCJ\settings::addSettingBool("allowele", false, "Used to (dis)allow elevators. Usage: !ele [on/off]", ::_onSettingAllowEle);
+    openCJ\commands_base::addAlias(underlyingCmd, "ele");
 }
 
-_onCommandEleOverride(args)
+_onSettingAllowEle(shouldEnable)
 {
     wasEverEnabled = self hasEleOverrideEver();
     wasEnabled = self hasEleOverrideNow();
-    shouldEnable = false;
-    if(!isDefined(args) || (args.size == 0))
-    {
-        shouldEnable = !wasEnabled;
-    }
-    else
-    {
-        if(!isValidBool(args[0]))
-        {
-            self sendLocalChatMessage("Argument " + args[0] + " is not a bool", true);
-            return;
-        }
-        shouldEnable = strToBool(args[0]);
-    }
 
     if(shouldEnable && !wasEnabled)
     {
         self setEleOverrideNow(true);
         self updateServerEleOverride();
-        self sendLocalChatMessage("Your run now allows elevators. If you don't want this, load back to before you enabled elevators.");
     }
     else if(!shouldEnable && wasEnabled)
     {
-        self setEleOverrideNow(false);
-        self updateServerEleOverride();
-        self sendLocalChatMessage("Elevators have been turned off.");
         if (wasEverEnabled)
         {
-            self sendLocalChatMessage("However, your run is still marked as elevators allowed due to one of your previous saves.");
-            self sendLocalChatMessage("If you don't want this, use !eleload to load back to before elevators were allowed, or !reset to start a new run.");
+            self sendLocalChatMessage("Your run allows elevators so load back to before they were enabled or !reset your run", true);
         }
     }
 }
 
 onRunCreated()
 {
-    // New run started, all ele things are not relevant anymore
     self.eleOverrideNow = false;
     self.eleOverrideEver = false;
+    self.eleBypass = false;
     self updateServerEleOverride();
 }
 
-onRunFinished(cp)
+onRunStarted()
 {
-    // Run is finished, so not in run... allow elevators
+    self setEleOverrideNow(self openCJ\settings::getSetting("allowele"));
+    self.eleBypass = false;
     self updateServerEleOverride();
 }
 
@@ -67,11 +48,15 @@ onCheckpointsChanged()
 
 setEleOverrideEver(value)
 {
+    self.eleBypass = false;
     self.eleOverrideEver = value;
 }
 
 setEleOverrideNow(value)
 {
+    // Always disable the ele bypass that may be in use for paused runs
+    self.eleBypass = false;
+
     // If value is already the same, we're done here
     if(isDefined(self.eleOverrideNow) && (value == self.eleOverrideNow))
     {
@@ -88,11 +73,19 @@ setEleOverrideNow(value)
 
 hasEleOverrideNow()
 {
+    if (!isDefined(self.eleOverrideNow))
+    {
+        return false;
+    }
     return self.eleOverrideNow;
 }
 
 hasEleOverrideEver()
 {
+    if (!isDefined(self.eleOverrideEver))
+    {
+        return false;
+    }
     return self.eleOverrideEver;
 }
 
@@ -124,6 +117,11 @@ onElevate()
 {
     if (!self openCJ\playerRuns::hasRunID() || self openCJ\playerRuns::isRunPaused() || self openCJ\playerRuns::isRunFinished() || self openCJ\cheating::isCheating())
     {
+        if (!isDefined(self.eleBypass) || !self.eleBypass)
+        {
+            self.eleBypass = true;
+            self allowElevate(true);
+        }
         // No problem if player is not in a run or has their run paused/finished
         return;
     }

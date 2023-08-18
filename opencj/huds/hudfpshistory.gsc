@@ -183,12 +183,14 @@ _setFPSHistory(text)
     {
         return; // Already set
     }
-
-    if((text.size <= 1) && (self.fpsHistoryText != ""))
-    {
-        return;
-    }
+    
+    // if((text.size <= 1) && (self.fpsHistoryText != ""))
+    // {
+    //     self.fpsHistoryText = text;
+    //     return;
+    // }
     self.fpsHistoryText = text;
+
 
     if (self.sessionState == "playing")
     {

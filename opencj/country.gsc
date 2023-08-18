@@ -18,7 +18,7 @@ _countryQuery()
     printf("Country query:\n" + query + "\n"); // Debug
 
     rows = self openCJ\mySQL::mysqlAsyncQuery(query);
-    if(rows.size && isDefined(rows[0][0]))
+    if(isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]))
     {
         self.country = getSubStr(rows[0][0], 0, 2);
         self.longCountry = getSubStr(rows[0][0], 2);

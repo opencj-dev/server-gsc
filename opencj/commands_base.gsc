@@ -54,7 +54,7 @@ onPlayerCommand(fullArgs)
         return false;
     }
 
-    if((fullArgs[1][0] != "!") && (fullArgs[1][0] != "."))
+    if((fullArgs[1][0] != "!") && (fullArgs[1][0] != ".") && (fullArgs[1][0] != "/") && (fullArgs[1][0] != "$"))
     {
         return false;
     }

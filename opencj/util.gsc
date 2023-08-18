@@ -74,7 +74,7 @@ max(value1, value2)
 
 hasResult(rows)
 {
-    return ((rows.size > 0) && isDefined(rows[0][0]));
+    return (isDefined(rows) && isDefined(rows[0]) && isDefined(rows[0][0]));
 }
 
 sendChatMessage(msg)

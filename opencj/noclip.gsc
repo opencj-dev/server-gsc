@@ -27,7 +27,10 @@ _onCmdUfo(args)
     if (args.size == 0)
     {
         args = [];
-        args[0] = "40";
+        if (!self openCJ\noclip::hasNoClip())
+        {
+            args[0] = "40";
+        }
         _onCmdNoclip(args);
     }
     else
@@ -147,11 +150,11 @@ whileAlive()
     }
     if(self leanRightButtonPressed())
     {
-        dir += anglesToUp(self getPlayerAngles());
+        dir += (0, 0, 1);
     }
     if(self leanLeftButtonPressed())
     {
-        dir -= anglesToUp(self getPlayerAngles());
+        dir -= (0, 0, 1);
     }
     scale = self.noclip_speed;
     if(self issprinting())

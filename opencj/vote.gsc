@@ -3,6 +3,7 @@
 onInit()
 {
     cmd = openCJ\commands_base::registerCommand("vote", "Vote for something. Usage: !vote <extend|map mp_mapname|yes|no>", ::vote, 1, 2, 0);
+    openCJ\commands_base::addAlias(cmd, "v");
 
     cmd = openCJ\commands_base::registerCommand("maprestart", "Restart the current map", ::onCmdRestartMap, 0, 0, 60);
     openCJ\commands_base::addAlias(cmd, "restartmap");

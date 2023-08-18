@@ -4,7 +4,7 @@ onInit()
 {
     openCJ\settings::addSettingBool("hideall", false, "Hide all players", ::_onSettingHideALl);
     openCJ\settings::addSettingBool("hidenear", true, "Hide near players", ::_onSettingHideNear);
-    openCJ\settings::addSettingInt("hideradius", -1, 500, 60, "Sets your radius for hiding colliding players. Usage !hideradius [value]. Default 60", ::_onSettingHideRadius);
+    openCJ\settings::addSettingInt("hideradius", 0, 500, 60, "Sets your radius for hiding nearby players. Usage !hideradius [value]. Default 60", ::_onSettingHideRadius);
 }
 
 onStartDemo()
