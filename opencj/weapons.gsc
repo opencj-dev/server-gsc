@@ -215,7 +215,6 @@ _onSettingSmallCrosshair(value)
     else
     {
         self ResetSpreadOverride();
-        
     }
 }
 
@@ -228,6 +227,5 @@ setWeaponSpread()
     else
     {
         self ResetSpreadOverride();
-        
     }
 }
