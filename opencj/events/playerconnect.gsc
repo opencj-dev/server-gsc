@@ -2,6 +2,8 @@
 
 main()
 {
+    level.playerCount++;
+
     self openCJ\settings::onPlayerConnect();
     self openCJ\statistics::onPlayerConnect(); // Needs to be before hudStatistics
     self openCJ\playerRuns::onPlayerConnect();
@@ -31,6 +33,8 @@ main()
     self openCJ\events\eventHandler::onConnect();
     self openCJ\menus\ingame::onPlayerConnect();
     self openCJ\fps::onPlayerConnect();
+
+    level thread openCJ\discord::onPlayerConnect();
 
     self player_onconnect();
 

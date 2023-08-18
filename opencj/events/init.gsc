@@ -2,7 +2,10 @@
 
 main()
 {
+    level.playerCount = 0;
+
     openCJ\mySQL::onInit();
+    openCJ\discord::onInit();
     openCJ\settings::onInit();
 
     openCJ\timeLimit::onInit();

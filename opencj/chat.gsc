@@ -347,6 +347,12 @@ onChatMessage(args)
         msg += args[i] + " ";
     }
 
+    if (!isLocalMessage)
+    {
+        // Forward the event to Discord (but not if they were muted or if it was a local message)
+        thread openCJ\discord::onMessage(self.name, msg);
+    }
+
     // Direct the message to other players, keeping  in mind ignore, mute ..
     messageColor = "^7";
     if (isLocalMessage)
