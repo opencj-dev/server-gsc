@@ -155,12 +155,12 @@ printCanSaveError(error)
 
 printSaveSuccess()
 {
-    self iprintln("^2Position saved");
+    self iprintln("^2Saved");
 }
 
 printLoadSuccess()
 {
-    self iPrintln("^2Position loaded");
+    self iprintln("^2Loaded");
 }
 
 onSpawnPlayer()
