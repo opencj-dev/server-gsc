@@ -15,6 +15,7 @@ onInit()
     {
         underlyingCmd = openCJ\settings::addSettingBool("rpgonload", false, "Enable/disable rpg on load. Usage: !rpgonload [on/off]");
         underlyingCmd = openCJ\settings::addSettingBool("rpgputaway", false, "Enable/disable rpg putaway on fire. Usage: !rpgputaway [on/off]");
+        openCJ\commands_base::addAlias(underlyingCmd, "rpgswitch");
         underlyingCmd = openCJ\settings::addSettingBool("rpgsustain", false, "Enable/disable rpg sustain on fire. Usage: !rpgsustain [on/off]");
         underlyingCmd = openCJ\settings::addSettingBool("slowreload", false, "Enable/disable slow reload animations. Usage: !slowreload [on/off]", ::_onSettingSlowReload);
 
