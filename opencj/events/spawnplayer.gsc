@@ -56,6 +56,7 @@ setSharedSpawnVars(giveRPG)
         giveRPG = false;
     self openCJ\healthRegen::resetHealthRegen();
     self openCJ\weapons::giveWeapons(giveRPG);
+    self openCJ\weapons::setWeaponSpread();
     self openCJ\shellShock::resetShellShock();
     self openCJ\huds\hudGrenadeTimers::removeNadeTimers();
     self openCJ\buttonPress::resetButtons();

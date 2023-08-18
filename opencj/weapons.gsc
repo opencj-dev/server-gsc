@@ -17,6 +17,7 @@ onInit()
         underlyingCmd = openCJ\settings::addSettingBool("rpgputaway", false, "Enable/disable rpg putaway on fire. Usage: !rpgputaway [on/off]");
         underlyingCmd = openCJ\settings::addSettingBool("rpgsustain", false, "Enable/disable rpg sustain on fire. Usage: !rpgsustain [on/off]");
         underlyingCmd = openCJ\settings::addSettingBool("slowreload", false, "Enable/disable slow reload animations. Usage: !slowreload [on/off]", ::_onSettingSlowReload);
+        underlyingCmd = openCJ\settings::addSettingBool("smallcrosshair", false, "Enable/disable smaller crosshair. Usage: !smallcrosshair [on/off]", ::_onSettingSmallCrosshair);
 
         _registerLoadout("default", "deserteagle_mp");
         _registerRPG("default", "rpg_mp");
@@ -202,5 +203,31 @@ _onSettingSlowReload(value)
     else
     {
         self setClientCvar("perk_weapReloadMultiplier", 0.5);
+    }
+}
+
+_onSettingSmallCrosshair(value)
+{
+    if(value)
+    {
+        self SetSpreadOverride(1);
+    }
+    else
+    {
+        self ResetSpreadOverride();
+        
+    }
+}
+
+setWeaponSpread() 
+{
+    if(self openCJ\settings::getSetting("smallcrosshair"))
+    {
+        self SetSpreadOverride(1);
+    }
+    else
+    {
+        self ResetSpreadOverride();
+        
     }
 }
