@@ -158,6 +158,11 @@ printSaveSuccess()
     self iprintln("^2Saved");
 }
 
+printLoadSuccess()
+{
+    self iprintln("^2Loaded");
+}
+
 onSpawnPlayer()
 {
     self resetBackwardsCount();
