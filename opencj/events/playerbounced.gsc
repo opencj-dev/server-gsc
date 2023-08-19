@@ -11,7 +11,7 @@ main(time)
 			else
 			{
 				//early rpg
-				self iprintlnSpectators("^1Rpg was early by " + (time - self.rpgTime) + "ms");
+				self iprintlnSpectators("^1RPG was early by " + (time - self.rpgTime) + "ms");
 			}
 		}
 		self.bounceTime = time;

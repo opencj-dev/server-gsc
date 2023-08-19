@@ -25,9 +25,10 @@ onInit()
     }
 }
 
-giveWeapons(giveRPG)
+giveWeapons(giveRPG, isSpawn)
 {
-    self _giveWeapons(giveRPG);
+    if(isSpawn)
+        self _giveWeapons(giveRPG);
     self _deleteGrenades();
 }
 

@@ -39,9 +39,8 @@ main(backwardsCount)
         self openCJ\cheating::setCheating(true);
     }
 
-    // Spawn the player
-    self unlink();
-    self spawn(save.origin, save.angles);
+    // Set origin and angles
+    self setoriginandangles(save.origin, save.angles);
 
     self openCJ\statistics::setExplosiveJumps(save.explosiveJumps);
     self openCJ\statistics::setDoubleExplosives(save.doubleExplosives);
@@ -72,7 +71,7 @@ main(backwardsCount)
 
     // TODO: implement any%
 
-    self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG);
+    self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG, false);
     self openCJ\savePosition::printLoadSuccess();
     
     self openCJ\huds\hudFpsHistory::onLoaded();

@@ -2,18 +2,8 @@
 
 _configureMinimap()
 {
-    level.minimapMaxRange = 2500;
-    if(!isDefined(getConfigStringByIndex(823))) // 823 is minimap config string number
-    {
-        minimapTileCount = 2.5; // TODO: dynamically per map
-        minimapTileSize = level.minimapMaxRange / minimapTileCount / 2;
-        northvector = (cos(getnorthyaw()), sin(getnorthyaw()), 0);
-        eastvector = (northvector[1], 0 - northvector[0], 0);
-        northwest = VectorScale(northvector, minimapTileSize) + VectorScale(eastvector, -1 * minimapTileSize) + level.spawnpoints_player[0].origin;
-        southeast = VectorScale(northvector, -1 * minimapTileSize) + VectorScale(eastvector, minimapTileSize) + level.spawnpoints_player[0].origin;
-
-        setMiniMap("opencj_minimapbg", northwest[0], northwest[1], southeast[0], southeast[1]);
-    }
+		setMiniMap("opencj_minimapbg", -500, -500, 500, 500);
+		setconfigstringbyindex(822, "90");
 }
 
 onInit()
@@ -35,7 +25,7 @@ onPlayerConnected()
 {
     if(getCodVersion() == 4)
     {
-        self setClientCvar("compassMaxRange", level.minimapMaxRange);
+        self setClientCvar("compassMaxRange", 2500);
     }
 }
 

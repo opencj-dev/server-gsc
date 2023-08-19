@@ -39,7 +39,7 @@ main(atLastSavedPosition)
     self openCJ\statistics::onSpawnPlayer();
     self openCJ\huds\hudStatistics::onSpawnPlayer();
 
-    self setSharedSpawnVars();
+    self setSharedSpawnVars(false, true);
     self thread openCJ\events\whileAlive::main();
     self thread _dummy();
 
@@ -50,12 +50,10 @@ main(atLastSavedPosition)
     }
 }
 
-setSharedSpawnVars(giveRPG)
+setSharedSpawnVars(giveRPG, isSpawn)
 {
-    if(!isDefined(giveRPG))
-        giveRPG = false;
     self openCJ\healthRegen::resetHealthRegen();
-    self openCJ\weapons::giveWeapons(giveRPG);
+    self openCJ\weapons::giveWeapons(giveRPG, isSpawn);
     self openCJ\weapons::setWeaponSpread();
     self openCJ\shellShock::resetShellShock();
     self openCJ\huds\hudGrenadeTimers::removeNadeTimers();

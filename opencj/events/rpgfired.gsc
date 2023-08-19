@@ -10,7 +10,7 @@ main(rpg, name, time)
 				if(isDefined(self.bounceTime) && self.bounceTime > time - 500)
 				{
 					//late rpg
-					self iprintlnSpectators("^3Rpg was late by " + (time - self.bounceTime) + "ms");
+					self iprintlnSpectators("^3RPG was late by " + (time - self.bounceTime) + "ms");
 				}
 				self.rpgTime = time;
         self openCJ\weapons::onRPGFired(rpg, name);
