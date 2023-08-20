@@ -661,12 +661,14 @@ onLoadPosition()
 {
     self.previousOrigin = self.origin;
     self.previousOnground = true;
+    self.justLoaded = true;
 }
 
 onSpawnPlayer()
 {
     self.previousOrigin = self.origin;
     self.previousOnground = true;
+    self.justLoaded = true;
 }
 
 filterOutBrothers(checkpoints)
@@ -696,6 +698,11 @@ filterOutBrothers(checkpoints)
 
 whileAlive()
 {
+    if(isDefined(self.justLoaded))
+    {
+        self.justLoaded = undefined;
+        return;
+    }
     for(i = 0; i < self.checkpoints_checkpoint.childs.size; i++)
     {
         if(!isDefined(self.checkpoints_checkpoint.childs[i].radius))
