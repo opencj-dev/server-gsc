@@ -45,7 +45,7 @@ main(backwardsCount)
     self openCJ\statistics::setExplosiveJumps(save.explosiveJumps);
     self openCJ\statistics::setDoubleExplosives(save.doubleExplosives);
     self openCJ\statistics::onLoadPosition();
-    self openCJ\checkpoints::setCurrentCheckpointID(save.checkpointID);
+    self thread openCJ\checkpoints::updateCheckpointsForPlayer(save.checkpointID); // This may take a bit of computational time, so let it run in background
     self openCJ\checkpoints::onLoadPosition();
     self openCJ\huds\hudSpeedometer::onLoadPosition();
 
@@ -59,6 +59,8 @@ main(backwardsCount)
 
     // Set hard TAS
     self openCJ\tas::setHardTAS(openCJ\savePosition::getUsedHardTAS(save));
+    // Set any%
+    self openCJ\anyPct::setAnyPct(openCJ\savePosition::getUsedAnyPct(save));
 
     // Set FPSMode. If save had non-hax non-mix, then the FPS mode should depend on the user's current FPS instead`
     currFPS = self openCJ\fps::getCurrentFPS();
@@ -68,8 +70,6 @@ main(backwardsCount)
     // But it will still properly try to load the player back if their settings disallow hax but they had previously used hax during noclip, for example
     self openCJ\fps::forceFPSMode(save.FPSMode);
     self openCJ\fps::setFPSMode(newFPSMode);
-
-    // TODO: implement any%
 
     self openCJ\events\spawnPlayer::setSharedSpawnVars(giveRPG, false);
     self openCJ\savePosition::printLoadSuccess();

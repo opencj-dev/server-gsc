@@ -8,7 +8,7 @@ main()
 
     while(self.sessionState == "playing")
     {
-        if(self openCJ\util::isPlayerReady())
+        if(self openCJ\util::isPlayerReady(false))
         {
             if(self openCJ\demos::isPlayingDemo())
             {
@@ -16,7 +16,7 @@ main()
             }
             else
             {
-                self openCJ\checkpoints::whileAlive();
+                self thread openCJ\checkpoints::whileAlive(); // Has to do a significant loop, so thread this one
                 self openCJ\showRecords::whileAlive();
                 self openCJ\noclip::whileAlive();
                 self openCJ\statistics::whileAlive();

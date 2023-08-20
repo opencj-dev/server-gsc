@@ -8,8 +8,7 @@ onInit()
     level.saveFlagName_hasRPG = "rpg";
     level.saveFlagName_eleOverrideNow = "eleOverrideNow";
     level.saveFlagName_eleOverrideEver = "eleOverrideEver";
-    level.saveFlagName_anyPctNow = "anyPctNow";
-    level.saveFlagName_anyPctEver = "anyPctEver";
+    level.saveFlagName_anyPct = "anyPct";
     level.saveFlagName_hardTAS = "hardTAS";
 
     level.saveFlags = [];
@@ -21,8 +20,8 @@ onInit()
     level.saveFlags[level.saveFlagName_hasRPG] = 8;
     level.saveFlags[level.saveFlagName_eleOverrideNow] = 16;
     level.saveFlags[level.saveFlagName_eleOverrideEver] = 32;
-    level.saveFlags[level.saveFlagName_anyPctNow] = 64;
-    level.saveFlags[level.saveFlagName_anyPctEver] = 128;
+    level.saveFlags[level.saveFlagName_anyPct] = 64;
+    // 128 can be re-used safely
     level.saveFlags[level.saveFlagName_hardTAS] = 256;
 }
 
@@ -36,14 +35,9 @@ getFlagEleOverrideEver(save)
     return (save.flags & level.saveFlags[level.saveFlagName_eleOverrideEver]) != 0;
 }
 
-getUsedAnyPctNow(save)
+getUsedAnyPct(save)
 {
-    return (save.flags & level.saveFlags[level.saveFlagName_anyPctNow]) != 0;
-}
-
-getUsedAnyPctEver(save)
-{
-    return (save.flags & level.saveFlags[level.saveFlagName_anyPctEver]) != 0;
+    return (save.flags & level.saveFlags[level.saveFlagName_anyPct]) != 0;
 }
 
 getUsedHardTAS(save)
@@ -97,6 +91,10 @@ createFlags()
     if(openCJ\elevate::hasEleOverrideEver())
     {
         flags |= level.saveFlags[level.saveFlagName_eleOverrideEver];
+    }
+    if(openCJ\anyPct::hasAnyPct())
+    {
+        flags |= level.saveFlags[level.saveFlagName_anyPct];
     }
     if(openCJ\tas::hasHardTAS())
     {

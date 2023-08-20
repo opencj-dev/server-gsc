@@ -42,7 +42,7 @@ storeCheckpointPassed(runID, cpID, timePlayed)
     explosiveLaunches = self openCJ\statistics::getExplosiveLaunches(); // RPG launch / nade throw
     doubleExplosives = self openCJ\statistics::getDoubleExplosives(); // Double RPGs
     FPSMode = self openCJ\statistics::getFPSMode();
-    usedAnyPct = self openCJ\statistics::getUsedAnyPct();
+    usedAnyPct = self openCJ\anyPct::hasAnyPct();
     usedEle = self openCJ\elevate::hasEleOverrideEver();
     usedTAS = self openCJ\tas::hasHardTAS();
 
@@ -560,6 +560,24 @@ checkpointHasID(cp)
     return (isDefined(cp) && isDefined(cp.id));
 }
 
+getCheckpointByID(id)
+{
+    if (!isDefined(id))
+    {
+        return undefined;
+    }
+
+    for(i = 0; i < level.checkpoints_checkpoints.size; i++)
+    {
+        if(level.checkpoints_checkpoints[i].id == id)
+        {
+            return level.checkpoints_checkpoints[i];
+        }
+    }
+
+    return undefined;
+}
+
 getCheckpointID(cp)
 {
     id = undefined;
@@ -603,34 +621,93 @@ getCheckpointID(cp)
     return id;
 }
 
+updateCheckpointsForPlayer(newCheckpointID)
+{
+    cp = getCheckpointByID(newCheckpointID);
+    if (isDefined(cp))
+    {
+        // Just to be sure this is a big brother checkpoint to prevent issues later on
+        if (isDefined(cp.bigBrother))
+        {
+            cp = cp.bigBrother;
+        }
+    }
+
+    // Update the player's current checkpoint first, then we use the result of that to determine..
+    // ..which checkpoints have already been passed
+    self _setCurrentCheckpoint(cp);
+
+    // The above call to _setCurrentCheckpoint will have updated the player's current checkpoint, so use that
+    cp = self.checkpoints_checkpoint;
+    if (!isDefined(cp))
+    {
+        // Player did not have a passed checkpoint
+        self.checkpoints_passed = [];
+        return;
+    }
+
+    // The next part of the code will obtain all checkpoints that the player has passed and store them so that..
+    // while the player is alive less computational time is needed to determine an action when a checkpoint has been passed
+    // This is important because can't check only the player's current checkpoint anymore since any% mode is implemented.
+    // If any prior checkpoints were skipped, it doesn't matter, because the player's save will have any% marked.
+    cpsToBeProcessed = [];
+    cpsToBeProcessed[0] = cp;
+    while (cpsToBeProcessed.size > 0)
+    {
+        // Start processing at last one so it can easily be removed from the list
+        nextIdx = (cpsToBeProcessed.size - 1);
+        parents = getCheckpointParents(cpsToBeProcessed[nextIdx]);
+        cpsToBeProcessed[nextIdx] = undefined; // Mark this one as processed
+
+        // Go through the parents of this checkpoint
+        prevBigBrother = undefined;
+        for (j = 0; j < parents.size; j++)
+        {
+            toBeProcessed = parents[j];
+            if (isDefined(toBeProcessed.bigBrother))
+            {
+                toBeProcessed = toBeProcessed.bigBrother;
+            }
+
+            // Maybe this checkpoint was already added due to being a big brother
+            if (isDefined(prevBigBrother) && (prevBigBrother.id == toBeProcessed.id))
+            {
+                continue;
+            }
+            prevBigBrother = toBeProcessed;
+
+            // Add all parents of this checkpoint to the passed list, but also to the to-be-processed list..
+            // because their parents need to be added too
+            cpsToBeProcessed[cpsToBeProcessed.size] = toBeProcessed;
+            self.checkpoints_passed[self.checkpoints_passed.size] = toBeProcessed;
+        }
+
+    }
+}
+
 getCurrentCheckpointID()
 {
     return self.checkpoints_checkpoint.id;
 }
 
-setCurrentCheckpointID(id)
+_setCurrentCheckpoint(checkpoint)
 {
-    if(!self isPlayerReady() || self openCJ\playerRuns::isRunFinished())
+    if(!self isPlayerReady(true) || self openCJ\playerRuns::isRunFinished())
     {
         return;
     }
 
     oldcheckpoint = self.checkpoints_checkpoint;
-    if(!isDefined(id))
+    if(!isDefined(checkpoint))
     {
         self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
     }
     else
     {
-        for(i = 0; i < level.checkpoints_checkpoints.size; i++)
-        {
-            if(level.checkpoints_checkpoints[i].id == id)
-            {
-                self.checkpoints_checkpoint = level.checkpoints_checkpoints[i];
-                break;
-            }
-        }
+        self.checkpoints_checkpoint = checkpoint;
     }
+
+    // Checkpoints may have changed for this player
     if(self.checkpoints_checkpoint != oldcheckpoint)
     {
         self openCJ\events\checkpointsChanged::main();
@@ -639,7 +716,28 @@ setCurrentCheckpointID(id)
 
 getCurrentChildCheckpoints()
 {
-    return self.checkpoints_checkpoint.childs;
+    if (isDefined(self.checkpoints_checkpoint))
+    {
+        return self.checkpoints_checkpoint.childs;
+    }
+    return undefined;
+}
+
+hasPassedCheckpoint(checkpoint)
+{
+    // checkpoints_passed only stores big brothers
+    if (isDefined(checkpoint.bigBrother))
+    {
+        checkpoint = checkpoint.bigBrother;
+    }
+    for (i = 0; i < self.checkpoints_passed.size; i++)
+    {
+        if (self.checkpoints_passed[i].id == checkpoint.id)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 getCurrentCheckpoint()
@@ -649,12 +747,13 @@ getCurrentCheckpoint()
 
 onRunCreated()
 {
-    self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
+    resetPlayerCheckpointsToStart();
 }
 
 resetPlayerCheckpointsToStart()
 {
     self.checkpoints_checkpoint = level.checkpoints_startCheckpoint;
+    self.checkpoints_passed = [];
 }
 
 onLoadPosition()
@@ -694,66 +793,126 @@ filterOutBrothers(checkpoints)
     return newcheckpoints;
 }
 
+getSubSVFPsPassedTiming(prevOrg, newOrg, prevOnGround, cp)
+{
+    // If there is no previous origin, can't calculate how much distance the player has moved, so no accurate timing
+    if (!isDefined(prevOrg))
+    {
+        return 0;
+    }
+
+    tOffset = 0;
+    if ((prevOrg != newOrg) && // Did player move?
+        distanceSquared(prevOrg, newOrg) < (250 * 250) && // Basic teleport check. TODO: not accurate, player could have teleported a shorter distance
+        (!cp.onGround || prevOnGround)) // TODO: onGround callback doesn't have origin yet, so not sure when exactly player landed
+    {
+        checkpointDist = distance(newOrg, cp.origin);
+        previousCheckpointDist = distance(prevOrg, cp.origin);
+        radius = cp.radius;
+        if (checkpointDist < previousCheckpointDist)
+        {
+            tOffset = int(((radius - checkpointDist) / (previousCheckpointDist - checkpointDist)) * -50);
+            if (tOffset > 0)
+            {
+                tOffset = 0;
+            }
+            else if(tOffset < -50)
+            {
+                tOffset = -50;
+            }
+        }
+    }
+
+    return tOffset;
+}
+
+
 whileAlive()
 {
-    for(i = 0; i < self.checkpoints_checkpoint.childs.size; i++)
+    // No need to process if the run is already finished
+    if (self openCJ\playerRuns::isRunFinished())
     {
-        if(!isDefined(self.checkpoints_checkpoint.childs[i].radius))
+        return;
+    }
+
+    playerChildCheckpoints = self getCurrentChildCheckpoints();
+    if (!isDefined(playerChildCheckpoints))
+    {
+        // No child checkpoints. Finished run?
+        return;
+    }
+
+    for (i = 0; i < level.checkpoints_checkpoints.size; i++)
+    {
+        cp = level.checkpoints_checkpoints[i];
+
+        // Checkpoint has no radius, so it will not be triggered by any change of origin
+        if (!isDefined(cp.radius))
         {
             continue;
         }
-        if(distanceSquared(self.origin, self.checkpoints_checkpoint.childs[i].origin) < self.checkpoints_checkpoint.childs[i].radius * self.checkpoints_checkpoint.childs[i].radius)
+
+        // Only check checkpoints that the player hasn't passed yet.
+        // It's not sufficient to check only the player's last passed checkpoint's child checkpoints, because any% needs to be detected
+        if (self hasPassedCheckpoint(cp))
         {
-            if(!self.checkpoints_checkpoint.childs[i].onGround || self isOnGround())
+            continue; // Don't check for checkpoints that have already been passed
+        }
+
+        // Check if player is within the radius of the checkpoint
+        if (distanceSquared(self.origin, cp.origin) < (cp.radius * cp.radius))
+        {
+            // Checkpoint can be on ground or in air. onGround checkpoints can only be triggered by being on ground
+            if (!cp.onGround || self isOnGround())
             {
-                tOffset = 0;
-                if(isDefined(self.previousOrigin) && self.previousOrigin != self.origin && distanceSquared(self.previousOrigin, self.origin) < 250 * 250 && (!self.checkpoints_checkpoint.childs[i].onGround || (isDefined(self.previousOnground) && self.previousOnground)))
+                // OK, player has officially triggered the checkpoint. If this is not one of their next checkpoints, any% may be triggered
+                triggeredAnyPct = true;
+                for (j = 0; j < playerChildCheckpoints.size; j++)
                 {
-                    checkpointDist = distance(self.origin, self.checkpoints_checkpoint.childs[i].origin);
-                    previousCheckpointDist = distance(self.previousOrigin, self.checkpoints_checkpoint.childs[i].origin);
-                    radius = self.checkpoints_checkpoint.childs[i].radius;
-                    if(checkpointDist < previousCheckpointDist)
+                    if (cp == playerChildCheckpoints[j])
                     {
-                        tOffset = int(((radius - checkpointDist)/(previousCheckpointDist - checkpointDist)) * -50);
-                        if(tOffset > 0)
-                        {
-                            tOffset = 0;
-                        }
-                        else if(tOffset < -50)
-                        {
-                            tOffset = -50;
-                        }
+                        triggeredAnyPct = false;
+                        break;
                     }
                 }
-                cp = self.checkpoints_checkpoint.childs[i];
-                self.checkpoints_checkpoint = self.checkpoints_checkpoint.childs[i];
+
+                if (triggeredAnyPct)
+                {
+
+                }
+
+                // Set the player's current checkpoint to be the one that was just triggered.
+                // Don't set it to the bigBrother, because the correct location information is needed
+                self.checkpoints_checkpoint = cp;
+                // Mark this checkpoint as having been passed by the player
+                self.checkpoints_passed[self.checkpoints_passed.size] = cp;
+
+                // Some calculations to make the checkpoint passed time more accurate than sv_fps
+                tOffset = getSubSVFPSPassedTiming(self.previousOrigin, self.origin, self.previousOnground, cp);
+
+                // From this point on use the bigBrother, because only those may be stored in the database
+                if (isDefined(cp.bigBrother))
+                {
+                    cp = cp.bigBrother;
+                }
                 if(cp.childs.size == 0)
                 {
-                    if(isDefined(cp.bigBrother))
-                    {
-                        self openCJ\events\runFinished::main(cp.bigBrother, tOffset);
-                    }
-                    else
-                    {
-                        self openCJ\events\runFinished::main(cp, tOffset);
-                    }
+                    // If that checkpoint has no child checkpoints, it is an end checkpoint
+                    self openCJ\events\runFinished::main(cp, tOffset);
                 }
                 else
                 {
-                    if(isDefined(cp.bigBrother))
-                    {
-                        self _checkpointPassed(cp.bigBrother, tOffset);
-                    }
-                    else
-                    {
-                        self _checkpointPassed(cp, tOffset);
-                    }
+                    // Checkpoint has child checkpoints, so run isn't finished yet
+                    self _checkpointPassed(cp, tOffset);
                     self openCJ\events\checkpointsChanged::main();
                 }
+
                 break;
             }
         }
     }
+
+    // Set variables so the change in origin and onground can be detected in the next iteration
     self.previousOrigin = self.origin;
     self.previousOnground = self isOnground();
 }
