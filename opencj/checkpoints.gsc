@@ -621,8 +621,11 @@ getCheckpointID(cp)
     return id;
 }
 
-updateCheckpointsForPlayer(newCheckpointID)
+updateCheckpointsForPlayer(newCheckpointID) // TODO: move a lot of the computation/memory heavy checkpoint things to 
 {
+    // Function is called upon load position, so re-calculate which checkpoints have been passed
+    self.checkpoints_passed = [];
+
     cp = getCheckpointByID(newCheckpointID);
     if (isDefined(cp))
     {
@@ -642,7 +645,6 @@ updateCheckpointsForPlayer(newCheckpointID)
     if (!isDefined(cp))
     {
         // Player did not have a passed checkpoint
-        self.checkpoints_passed = [];
         return;
     }
 
@@ -826,6 +828,41 @@ getSubSVFPsPassedTiming(prevOrg, newOrg, prevOnGround, cp)
     return tOffset;
 }
 
+_areOverlapping(cp1, cp2)
+{
+    radii = cp1.radius + cp2.radius;
+    distanceSqd = distanceSquared(cp1.origin, cp2.origin);
+    if (distanceSqd < (radii * radii))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+_checkAnyPctTriggered(triggeredCP, childCheckpoints)
+{
+    // Two criteria need to be successful to trigger any %:
+    // - player needs to trigger a checkpoint that is *not* one of their next possible checkpoints
+    // - *and* this triggered checkpoint does not overlap one of these checkpoints either
+    for (i = 0; i < childCheckpoints.size; i++)
+    {
+        // One of the next allowed checkpoints?
+        if (triggeredCP == childCheckpoints[i])
+        {
+            return false;
+        }
+
+        // Checkpoint wasn't this child checkpoint, but maybe they overlap?
+        // If they overlap, the player could just be following the route so no any% will be triggered
+        if (_areOverlapping(triggeredCP, childCheckpoints[i]))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 whileAlive()
 {
@@ -854,7 +891,7 @@ whileAlive()
 
         // Only check checkpoints that the player hasn't passed yet.
         // It's not sufficient to check only the player's last passed checkpoint's child checkpoints, because any% needs to be detected
-        if (self hasPassedCheckpoint(cp))
+        if (self hasPassedCheckpoint(cp) || (self.checkpoints_checkpoint == cp))
         {
             continue; // Don't check for checkpoints that have already been passed
         }
@@ -866,19 +903,19 @@ whileAlive()
             if (!cp.onGround || self isOnGround())
             {
                 // OK, player has officially triggered the checkpoint. If this is not one of their next checkpoints, any% may be triggered
-                triggeredAnyPct = true;
-                for (j = 0; j < playerChildCheckpoints.size; j++)
+                // This check requires some computation, so don't call it if player already had triggered any%
+                if (!self openCJ\anyPct::hasAnyPct() && self _checkAnyPctTriggered(cp, playerChildCheckpoints))
                 {
-                    if (cp == playerChildCheckpoints[j])
-                    {
-                        triggeredAnyPct = false;
-                        break;
-                    }
+                    self iprintlnbold("Checkpoint skipped, any% mode enabled");
+                    self openCJ\anyPct::setAnyPct(true);
                 }
-
-                if (triggeredAnyPct)
+                else if (!self openCJ\anyPct::hasAnyPct())
                 {
-
+                    self iprintln("any% not triggered");
+                }
+                else
+                {
+                    self iprintln("skipped any% check");
                 }
 
                 // Set the player's current checkpoint to be the one that was just triggered.
@@ -900,11 +937,15 @@ whileAlive()
                     // If that checkpoint has no child checkpoints, it is an end checkpoint
                     self openCJ\events\runFinished::main(cp, tOffset);
                 }
-                else
+                else if (!self openCJ\anyPct::hasAnyPct())
                 {
                     // Checkpoint has child checkpoints, so run isn't finished yet
                     self _checkpointPassed(cp, tOffset);
                     self openCJ\events\checkpointsChanged::main();
+                }
+                else
+                {
+                    self iprintln("debug: passed cp but any% enabled");
                 }
 
                 break;

@@ -109,7 +109,7 @@ _updateProgress()
 {
     currentCheckpoint = self openCJ\checkpoints::getCurrentCheckpoint();
     shouldClear = false;
-    if (self openCJ\playerRuns::hasRunStarted() && isDefined(currentCheckpoint))
+    if (!self openCJ\anyPct::hasAnyPct() && self openCJ\playerRuns::hasRunStarted() && isDefined(currentCheckpoint))
     {
         route = openCJ\checkpoints::getRouteNameForCheckpoint(currentCheckpoint);
         if(isDefined(route))
